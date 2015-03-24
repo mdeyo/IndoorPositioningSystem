@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@drawable/build33_side">
+
+    <Button
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="120dp"
+        android:layout_height="70dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:textSize="24dp"
+        android:text="Floor 0"
+        android:id="@+id/button_floor0_33"
+        android:layout_width="300dp"
+        android:background="@drawable/round_button_outline"         />
+
+    <Button
+        android:layout_height="70dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginLeft="20dp"
+        android:textSize="24dp"
+        android:layout_marginRight="20dp"
+        android:layout_above="@+id/button_floor0_33"
+        android:text="Floor 1"
+        android:id="@+id/button_floor1_33"
+        android:layout_width="300dp"
+        android:background="@drawable/round_button_outline"
+        />
+
+    <Button
+        android:layout_height="70dp"
+        android:layout_marginTop="4dp"
+        android:textSize="24dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:text="Floor 2"
+        android:id="@+id/button_floor2_33"
+        android:layout_above="@+id/button_floor1_33"
+        android:layout_width="300dp"
+        android:background="@drawable/round_button_outline"/>
+
+    <Button
+        android:layout_height="70dp"
+        android:textSize="24dp"
+        android:text="Floor 3"
+        android:id="@+id/button_floor3_33"
+        android:layout_above="@+id/button_floor2_33"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_width="300dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/round_button_outline"/>
+
+    <Button
+        android:layout_height="70dp"
+        android:text="Floor 4"
+        android:textSize="24dp"
+        android:id="@+id/button_floor4_33"
+        android:layout_above="@+id/button_floor3_33"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_width="300dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/round_button_outline"/>
+
+    <Button
+        android:layout_height="70dp"
+        android:text="Floor 5"
+        android:textSize="24dp"
+        android:id="@+id/button_floor5_33"
+        android:layout_above="@+id/button_floor4_33"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_width="300dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/round_button_outline"/>
+
+
+</RelativeLayout>

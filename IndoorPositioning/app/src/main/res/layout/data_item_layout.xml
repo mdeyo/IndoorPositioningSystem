@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/positionText"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:background="#fff"
+        android:textSize="22dp"
+        android:textColor="#638e22"
+        android:layout_width="44dp"
+        android:gravity="center"
+        android:text="list item"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:textAlignment="center"/>
+
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/routersText"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:background="#fff"
+        android:textSize="18dp"
+        android:textColor="#638e22"
+        android:layout_width="wrap_content"
+        android:gravity="center"
+        android:text="list item"
+        android:layout_height="match_parent"
+        android:textAlignment="center"/>
+
+</LinearLayout>

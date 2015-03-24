@@ -1,0 +1,70 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:background="#fff"
+    tools:context="com.example.matthew.indoornav.MainActivity">
+
+    <com.example.matthew.newapplication.DrawingView
+        android:id="@+id/drawing"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginBottom="3dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="3dp"
+        android:layout_weight="1"
+        android:background="#FFFFFFFF" />
+
+
+    <ImageView
+        android:layout_width="500dp"
+        android:layout_height="300dp"
+        android:id="@+id/imageViewMain"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/blue_map_red_pin" />
+
+    <TextView
+        android:text="Indoor Navigation"
+        android:id="@+id/main_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="100dp"
+        android:gravity="center"
+        android:textColor="@color/text_color1"
+        android:layout_centerInParent="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="50dp"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:padding="10dp"
+        android:layout_height="100dp"
+        android:text="Run Navigation"
+        android:textColor="@color/text_color1"
+        android:textSize="40dp"
+        android:id="@+id/button_run_mode"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/round_button_outline"
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="70dp"
+        android:textColor="@color/text_color1"
+        android:text="Build Data"
+        android:padding="10dp"
+        android:textSize="28dp"
+        android:id="@+id/button_build_mode"
+        android:layout_below="@+id/button_run_mode"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/round_button_outline"
+        />
+
+
+</RelativeLayout>

@@ -1,0 +1,31 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "19.1.0"
+
+    defaultConfig {
+        applicationId "com.example.matthew.newapplication"
+        minSdkVersion 15
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile 'com.parse.bolts:bolts-android:1.+'
+    compile fileTree(include: 'Parse-*.jar', dir: 'libs')
+    compile files('src/app/libs/Parse-1.8.0.jar')
+    compile files('src/app/libs/bolts-android-1.1.4.jar')
+    compile files('src/main/res/libs/bolts-android-1.1.4.jar')
+    compile files('src/main/res/libs/Parse-1.8.0.jar')
+}

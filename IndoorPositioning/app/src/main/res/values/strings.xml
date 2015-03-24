@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">IndoorPositioning</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_run_mode">RunMode</string>
+    <string name="text_color">#6B6868</string>
+    <string name="title_activity_wifi_scanning">WifiScanning</string>
+    <string name="title_activity_upload_image">UploadImage</string>
+    <string name="title_activity_check_upload">checkUpload</string>
+    <string name="title_activity_main_activity2">MainActivity2</string>
+
+</resources>

@@ -1,0 +1,373 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
+    android:layout_height="fill_parent" tools:context=".MainActivity" android:background="#fff"
+    >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/wallsView_layout">
+
+        <ImageView
+            android:id="@+id/wallsView"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginTop="-160dp"
+            android:layout_marginBottom="100dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/floor1_33">
+        </ImageView>
+
+
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="100dp"
+            android:id="@+id/qr_scan_button"
+            android:background="@drawable/round_button_outline"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="20dp"
+            android:layout_marginLeft="60dp"
+            android:text="QR Code"
+            />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin" android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin">
+
+        <Button
+            android:textSize="14dp"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:text="WiFi ON/OFF"
+            android:id="@+id/button_next_floor"
+            android:clickable="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="40dp"
+            android:layout_alignParentRight="true"/>
+
+        <Button
+            android:textSize="14dp"
+            android:layout_width="130dp"
+            android:layout_height="50dp"
+            android:text="View Local Data"
+            android:id="@+id/button_viewdata"
+            android:layout_marginRight="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_above="@+id/button_next_floor"/>
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="130dp"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:layout_above="@+id/button_viewdata"
+            android:layout_alignLeft="@+id/button_next_floor"
+            android:layout_alignRight="@+id/button_next_floor"
+            android:text="movement" />
+
+        <TextView
+            android:id="@+id/textLocal"
+            android:layout_width="130dp"
+            android:layout_height="60dp"
+            android:gravity="center"
+            android:layout_above="@+id/textView"
+            android:layout_alignLeft="@+id/button_next_floor"
+            android:layout_alignRight="@+id/button_next_floor"
+            android:text="local: 9" />
+
+
+
+        <RelativeLayout
+            android:id="@+id/mapGridLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="60dp"
+            android:layout_marginLeft="27dp"
+            android:layout_marginRight="28dp"
+            android:layout_marginBottom="200dp"
+            android:gravity="center">
+
+            <GridView
+                android:id="@+id/mapGrid"
+                android:layout_alignParentTop="true"
+                android:numColumns="auto_fit"
+                android:gravity="center"
+                android:columnWidth="90px"
+                android:stretchMode="none"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"/>
+
+        </RelativeLayout>
+
+
+        <LinearLayout
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="160dp"
+            android:layout_alignParentRight="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/scanTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_above="@id/listView1"
+                android:layout_alignLeft="@id/listView1"
+                android:text="Current data"
+                android:paddingBottom="4dp"
+                android:textStyle="italic"
+                android:background="#fff"
+                android:textSize="23dp"
+                android:textColor="#638e22"/>
+            <ListView
+                android:id="@+id/listView1"
+                android:layout_height="fill_parent"
+                android:layout_width="match_parent"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                android:listSelector="@android:color/darker_gray"
+                android:scrollbars="vertical"
+                android:background="#fff">
+            </ListView>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/local_data_layout"
+            android:layout_width="700dp"
+            android:layout_height="250dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true">
+            <ListView
+                android:id="@+id/data_listView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+            </ListView>
+        </LinearLayout>
+
+        <com.example.matthew.newapplication.DrawingView
+            android:id="@+id/drawing"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="200dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_weight="1"
+            />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:alpha="1"
+        android:id="@+id/small_cover_up"
+        android:layout_width="500dp"
+        android:layout_height="240dp"
+        android:background="@drawable/round_button_outline"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="-400dp">
+
+        <ImageView
+            android:layout_height="80dp"
+            android:layout_width="80dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/swipe_left" />
+
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:alpha="1"
+        android:id="@+id/cover_up"
+        android:layout_width="540dp"
+        android:layout_height="240dp"
+        android:layout_marginRight="-40dp"
+        android:background="#fff"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="10dp">
+
+        <RelativeLayout
+            android:id="@+id/right_hand"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@drawable/round_button_outline">
+
+        <ImageView
+            android:layout_height="80dp"
+            android:layout_width="80dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/swipe_right"
+            />
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="380dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="32dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/toast_border">
+
+    <ImageView
+        android:id="@+id/compass_beating"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginLeft="4dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:src="@drawable/navigation2">
+    </ImageView>
+
+    <TextView
+        android:layout_width="310dp"
+        android:layout_height="70dp"
+        android:gravity="center"
+        android:id="@+id/location_text"
+        android:textSize="30dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        />
+
+</RelativeLayout>
+
+    <ImageView
+        android:id="@+id/wallsViewRight"
+        android:layout_width="1090dp"
+        android:layout_height="600dp"
+        android:rotation="82"
+        android:layout_marginTop="-100dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="-360dp"
+        android:src="@drawable/floor1_35">
+    </ImageView>
+
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/progressBar_layout"
+        >
+
+
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="#fff"
+            android:alpha="1">
+
+            <ImageView
+                android:layout_width="500dp"
+                android:layout_height="300dp"
+                android:layout_marginRight="@dimen/activity_horizontal_margin"
+                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:id="@+id/imageView"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:src="@drawable/blue_map_red_pin" />
+
+            <RelativeLayout
+                android:id="@+id/progressBar_background"
+                android:layout_width="fill_parent"
+                android:layout_height="80dp"
+                android:background="@drawable/round_grey_rect"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="40dp"
+                android:layout_marginLeft="40dp">
+
+                <ProgressBar
+                    android:id="@+id/progressBar"
+                    android:layout_height="8dp"
+                    android:layout_width="match_parent"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="50dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:progressDrawable="@drawable/greenprogress"
+                />
+
+
+                <TextView
+                    android:id="@+id/progressBar_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="60dp"
+                    android:padding="10dp"
+                    android:text="Downloading data from server..."
+                    android:textSize="28dp"
+                    android:textColor="#F0FFFF"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginLeft="30dp"/>
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="180dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="150dp"
+            android:id="@+id/truck_image"
+            android:src="@drawable/data_transport"/>
+
+        <ImageView
+            android:layout_width="300dp"
+            android:layout_height="280dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="100dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="20dp"
+            android:id="@+id/parse_image"
+            android:src="@drawable/parse_cloud"/>
+
+        <ImageView
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="180dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="580dp"
+            android:id="@+id/build_image"
+            android:src="@drawable/build_map"/>
+
+        <ImageView
+            android:layout_width="260dp"
+            android:layout_height="260dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="100dp"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="510dp"
+            android:id="@+id/android_image"
+            android:src="@drawable/tabs"/>
+
+    </RelativeLayout>
+
+
+
+
+
+</RelativeLayout>

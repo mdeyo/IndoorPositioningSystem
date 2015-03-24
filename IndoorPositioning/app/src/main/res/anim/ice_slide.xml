@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android" >
+
+     <translate
+        android:duration="2000"
+        android:fromXDelta="0"
+        android:fromYDelta="0"
+        android:toXDelta="0"
+        android:toYDelta="-200" />
+     
+     <translate
+        android:startOffset="2000"
+        android:duration="1000"
+        android:fromXDelta="0"
+        android:fromYDelta="-60"
+        android:toXDelta="0"
+        android:toYDelta="350" />
+     
+      <translate
+        android:startOffset="3000"
+        android:duration="2000"
+        android:fromXDelta="0"
+        android:fromYDelta="20"
+        android:toXDelta="440"
+        android:toYDelta="200" />
+      
+       <alpha
+        android:startOffset="5000"
+        android:duration="2000"
+        android:fromAlpha="1"
+        android:toAlpha="0"/>
+   
+</set>

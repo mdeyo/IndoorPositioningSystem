@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.matthew.newapplication" >
+
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/build_map"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name=".FloorPlans"
+            android:label="@string/app_name"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name=".SideView35"
+            android:label="Building 35"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name=".SideView33"
+            android:label="Building 33"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name=".ChooseBuilding"
+            android:label="Build Mode"
+            android:screenOrientation="landscape" >
+
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:label="IndoorNav"
+            android:screenOrientation="landscape" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".RunMode"
+            android:label="@string/title_activity_run_mode"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name=".WifiScanning"
+            android:label="@string/title_activity_wifi_scanning"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name=".UploadImage"
+            android:label="@string/title_activity_upload_image"
+            android:screenOrientation="landscape" >
+
+        </activity>
+        <activity
+            android:name=".checkUpload"
+            android:label="@string/title_activity_check_upload"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name=".ImageViewTest"
+            android:label="@string/title_activity_main_activity2"
+            android:screenOrientation="landscape" >
+
+        </activity>
+    </application>
+
+</manifest>
