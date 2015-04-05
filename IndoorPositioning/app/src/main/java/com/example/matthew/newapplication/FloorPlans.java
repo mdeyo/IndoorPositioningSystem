@@ -28,6 +28,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -75,7 +76,7 @@ public class FloorPlans extends Activity implements SensorEventListener {
 
     GridView gridView;
     CustomGridAdapter gridAdapter;
-    int[] numbers = new int[240];
+    int[] numbers = new int[320];
 
 
     ArrayList<GridData> dataList = new ArrayList<GridData>();
@@ -146,15 +147,15 @@ public class FloorPlans extends Activity implements SensorEventListener {
 
         else if(buildingnumber.equals("33")){
 
-            RelativeLayout layout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)layout.getLayoutParams();
-            int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics()));
-            int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 90, getResources().getDisplayMetrics()));
-            int margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics()));
-            params.setMargins(margin_left, margin_top, margin_right, 0);
-            layout.setLayoutParams(params);
+//            RelativeLayout layout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+//            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)layout.getLayoutParams();
+//            int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics()));
+//            int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 90, getResources().getDisplayMetrics()));
+//            int margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics()));
+//            params.setMargins(margin_left, margin_top, margin_right, 0);
+//            layout.setLayoutParams(params);
 
-            gridView.setColumnWidth(90);
+           // gridView.setColumnWidth(90);
 
 
             if (floornumber.equals("0")) {map.setImageResource(R.drawable.floor0_33);}
@@ -175,22 +176,22 @@ public class FloorPlans extends Activity implements SensorEventListener {
             RelativeLayout layout = (RelativeLayout) findViewById(R.id.wallsView_layout);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)layout.getLayoutParams();
 
-            int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 134, getResources().getDisplayMetrics()));
-            int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 106, getResources().getDisplayMetrics()));
-            int margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 116, getResources().getDisplayMetrics()));
-            params.setMargins(margin_left, margin_top, margin_right, 0);
-            layout.setLayoutParams(params);
+//            int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 134, getResources().getDisplayMetrics()));
+//            int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 106, getResources().getDisplayMetrics()));
+//            int margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 116, getResources().getDisplayMetrics()));
+//            params.setMargins(margin_left, margin_top, margin_right, 0);
+            //layout.setLayoutParams(params);
 
-            gridView.setColumnWidth(90);
+           // gridView.setColumnWidth(90);
 
             if (floornumber.equals("0")) {map.setImageResource(R.drawable.floor0_35);}
 
             if (floornumber.equals("1")) {
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 106, getResources().getDisplayMetrics()));
-                margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 116, getResources().getDisplayMetrics()));
-                params.setMargins(margin_left, margin_top, margin_right, 0);
-                layout.setLayoutParams(params);
+//                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70, getResources().getDisplayMetrics()));
+//                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 106, getResources().getDisplayMetrics()));
+//                margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 116, getResources().getDisplayMetrics()));
+//                params.setMargins(margin_left, margin_top, margin_right, 0);
+                //layout.setLayoutParams(params);
                 map.setImageResource(R.drawable.floor1_35);}
 
             if (floornumber.equals("2")) {map.setImageResource(R.drawable.floor2_35);}

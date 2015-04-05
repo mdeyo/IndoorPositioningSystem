@@ -76,18 +76,17 @@ public class CustomGridAdapter extends BaseAdapter {
 
             // set value into textview
 
-            TextView textView = (TextView) gridView
-                    .findViewById(R.id.grid_item_label);
+            //TextView textView = (TextView) gridView .findViewById(R.id.grid_item_label);
 
             //textView.setText(gridValues[position]);
 
             // set image based on selected text
 
             imageView = (ImageView) gridView.findViewById(R.id.grid_item_image);
-            border = (ImageView) gridView.findViewById(R.id.item_background);
+           // border = (ImageView) gridView.findViewById(R.id.item_background);
             //imageView.setImageResource(R.drawable.placemarker2);
 
-            biggerImageView = (ImageView) gridView.findViewById(R.id.item_background);
+           // biggerImageView = (ImageView) gridView.findViewById(R.id.item_background);
 
 
             // if(gridValues.equals("999")){
