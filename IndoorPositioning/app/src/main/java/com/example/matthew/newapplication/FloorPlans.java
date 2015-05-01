@@ -76,12 +76,16 @@ public class FloorPlans extends Activity implements SensorEventListener {
 
     GridView gridView;
     CustomGridAdapter gridAdapter;
-    int[] numbers = new int[320];
+    int[] numbers = new int[288];
+    private DrawingView drawView;
+
 
 
     ArrayList<GridData> dataList = new ArrayList<GridData>();
 
     ParseObject gridDataOnline;
+    List<Point> points = new ArrayList<Point>();
+
     ArrayList<String> dataStringList = new ArrayList<String>();
 
     int TIMER_RUNTIME = 6000; // in ms --> 6seconds
@@ -119,6 +123,8 @@ public class FloorPlans extends Activity implements SensorEventListener {
         truckImage = (ImageView) findViewById(R.id.truck_image);
         buildImage = (ImageView) findViewById(R.id.build_image);
         cloudImage = (ImageView) findViewById(R.id.parse_image);
+        drawView = (DrawingView)findViewById(R.id.drawing);
+
 
         numberOfRoutersSaved = 9;
         numberOfRoutersUsed = 9;
@@ -147,13 +153,13 @@ public class FloorPlans extends Activity implements SensorEventListener {
 
         else if(buildingnumber.equals("33")){
 
-//            RelativeLayout layout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-//            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)layout.getLayoutParams();
-//            int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics()));
-//            int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 90, getResources().getDisplayMetrics()));
-//            int margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics()));
-//            params.setMargins(margin_left, margin_top, margin_right, 0);
-//            layout.setLayoutParams(params);
+            RelativeLayout layout = (RelativeLayout) findViewById(R.id.mapGridLayout);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)layout.getLayoutParams();
+            int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
+            int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
+            int margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
+            params.setMargins(margin_left, margin_top, margin_right, 0);
+            layout.setLayoutParams(params);
 
            // gridView.setColumnWidth(90);
 
@@ -305,7 +311,12 @@ public class FloorPlans extends Activity implements SensorEventListener {
 
         updateButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
-                UpdateFromServer();
+//                UpdateFromServer();
+                updatePathView(0);
+                updatePathView(23);
+                updatePathView(287);
+                updatePathView(50);
+                updatePathView(40);
                 }
             });
 
@@ -406,6 +417,26 @@ public class FloorPlans extends Activity implements SensorEventListener {
 
                     }});
 
+    }
+
+    public void updatePathView(int position) {
+        Point point = new Point();
+        int[] pos = ConvertGrid(position);
+        Log.d("position", String.valueOf(pos[0]) + "," + String.valueOf(pos[1]));
+        point.x = (float) (25 + 49 * (pos[0] - 1));
+        point.y = (float) (45 + 52 * (pos[1] - 1));
+        Log.d("coords", point.toString());
+        if (buildingnumber.equals("33")) {
+            if (floornumber.equals("1")) {
+                points.add(point);
+                drawView.updatePath(points);
+            }
+        }
+    }
+    public int[] ConvertGrid(int position) {
+        int xpos = (position % 24) + 1;
+        int ypos = position / 24 + 1;
+        return new int[]{xpos, ypos};
     }
 
     @Override
@@ -743,6 +774,7 @@ public class FloorPlans extends Activity implements SensorEventListener {
 
             List<ScanResult> wifiScanList = mainWifiObj.getScanResults();
 
+            numberOfRoutersSaved=wifiScanList.size();
             wifis = new RouterObject[numberOfRoutersSaved];
             for(int i = 0; i < numberOfRoutersSaved; i++){
                 int level = wifiScanList.get(i).level;

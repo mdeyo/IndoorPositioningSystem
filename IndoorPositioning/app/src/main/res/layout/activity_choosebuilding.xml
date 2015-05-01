@@ -12,7 +12,7 @@
         android:id="@+id/building_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="90dp"
+        android:textSize="80dp"
         android:layout_marginTop="20dp"
         android:gravity="center"
         android:layout_alignParentLeft="true"
@@ -25,43 +25,45 @@
     <Button
         android:layout_width="wrap_content"
         android:textColor="@color/text_color1"
-
-        android:layout_height="80dp"
+        android:layout_height="50dp"
         android:text="Building 33"
         android:id="@+id/button33"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="100dp"
         android:layout_above="@+id/button35"
-        android:textSize="40dp"
+        android:textSize="30dp"
         android:padding="10dp"
-        android:layout_centerHorizontal="true"
         android:background="@drawable/round_button_outline"/>
 
 
 
     <Button
         android:layout_width="wrap_content"
-        android:layout_height="80dp"
+        android:layout_height="50dp"
         android:text="Building 35"
         android:textColor="@color/text_color1"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/button37"
         android:id="@+id/button35"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="100dp"
         android:layout_marginTop="10dp"
-        android:textSize="40dp"
+        android:textSize="30dp"
         android:padding="10dp"
         android:background="@drawable/round_button_outline"
         />
 
     <Button
         android:layout_width="wrap_content"
-        android:layout_height="80dp"
+        android:layout_height="50dp"
         android:text="Building 37"
         android:id="@+id/button37"
-        android:layout_below="@+id/button35"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="100dp"
         android:padding="10dp"
         android:textColor="@color/text_color1"
-
-        android:textSize="40dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:textSize="30dp"
         android:background="@drawable/round_button_outline"
         android:layout_marginTop="10dp"/>
 

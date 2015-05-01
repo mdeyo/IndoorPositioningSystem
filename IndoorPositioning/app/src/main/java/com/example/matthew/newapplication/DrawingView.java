@@ -26,7 +26,7 @@ public class DrawingView extends View {
     //drawing and canvas paint
     private Paint drawPaint, canvasPaint;
     //initial color
-    private int paintColor = 0xFF660000;
+    private int paintColor = android.graphics.Color.rgb(102, 153, 255);
     //canvas
     private Canvas drawCanvas;
     //canvas bitmap
@@ -48,7 +48,7 @@ public class DrawingView extends View {
         drawPaint.setColor(paintColor);
 
         drawPaint.setAntiAlias(true);
-        drawPaint.setStrokeWidth(20);
+        drawPaint.setStrokeWidth(12);
         drawPaint.setStyle(Paint.Style.STROKE);
         drawPaint.setStrokeJoin(Paint.Join.ROUND);
         drawPaint.setStrokeCap(Paint.Cap.ROUND);

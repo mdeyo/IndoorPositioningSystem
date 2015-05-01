@@ -14,7 +14,14 @@
             android:src="@drawable/floor1_33">
         </ImageView>
 
-        </RelativeLayout>
+    </RelativeLayout>
+
+    <com.example.matthew.newapplication.DrawingView
+        android:id="@+id/drawing"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        />
 
     <RelativeLayout
         android:id="@+id/mapGridLayout"
@@ -44,35 +51,33 @@
 
 
         <Button
-            android:textSize="14dp"
-            android:layout_width="130dp"
+            android:textSize="12dp"
+            android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="Send Data"
             android:id="@+id/button_data"
             android:clickable="true"
             android:layout_alignParentBottom="true"
-            android:visibility="gone"
-            android:layout_alignParentRight="true"/>
+            android:layout_alignParentLeft="true"/>
 
         <Button
-            android:textSize="14dp"
-            android:layout_width="130dp"
-            android:layout_height="70dp"
+            android:textSize="12dp"
+            android:layout_width="100dp"
+            android:layout_height="60dp"
             android:text="Update From Server"
             android:id="@+id/button_update"
-            android:layout_alignParentRight="true"
-            android:visibility="gone"
-            android:layout_above="@+id/button_data"/>
+            android:layout_alignParentBottom="true"
+
+            android:layout_toRightOf="@+id/button_data"/>
 
         <Button
-            android:textSize="14dp"
-            android:layout_width="130dp"
+            android:textSize="12dp"
+            android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="View Local Data"
             android:id="@+id/button_viewdata"
-            android:layout_alignParentRight="true"
-            android:visibility="gone"
-            android:layout_above="@+id/button_update"/>
+            android:layout_toRightOf="@+id/button_update"
+            android:layout_alignParentBottom="true"/>
 
         <TextView
             android:id="@+id/textView"
@@ -147,27 +152,33 @@
 
     </RelativeLayout>
 
+
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/progressBar_layout"
-        android:visibility="gone"
         >
-
-
 
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:background="#fff"
-            android:alpha="1">
+            android:background="#fff">
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_marginBottom="100dp"
+                android:id="@+id/imageView"
+                android:layout_alignParentBottom="true"
+                android:src="@drawable/blue_map_red_pin" />
 
             <RelativeLayout
                 android:id="@+id/progressBar_background"
                 android:layout_width="fill_parent"
-                android:layout_height="80dp"
+                android:layout_height="70dp"
                 android:background="@drawable/round_grey_rect"
-                android:layout_centerVertical="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="20dp"
                 android:layout_marginRight="40dp"
                 android:layout_marginLeft="40dp">
 
@@ -177,12 +188,11 @@
                     android:layout_width="match_parent"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_centerHorizontal="true"
-                    android:layout_marginTop="50dp"
+                    android:layout_marginTop="46dp"
                     android:layout_marginLeft="20dp"
                     android:layout_marginRight="20dp"
                     android:progressDrawable="@drawable/greenprogress"
                     />
-
 
                 <TextView
                     android:id="@+id/progressBar_text"
@@ -190,7 +200,7 @@
                     android:layout_height="60dp"
                     android:padding="10dp"
                     android:text="Downloading data from server..."
-                    android:textSize="28dp"
+                    android:textSize="24dp"
                     android:textColor="#F0FFFF"
                     android:layout_marginTop="2dp"
                     android:layout_marginLeft="30dp"/>
@@ -198,6 +208,7 @@
             </RelativeLayout>
 
         </RelativeLayout>
+
 
         <ImageView
             android:layout_width="100dp"
@@ -207,6 +218,7 @@
             android:layout_alignParentRight="true"
             android:layout_marginRight="150dp"
             android:id="@+id/truck_image"
+            android:visibility="gone"
             android:src="@drawable/data_transport"/>
 
         <ImageView
@@ -217,6 +229,7 @@
             android:layout_alignParentRight="true"
             android:layout_marginRight="20dp"
             android:id="@+id/parse_image"
+            android:visibility="gone"
             android:src="@drawable/parse_cloud"/>
 
         <ImageView
@@ -227,6 +240,7 @@
             android:layout_alignParentRight="true"
             android:layout_marginRight="580dp"
             android:id="@+id/build_image"
+            android:visibility="gone"
             android:src="@drawable/data"/>
 
         <ImageView
@@ -237,9 +251,18 @@
             android:layout_alignParentRight="true"
             android:layout_marginRight="510dp"
             android:id="@+id/android_image"
-            android:src="@drawable/tabs"/>
+            android:src="@drawable/tabs"
+            android:visibility="gone"/>
 
     </RelativeLayout>
+
+    <!--<com.example.matthew.newapplication.DrawingView-->
+        <!--android:id="@+id/drawing"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="fill_parent"-->
+        <!--android:layout_weight="1"-->
+        <!--/>-->
+
 
 
 </RelativeLayout>

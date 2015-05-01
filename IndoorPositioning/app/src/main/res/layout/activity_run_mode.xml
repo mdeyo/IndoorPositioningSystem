@@ -12,30 +12,54 @@
             android:id="@+id/wallsView"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_marginTop="-160dp"
-            android:layout_marginBottom="100dp"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
             android:src="@drawable/floor1_33">
         </ImageView>
 
-
-        <Button
-            android:layout_width="200dp"
-            android:layout_height="100dp"
-            android:id="@+id/qr_scan_button"
-            android:background="@drawable/round_button_outline"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="20dp"
-            android:layout_marginLeft="60dp"
-            android:text="QR Code"
+        <com.example.matthew.newapplication.DrawingView
+            android:id="@+id/drawing"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
             />
+
+
 
 
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/mapGridLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center">
+
+        <GridView
+            android:id="@+id/mapGrid"
+            android:layout_alignParentTop="true"
+            android:numColumns="auto_fit"
+            android:gravity="center"
+            android:columnWidth="49px"
+            android:stretchMode="none"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_centerHorizontal="true"/>
+
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="60dp"
+            android:id="@+id/qr_scan_button"
+            android:background="@drawable/round_button_outline"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="60dp"
+            android:text="QR Code"
+            />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:visibility="gone"
         android:layout_width="fill_parent"
         android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin" android:paddingTop="@dimen/activity_vertical_margin"
@@ -83,29 +107,6 @@
             android:text="local: 9" />
 
 
-
-        <RelativeLayout
-            android:id="@+id/mapGridLayout"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="60dp"
-            android:layout_marginLeft="27dp"
-            android:layout_marginRight="28dp"
-            android:layout_marginBottom="200dp"
-            android:gravity="center">
-
-            <GridView
-                android:id="@+id/mapGrid"
-                android:layout_alignParentTop="true"
-                android:numColumns="auto_fit"
-                android:gravity="center"
-                android:columnWidth="90px"
-                android:stretchMode="none"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"/>
-
-        </RelativeLayout>
 
 
         <LinearLayout
@@ -157,20 +158,10 @@
             </ListView>
         </LinearLayout>
 
-        <com.example.matthew.newapplication.DrawingView
-            android:id="@+id/drawing"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_marginBottom="200dp"
-            android:layout_marginLeft="0dp"
-            android:layout_marginRight="0dp"
-            android:layout_marginTop="0dp"
-            android:layout_weight="1"
-            />
-
     </RelativeLayout>
 
     <RelativeLayout
+        android:visibility="gone"
         android:alpha="1"
         android:id="@+id/small_cover_up"
         android:layout_width="500dp"
@@ -192,6 +183,7 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:visibility="gone"
         android:alpha="1"
         android:id="@+id/cover_up"
         android:layout_width="540dp"
@@ -221,36 +213,37 @@
 
 
     <RelativeLayout
-        android:layout_width="380dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="32dp"
+        android:layout_width="300dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
         android:background="@drawable/toast_border">
 
     <ImageView
         android:id="@+id/compass_beating"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginLeft="4dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="2dp"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:src="@drawable/navigation2">
     </ImageView>
 
     <TextView
-        android:layout_width="310dp"
+        android:layout_width="200dp"
         android:layout_height="70dp"
         android:gravity="center"
         android:id="@+id/location_text"
-        android:textSize="30dp"
-        android:layout_centerVertical="true"
+        android:textSize="24dp"
+        android:layout_toRightOf="@+id/compass_beating"
         android:layout_alignParentRight="true"
         />
 
 </RelativeLayout>
 
     <ImageView
+        android:visibility="gone"
         android:id="@+id/wallsViewRight"
         android:layout_width="1090dp"
         android:layout_height="600dp"
@@ -267,33 +260,28 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/progressBar_layout"
-
         >
-
-
 
         <RelativeLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:background="#fff"
-            android:alpha="1">
+            android:background="#fff">
 
             <ImageView
-                android:layout_width="500dp"
-                android:layout_height="300dp"
-                android:layout_marginRight="@dimen/activity_horizontal_margin"
-                android:layout_marginBottom="@dimen/activity_vertical_margin"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_marginBottom="100dp"
                 android:id="@+id/imageView"
                 android:layout_alignParentBottom="true"
-                android:layout_alignParentRight="true"
                 android:src="@drawable/blue_map_red_pin" />
 
             <RelativeLayout
                 android:id="@+id/progressBar_background"
                 android:layout_width="fill_parent"
-                android:layout_height="80dp"
+                android:layout_height="70dp"
                 android:background="@drawable/round_grey_rect"
-                android:layout_centerVertical="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginBottom="20dp"
                 android:layout_marginRight="40dp"
                 android:layout_marginLeft="40dp">
 
@@ -303,7 +291,7 @@
                     android:layout_width="match_parent"
                     style="?android:attr/progressBarStyleHorizontal"
                     android:layout_centerHorizontal="true"
-                    android:layout_marginTop="50dp"
+                    android:layout_marginTop="46dp"
                     android:layout_marginLeft="20dp"
                     android:layout_marginRight="20dp"
                     android:progressDrawable="@drawable/greenprogress"
@@ -316,7 +304,7 @@
                     android:layout_height="60dp"
                     android:padding="10dp"
                     android:text="Downloading data from server..."
-                    android:textSize="28dp"
+                    android:textSize="24dp"
                     android:textColor="#F0FFFF"
                     android:layout_marginTop="2dp"
                     android:layout_marginLeft="30dp"/>
@@ -326,6 +314,7 @@
         </RelativeLayout>
 
         <ImageView
+            android:visibility="gone"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_alignParentTop="true"
@@ -336,6 +325,7 @@
             android:src="@drawable/data_transport"/>
 
         <ImageView
+            android:visibility="gone"
             android:layout_width="300dp"
             android:layout_height="280dp"
             android:layout_alignParentTop="true"
@@ -346,6 +336,7 @@
             android:src="@drawable/parse_cloud"/>
 
         <ImageView
+            android:visibility="gone"
             android:layout_width="140dp"
             android:layout_height="140dp"
             android:layout_alignParentTop="true"
@@ -356,6 +347,7 @@
             android:src="@drawable/build_map"/>
 
         <ImageView
+            android:visibility="gone"
             android:layout_width="260dp"
             android:layout_height="260dp"
             android:layout_alignParentTop="true"
@@ -366,6 +358,7 @@
             android:src="@drawable/tabs"/>
 
     </RelativeLayout>
+
 
 
 
