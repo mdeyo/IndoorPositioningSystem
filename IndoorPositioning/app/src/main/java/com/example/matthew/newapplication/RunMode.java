@@ -1286,16 +1286,19 @@ public class RunMode extends Activity implements SensorEventListener {
 
                     GridData algResult = Alg.getResult();
 
-//                    In in = new In("NodeMap");
-//                    Graph G = new Graph(in, ",",getResources().getAssets().open("NodeMap"));
+                    //Graph interface here
+                    ///////////////////////////////////////////////////////////////////////////////
                     String guessedNode=algResult.printNodeString();
                     Log.d("*****************",guessedNode);
                     if(guessedNode!=null) {
                         this.currentNode = G.getFirstValue(guessedNode);
                         if (currentNode!="none") {
+                            //this method will return an Iterable<String> object with all the neighbor Node strings
                             Iterable<String> neighbors = G.adjacentTo(currentNode);
                         }
                     }
+                    ///////////////////////////////////////////////////////////////////////////////
+
                     //Log.d("Algorithm Time", String.valueOf(System.currentTimeMillis() - startAlgTime)+" milliseconds");
                     numbers[algResult.getPosition()] = 0;
                     updateGrid();
