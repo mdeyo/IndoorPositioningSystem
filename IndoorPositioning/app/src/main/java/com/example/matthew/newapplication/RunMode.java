@@ -62,21 +62,21 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 
-public class RunMode extends Activity  implements SensorEventListener {
-    private ImageView map,compassBeatImage;
+public class RunMode extends Activity implements SensorEventListener {
+    private ImageView map, compassBeatImage;
     private String buildingnumber, floornumber;
     private Button scanAgainButton, updateButton, viewDataButton, testAlg, QRScan;
     private RelativeLayout CoverButton, SmallCoverButton, hand;
     private SensorManager sensorManager;
     private boolean color = false;
-    private TextView textAccel,headingText;
+    private TextView textAccel, headingText;
     private long lastUpdate;
     private Context ctx;
     int lastPrediction;
     GridData result;
     int[] mapsize = new int[240];
 
-    private int scanCount=0;
+    private int scanCount = 0;
     private DrawingView drawView;
     Paint paint;
 
@@ -93,7 +93,7 @@ public class RunMode extends Activity  implements SensorEventListener {
     List<Point> points35_4 = new ArrayList<Point>();
     List<Point> points35_5 = new ArrayList<Point>();
 
-    boolean toastActivated=false;
+    boolean toastActivated = false;
     boolean scanOn;
     boolean viewingLocalData;
     Toast toast;
@@ -114,7 +114,7 @@ public class RunMode extends Activity  implements SensorEventListener {
     RouterObject[] olderScan = null;
     RouterObject[] averageOfRecentScans = null;
 
-    long startScanTime,timeForScan,startAlgTime,timeForAlg,startServerTime,timeForServer=0l;
+    long startScanTime, timeForScan, startAlgTime, timeForAlg, startServerTime, timeForServer = 0l;
 
     GridView gridView;
     CustomGridAdapter gridAdapter;
@@ -132,31 +132,34 @@ public class RunMode extends Activity  implements SensorEventListener {
     ProgressBar mProgressBar;
     RelativeLayout progressLayout;
     TextView progressBarText, locationText;
-    ImageView truckImage, cloudImage, buildImage,wallsViewRight;
+    ImageView truckImage, cloudImage, buildImage, wallsViewRight;
 
     private GestureDetector gestureDetector;
     View.OnTouchListener gestureListener;
     //Animation.AnimationListener AnimationRightListener;
     int newBuildingInt;
-    int previousPosition=0;
-    String previousBuilding ="0";
-    String previousFloor="0";
+    int previousPosition = 0;
+    String previousBuilding = "0";
+    String previousFloor = "0";
+    String currentNode = "";
 
     int ACCELEROMETER_WAIT_TIME;
-    float recentChangesAccelerometer=0;
-    float previousChangesAccelerometer=0;
-    float changesAccelerometer=0;
+    float recentChangesAccelerometer = 0;
+    float previousChangesAccelerometer = 0;
+    float changesAccelerometer = 0;
     boolean accelerationZ;
     float[] gravityVector = new float[3];
     long lastSensorUpdate = 0l;
+
+    private In in;
+    private Graph G;
+
 
     //QRCodeLocation firstQR = new QRCodeLocation("001","33","1",129);
     //QRCodeLocation secondQR = new QRCodeLocation("002","33","1",110);
 
     Map<String, QRCodeLocation> QRmap = new HashMap<String, QRCodeLocation>();
-
     //ArrayList<QRCodeLocation> QRCodes = new ArrayList<>();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,39 +170,43 @@ public class RunMode extends Activity  implements SensorEventListener {
         wallsViewRight = (ImageView) findViewById(R.id.wallsViewRight);
         wallsViewRight.setVisibility(View.INVISIBLE);
         compassBeatImage = (ImageView) findViewById(R.id.compass_beating);
-        drawView = (DrawingView)findViewById(R.id.drawing);
+        drawView = (DrawingView) findViewById(R.id.drawing);
 
 
-        scanOn=false;
-        viewingLocalData=false;
+        scanOn = false;
+        viewingLocalData = false;
+//
+//        In in = new In("NodeMap");
+//        Graph G = new Graph(in, ",",getResources().getAssets());
 
         //QRmap.put("001",firstQR);
         //QRmap.put("002",secondQR);
 
         try {
+            in = new In("NodeMap");
+            G = new Graph(in, ",",getResources().getAssets().open("NodeMap"));
+
             AssetManager assetManager = getResources().getAssets();
             InputStream is = assetManager.open("QRCodeList");
             BufferedReader r = new BufferedReader(new InputStreamReader(is));
             String line;
-            if ( is != null) {
+            if (is != null) {
                 while ((line = r.readLine()) != null) {
                     //likes_food_list.add(line);
                     Pattern pattern1 = Pattern.compile(Pattern.quote("/"));
                     String[] splitRaw = pattern1.split(line);
 
                     int lengthOfTextLine = splitRaw.length;
-                    if(line.equals("ID/building/floor/position")){
+                    if (line.equals("ID/building/floor/position")) {
                         //nothing
-                    }
-                    else if(lengthOfTextLine!=4){
-                        Log.d("error","mistake in txt file");
-                    }
-                    else{
+                    } else if (lengthOfTextLine != 4) {
+                        Log.d("error", "mistake in txt file");
+                    } else {
                         String id = splitRaw[0];
                         String building = splitRaw[1];
                         String floor = splitRaw[2];
                         int positionFromQR = Integer.parseInt(splitRaw[3]);
-                        QRmap.put(id,new QRCodeLocation(id,building,floor,positionFromQR));
+                        QRmap.put(id, new QRCodeLocation(id, building, floor, positionFromQR));
 
                     }
 
@@ -208,6 +215,8 @@ public class RunMode extends Activity  implements SensorEventListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        Log.d("graph",G.toString());
 
         ctx = this;
         QRScan = (Button) findViewById(R.id.qr_scan_button);
@@ -253,15 +262,7 @@ public class RunMode extends Activity  implements SensorEventListener {
         numberOfRoutersSaved = 9;
         numberOfRoutersUsed = 9;
 
-//        for(int i=0; i<10; i++){
-//            Point point = new Point();
-//            point.x = 2100*(float)Math.random()+80;
-//            point.y = 830*(float)Math.random()+160;
-//            points.add(point);
-//            Log.d("points", points.get(i).toString());
-//        }
-
-        if(mainWifiObj.isWifiEnabled()) {
+        if (mainWifiObj.isWifiEnabled()) {
 
             Parse.initialize(this, "9IFIo0LdgpyPESCd8eNaCrdiFjAM61Jz3B9EvbYo", "BGwRcE1fJtEwvpmuEn7n4WsL3P0HIqK242MdpEIu");
             PullFromServer();
@@ -516,18 +517,20 @@ public class RunMode extends Activity  implements SensorEventListener {
             showCustomAlert("You scanned: " + scanResult.getContents());
             // handle scan result
             String id = scanResult.getContents();
-            if(QRmap.containsKey(id)){
+            if (QRmap.containsKey(id)) {
                 Log.d("QRcode", String.valueOf(Integer.parseInt(scanResult.getContents())));
 
                 //re-initialize image mapping to all be empty
-                for (int i = 0; i < numbers.length; i++) {numbers[i] = -1;}
+                for (int i = 0; i < numbers.length; i++) {
+                    numbers[i] = -1;
+                }
 
                 QRCodeLocation obj = QRmap.get(id);
                 int QRPosition = obj.getPosition();
                 numbers[QRPosition] = 0;
                 updateGrid();
                 buildingnumber = obj.getBuilding();
-                floornumber =  obj.getFloor();
+                floornumber = obj.getFloor();
                 currentPosition = QRPosition;
                 updateMapView();
             }
@@ -535,7 +538,7 @@ public class RunMode extends Activity  implements SensorEventListener {
             //continue normal operations after the QR Code Scan
             if (scanOn) {
                 mainWifiObj.startScan();
-            } else  {
+            } else {
                 registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
                 mainWifiObj.startScan();
                 scanOn = true;
@@ -569,7 +572,7 @@ public class RunMode extends Activity  implements SensorEventListener {
 //            showCustomAlert("Scanning On");
 //        }
 
-        if(!mainWifiObj.isWifiEnabled()){
+        if (!mainWifiObj.isWifiEnabled()) {
             showCustomAlert("Ah! you need the wifis!");
 //            Toast.makeText(getApplicationContext(),"Ah! you need the wifis!",Toast.LENGTH_LONG).show();
 
@@ -582,17 +585,17 @@ public class RunMode extends Activity  implements SensorEventListener {
         // unregister listener
         //unregisterReceiver(wifiReciever);
         super.onPause();
-        if(toastActivated) {
+        if (toastActivated) {
             toast.cancel();
         }
 
         sensorManager.unregisterListener(this);
 
         unregisterReceiver(wifiReciever);
-        if(scanOn){
+        if (scanOn) {
             //mainWifiObj.reconnect();
 //            unregisterReceiver(wifiReciever);
-            scanOn=false;
+            scanOn = false;
         }
     }
 
@@ -603,19 +606,19 @@ public class RunMode extends Activity  implements SensorEventListener {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             getAccelerometer(event);
         }
-            if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
-                getAccelerometer(event);
-            }
+        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+            getAccelerometer(event);
+        }
 
-            if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
-                updateGravityVector(event);
-            }
+        if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
+            updateGravityVector(event);
+        }
 
-            if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-                // get the angle around the z-axis rotated
-                float degree = Math.round(event.values[0]);
-                //headingText.setText("Heading: " + Float.toString(degree) + " degrees");
-            }
+        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+            // get the angle around the z-axis rotated
+            float degree = Math.round(event.values[0]);
+            //headingText.setText("Heading: " + Float.toString(degree) + " degrees");
+        }
 
     }
 
@@ -625,11 +628,11 @@ public class RunMode extends Activity  implements SensorEventListener {
         float y = values[1];
         float z = values[2];
 
-        float magnitude = (float)Math.sqrt(x*x+y*y+z*z);
+        float magnitude = (float) Math.sqrt(x * x + y * y + z * z);
 
-        gravityVector[0] = x/magnitude;
-        gravityVector[1] = y/magnitude;
-        gravityVector[2] = z/magnitude;
+        gravityVector[0] = x / magnitude;
+        gravityVector[1] = y / magnitude;
+        gravityVector[2] = z / magnitude;
 
 
     }
@@ -637,19 +640,19 @@ public class RunMode extends Activity  implements SensorEventListener {
     private void getAccelerometer(SensorEvent event) {
         float[] values = event.values;
         // Movement
-        float x = values[0]-0.01f;
+        float x = values[0] - 0.01f;
         float y = values[1];
         float z = values[2] - 0.33f;
         //float z =values[2];
 
-        float xInGravity = x*gravityVector[0];
-        float yInGravity = y*gravityVector[1];
-        float zInGravity = z*gravityVector[2];
+        float xInGravity = x * gravityVector[0];
+        float yInGravity = y * gravityVector[1];
+        float zInGravity = z * gravityVector[2];
 
-        float accelerationInGravity = (float) Math.sqrt(xInGravity*xInGravity+yInGravity*yInGravity+zInGravity+zInGravity);
+        float accelerationInGravity = (float) Math.sqrt(xInGravity * xInGravity + yInGravity * yInGravity + zInGravity + zInGravity);
         textAccel.setText(String.valueOf(accelerationInGravity));
 
-        if(Math.abs(accelerationInGravity)>4) {
+        if (Math.abs(accelerationInGravity) > 4) {
 
             if (color) {
                 textAccel.setBackgroundColor(Color.GREEN);
@@ -665,12 +668,12 @@ public class RunMode extends Activity  implements SensorEventListener {
         long actualTime = System.currentTimeMillis();
 
 
-        if(linearAccelerationSquared>changesAccelerometer) {
+        if (linearAccelerationSquared > changesAccelerometer) {
             changesAccelerometer = linearAccelerationSquared;
         }
 
-        if((z*z)>7){
-            accelerationZ=true;
+        if ((z * z) > 7) {
+            accelerationZ = true;
         }
 
 
@@ -678,13 +681,13 @@ public class RunMode extends Activity  implements SensorEventListener {
             if (actualTime - lastUpdate > ACCELEROMETER_WAIT_TIME) {
 
                 lastUpdate = System.currentTimeMillis();
-                recentChangesAccelerometer=linearAccelerationSquared;
+                recentChangesAccelerometer = linearAccelerationSquared;
                 //Log.d("linearA",String.valueOf(recentChangesAccelerometer));
                 localPoints.setText("local: 9");
                 //textAccel.setText(String.valueOf(recentChangesAccelerometer));
                 //recentChangesAccelerometer=0;
 
-                if(linearAccelerationSquared>20){
+                if (linearAccelerationSquared > 20) {
                     localPoints.setText("local: 24");
                 }
 
@@ -698,7 +701,7 @@ public class RunMode extends Activity  implements SensorEventListener {
                 //Log.d("wifi listener","scanning...");
 
             }
-            changesAccelerometer=0;
+            changesAccelerometer = 0;
         }
     }
 
@@ -770,16 +773,16 @@ public class RunMode extends Activity  implements SensorEventListener {
                                 @Override
                                 public void run() {
                                     startScanTime = System.currentTimeMillis();
-                                    Log.d("wifi listener","register! ***********************************************************************");
+                                    Log.d("wifi listener", "register! ***********************************************************************");
                                     //registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
                                     //mainWifiObj.disconnect();
-                                    if(!scanOn) {
+                                    if (!scanOn) {
                                         registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
                                         mainWifiObj.startScan();
-                                        scanOn=true;
+                                        scanOn = true;
                                         //showCustomAlert("Scanning On");
                                     }
-                                    Log.d("wifi listener","scanning...");
+                                    Log.d("wifi listener", "scanning...");
 
                                 }
                             });
@@ -869,17 +872,17 @@ public class RunMode extends Activity  implements SensorEventListener {
                         }
 
                         //print statement used to see if loading bar time is sufficient
-                        Log.d("Server Time",String.valueOf(System.currentTimeMillis()-startServerTime)+" milliseconds");
-                        Log.d("Parse Server", "pulled "+numberOfPoints+" objects from server");
+                        Log.d("Server Time", String.valueOf(System.currentTimeMillis() - startServerTime) + " milliseconds");
+                        Log.d("Parse Server", "pulled " + numberOfPoints + " objects from server");
                         dataList = result;
 
-                        Log.d("building",dataList.get(0).printFullLocation().substring(0,2));
+                        Log.d("building", dataList.get(0).printFullLocation().substring(0, 2));
 //                        for(int i=0;i<dataList.size();i++){
 //                            Log.d(dataList.get(i).printFullLocation(),dataList.get(i).printRouters());
 //                        }
                         CreateStrongerPrints upgrade = new CreateStrongerPrints(dataList);
-                        strongerDataList=upgrade.getStrongerDataList();
-                        Log.d("Stronger fingerprints", "compiled into "+Integer.toString(strongerDataList.size())+" prints");
+                        strongerDataList = upgrade.getStrongerDataList();
+                        Log.d("Stronger fingerprints", "compiled into " + Integer.toString(strongerDataList.size()) + " prints");
 //                        for(int i=0;i<strongerDataList.size();i++){
 //                            Log.d(strongerDataList.get(i).printFullLocation(),strongerDataList.get(i).printRouters());
 //                        }
@@ -968,8 +971,8 @@ public class RunMode extends Activity  implements SensorEventListener {
 
             ArrayList<GridData> finalDisplay = new ArrayList<GridData>();
 
-            if(result!=null){
-                lastPrediction= result.getPosition();
+            if (result != null) {
+                lastPrediction = result.getPosition();
             }
 
             //re-initialize image mapping to all zeros
@@ -990,13 +993,13 @@ public class RunMode extends Activity  implements SensorEventListener {
     }
 
     public void hideLocalData() {
-            //re-initialize image mapping to all zeros
-            for (int i = 0; i < numbers.length; i++) {
-                numbers[i] = -1;
-            }
-        numbers[lastPrediction]=0;
-        updateGrid();
+        //re-initialize image mapping to all zeros
+        for (int i = 0; i < numbers.length; i++) {
+            numbers[i] = -1;
         }
+        numbers[lastPrediction] = 0;
+        updateGrid();
+    }
 
     class WifiScanReceiver extends BroadcastReceiver {
         @SuppressLint("UseValueOf")
@@ -1007,14 +1010,14 @@ public class RunMode extends Activity  implements SensorEventListener {
             //Log.d("Scan Time", String.valueOf(timeForScan)+" milliseconds *********************8");
             //Log.d("Scan", String.valueOf(wifiScanList.size())+" routers found");
 
-            startScanTime=System.currentTimeMillis();
+            startScanTime = System.currentTimeMillis();
             mainWifiObj.startScan();
 
 
             startAlgTime = System.currentTimeMillis();
             Log.d("number of routers", String.valueOf(wifiScanList.size()));
 
-            numberOfRoutersSaved=wifiScanList.size();
+            numberOfRoutersSaved = wifiScanList.size();
             wifis = new RouterObject[numberOfRoutersSaved];
             for (int i = 0; i < numberOfRoutersSaved; i++) {
                 int level = wifiScanList.get(i).level;
@@ -1072,7 +1075,7 @@ public class RunMode extends Activity  implements SensorEventListener {
     public int[] updateMapView() {
 
         mapsize = new int[288];
-        map.setPadding(0,0,0,0);
+        map.setPadding(0, 0, 0, 0);
 
         Animation animateCompassBeat = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.beat_animation);
         compassBeatImage.startAnimation(animateCompassBeat);
@@ -1089,10 +1092,9 @@ public class RunMode extends Activity  implements SensorEventListener {
             //Log.d("length", Integer.toString(mapsize.length));
 
             //return mapsize;
-        }
-        else if (buildingnumber.equals("33")) {
+        } else if (buildingnumber.equals("33")) {
             RelativeLayout layout = (RelativeLayout) findViewById(R.id.mapGridLayout);
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)layout.getLayoutParams();
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) layout.getLayoutParams();
             int margin_top = convertToPx(8);
             int margin_left = convertToPx(0);
             int margin_right = convertToPx(0);
@@ -1141,11 +1143,10 @@ public class RunMode extends Activity  implements SensorEventListener {
             numbers = mapsize;
             return mapsize;
 
-        }
-        else if(buildingnumber.equals("35")) {
+        } else if (buildingnumber.equals("35")) {
 
             RelativeLayout layout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)layout.getLayoutParams();
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) layout.getLayoutParams();
 
             int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 134, getResources().getDisplayMetrics()));
             int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 106, getResources().getDisplayMetrics()));
@@ -1155,7 +1156,9 @@ public class RunMode extends Activity  implements SensorEventListener {
 
 //            gridView.setColumnWidth(90);
 
-            if (floornumber.equals("0")) {map.setImageResource(R.drawable.floor0_35);}
+            if (floornumber.equals("0")) {
+                map.setImageResource(R.drawable.floor0_35);
+            }
 
             if (floornumber.equals("1")) {
                 margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70, getResources().getDisplayMetrics()));
@@ -1163,15 +1166,24 @@ public class RunMode extends Activity  implements SensorEventListener {
                 margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 116, getResources().getDisplayMetrics()));
                 params.setMargins(margin_left, margin_top, margin_right, 0);
                 layout.setLayoutParams(params);
-                map.setImageResource(R.drawable.floor1_35);}
+                map.setImageResource(R.drawable.floor1_35);
+            }
 
-            if (floornumber.equals("2")) {map.setImageResource(R.drawable.floor2_35);}
+            if (floornumber.equals("2")) {
+                map.setImageResource(R.drawable.floor2_35);
+            }
 
-            if (floornumber.equals("3")) {map.setImageResource(R.drawable.floor3_35);}
+            if (floornumber.equals("3")) {
+                map.setImageResource(R.drawable.floor3_35);
+            }
 
-            if (floornumber.equals("4")) {map.setImageResource(R.drawable.floor4_35);}
+            if (floornumber.equals("4")) {
+                map.setImageResource(R.drawable.floor4_35);
+            }
 
-            if (floornumber.equals("5")) { map.setImageResource(R.drawable.floor5_35);}
+            if (floornumber.equals("5")) {
+                map.setImageResource(R.drawable.floor5_35);
+            }
 
             //initialize image mapping to all blank
             for (int i = 0; i < mapsize.length; i++) {
@@ -1187,11 +1199,10 @@ public class RunMode extends Activity  implements SensorEventListener {
 
             numbers = mapsize;
             return mapsize;
-        }
-        else{
+        } else {
 
             //mapsize = new int[132];
-            map.setPadding(0,0,0,0);
+            map.setPadding(0, 0, 0, 0);
 
             RelativeLayout layout = (RelativeLayout) findViewById(R.id.mapGridLayout);
             RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) layout.getLayoutParams();
@@ -1252,60 +1263,64 @@ public class RunMode extends Activity  implements SensorEventListener {
             Log.d("scan count", String.valueOf(scanCount));
             Log.d("most recent scan", String.valueOf(mostRecentScan.length));
 
-
+            //takes two scans from receiver and averages them before guessing
             if (scanCount < 2) {
-                olderScan=mostRecentScan;
-            }
-
-            if (scanCount == 2) {
+                olderScan = mostRecentScan;
+            } else if (scanCount == 2) {
                 scanCount = 0;
                 averageScans average = new averageScans(olderScan, mostRecentScan);
                 averageOfRecentScans = average.calculate();
                 FingerprintingAlg Alg = new FingerprintingAlg(currentPosition, accelerationZ, recentChangesAccelerometer, previousChangesAccelerometer, floornumber, buildingnumber, strongerDataList, averageOfRecentScans);
+
+                //Accelerations over time need to be updated
                 accelerationZ = false;
                 previousChangesAccelerometer = recentChangesAccelerometer;
                 recentChangesAccelerometer = 0;
-                textAccel.setText(String.valueOf(recentChangesAccelerometer));
+//                textAccel.setText(String.valueOf(recentChangesAccelerometer));
+
                 if (Alg.getResult() != null) {
                     //re-initialize image mapping to all be empty
                     for (int i = 0; i < numbers.length; i++) {
                         numbers[i] = -1;
                     }
 
-                    GridData algResult;
+                    GridData algResult = Alg.getResult();
 
-                    algResult = Alg.getResult();
-                    // Log.d("result", result.printID());
-                    if (algResult.getPosition() == 999) {
-                        Log.d("error", "index 999 from i don't know where");
-                    }
-//                    else if(algResult==null){}
-                    else {
-                        //Log.d("Algorithm Time", String.valueOf(System.currentTimeMillis() - startAlgTime)+" milliseconds");
-                        numbers[algResult.getPosition()] = 0;
-                        updateGrid();
-                        //Toast.makeText(getApplicationContext(), result.printID(), Toast.LENGTH_SHORT).show();
-                        buildingnumber = algResult.getBuilding();
-                        floornumber = algResult.getFloor();
-                        currentPosition = algResult.getPosition();
-                        if (buildingnumber.equals("35") && previousBuilding.equals("33")) {
-                            animate35over33();
-                            previousPosition = currentPosition;
-                            previousBuilding = buildingnumber;
-                            previousFloor = floornumber;
-                        } else {
-                            updateMapView();
-                            previousPosition = currentPosition;
-                            previousBuilding = buildingnumber;
-                            previousFloor = floornumber;
+//                    In in = new In("NodeMap");
+//                    Graph G = new Graph(in, ",",getResources().getAssets().open("NodeMap"));
+                    String guessedNode=algResult.printNodeString();
+                    Log.d("*****************",guessedNode);
+                    if(guessedNode!=null) {
+                        this.currentNode = G.getFirstValue(guessedNode);
+                        if (currentNode!="none") {
+                            Iterable<String> neighbors = G.adjacentTo(currentNode);
                         }
-
-                        Log.d("cp:",String.valueOf(currentPosition));
-                        updatePathView(currentPosition);
-
                     }
+                    //Log.d("Algorithm Time", String.valueOf(System.currentTimeMillis() - startAlgTime)+" milliseconds");
+                    numbers[algResult.getPosition()] = 0;
+                    updateGrid();
+                    //Toast.makeText(getApplicationContext(), result.printID(), Toast.LENGTH_SHORT).show();
+                    buildingnumber = algResult.getBuilding();
+                    floornumber = algResult.getFloor();
+                    currentPosition = algResult.getPosition();
+                    if (buildingnumber.equals("35") && previousBuilding.equals("33")) {
+                        animate35over33();
+                        previousPosition = currentPosition;
+                        previousBuilding = buildingnumber;
+                        previousFloor = floornumber;
+                    } else {
+                        updateMapView();
+                        previousPosition = currentPosition;
+                        previousBuilding = buildingnumber;
+                        previousFloor = floornumber;
+                    }
+
+                    Log.d("curerentPosition:", String.valueOf(currentPosition));
+                    updatePathView(currentPosition);
+
+
                 } else {
-                    Log.d("rawr", "alg didn't give result");
+                    Log.d("check", "alg didn't give result");
                     if (buildingnumber.equals("0")) {
                         showCustomAlert("We can't find your position :(");
                         //Toast.makeText(getApplicationContext(),"We can't find your position :(",Toast.LENGTH_LONG).show();
@@ -1316,9 +1331,8 @@ public class RunMode extends Activity  implements SensorEventListener {
 
                 }
             }
-        }
-        else {
-                Toast.makeText(getApplicationContext(), "Need to scan location first", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getApplicationContext(), "Need to scan location first", Toast.LENGTH_SHORT).show();
 
         }
     }
@@ -1391,8 +1405,8 @@ public class RunMode extends Activity  implements SensorEventListener {
         }
     };
 
-    public void showCustomAlert(String inputString){
-        toastActivated=true;
+    public void showCustomAlert(String inputString) {
+        toastActivated = true;
 
         Context context = getApplicationContext();
         // Create layout inflator object to inflate toast.xml file
@@ -1416,70 +1430,60 @@ public class RunMode extends Activity  implements SensorEventListener {
 
     }
 
-    int convertToPx(int dp){
+    int convertToPx(int dp) {
         int answer = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getResources().getDisplayMetrics()));
         return answer;
     }
 
-    public void updatePathView(int position){
+    public void updatePathView(int position) {
         Point point = new Point();
         int[] pos = ConvertGrid(position);
-        Log.d("position",String.valueOf(pos[0])+","+String.valueOf(pos[1]));
+        Log.d("position", String.valueOf(pos[0]) + "," + String.valueOf(pos[1]));
         point.x = (float) (25 + 49 * (pos[0] - 1));
         point.y = (float) (45 + 52 * (pos[1] - 1));
-        Log.d("coords",point.toString());
-        if(buildingnumber.equals("33")){
-            if(floornumber.equals("1")){
+        Log.d("coords", point.toString());
+        if (buildingnumber.equals("33")) {
+            if (floornumber.equals("1")) {
                 points33_1.add(point);
                 drawView.updatePath(points33_1);
-            }
-            else if(floornumber.equals("2")){
+            } else if (floornumber.equals("2")) {
                 points33_2.add(point);
                 drawView.updatePath(points33_2);
-            }
-            else if(floornumber.equals("3")){
+            } else if (floornumber.equals("3")) {
                 points33_3.add(point);
                 drawView.updatePath(points33_3);
-            }
-            else if(floornumber.equals("4")){
+            } else if (floornumber.equals("4")) {
                 points33_4.add(point);
                 drawView.updatePath(points33_4);
-            }
-            else if(floornumber.equals("5")){
+            } else if (floornumber.equals("5")) {
                 points33_5.add(point);
                 drawView.updatePath(points33_5);
             }
-        }
-        else if(buildingnumber.equals("35")){
-            if(floornumber.equals("1")){
+        } else if (buildingnumber.equals("35")) {
+            if (floornumber.equals("1")) {
                 points35_1.add(point);
                 drawView.updatePath(points35_1);
-            }
-            else if(floornumber.equals("2")){
+            } else if (floornumber.equals("2")) {
                 points35_2.add(point);
                 drawView.updatePath(points35_2);
-            }
-            else if(floornumber.equals("3")){
+            } else if (floornumber.equals("3")) {
                 points35_3.add(point);
                 drawView.updatePath(points35_3);
-            }
-            else if(floornumber.equals("4")){
+            } else if (floornumber.equals("4")) {
                 points35_4.add(point);
                 drawView.updatePath(points35_4);
-            }
-            else if(floornumber.equals("5")){
+            } else if (floornumber.equals("5")) {
                 points35_5.add(point);
                 drawView.updatePath(points35_5);
             }
         }
     }
 
-    public void animate35over33(){
+    public void animate35over33() {
 
-        if(floornumber.equals("1")) {
+        if (floornumber.equals("1")) {
             newBuildingInt = R.drawable.floor1_35;
-        }
-        else if(floornumber.equals("2")){
+        } else if (floornumber.equals("2")) {
             newBuildingInt = R.drawable.floor2_35;
         }
 
@@ -1492,6 +1496,7 @@ public class RunMode extends Activity  implements SensorEventListener {
 
         map.setImageResource(newBuildingInt);
     }
+
     Animation.AnimationListener AnimationListenerForRightWall = new Animation.AnimationListener() {
         @Override
         public void onAnimationEnd(Animation animation) {
@@ -1510,28 +1515,28 @@ public class RunMode extends Activity  implements SensorEventListener {
         }
     };
 
-    public void checkForExtremes(){
+    public void checkForExtremes() {
         wallsViewRight.setVisibility(View.INVISIBLE);
 
-        if(buildingnumber.equals("33")){
-            if(floornumber.equals("1")){
-                Log.d("got here","check2");
+        if (buildingnumber.equals("33")) {
+            if (floornumber.equals("1")) {
+                Log.d("got here", "check2");
 
                 int[] myArray = new int[]{67, 90, 91, 113, 114, 115};
                 ArrayList<Integer> edgePositions = initArrayList(myArray);
 
-                if(edgePositions.contains(currentPosition)){
-                    Log.d("got here","check3");
+                if (edgePositions.contains(currentPosition)) {
+                    Log.d("got here", "check3");
 
                     wallsViewRight.setVisibility(View.VISIBLE);
-                }
-                else{
+                } else {
                     wallsViewRight.setVisibility(View.INVISIBLE);
                 }
             }
         }
 
     }
+
     public ArrayList<Integer> initArrayList(int[] a) {
         ArrayList<Integer> list = new ArrayList<Integer>();
         for (int i : a) {
@@ -1540,36 +1545,4 @@ public class RunMode extends Activity  implements SensorEventListener {
         return list;
     }
 
-//    public void onDraw(Canvas canvas) {
-//        Path path = new Path();
-//        boolean first = true;
-//        for(int i = 0; i < points.size(); i += 2){
-//            Point point = points.get(i);
-//            if(first){
-//                first = false;
-//                path.moveTo(point.x, point.y);
-//            }
-//
-//            else if(i < points.size() - 1){
-//                Point next = points.get(i + 1);
-//                path.quadTo(point.x, point.y, next.x, next.y);
-//            }
-//            else{
-//                path.lineTo(point.x, point.y);
-//            }
-//        }
-//
-//        //canvas.drawPath(path, paint);
-//        Log.d("rawr",path.toString());
-//    }
-
-//    class Point {
-//        float x, y;
-//        float dx, dy;
-//
-//        @Override
-//        public String toString() {
-//            return x + ", " + y;
-//        }
-//    }
 }

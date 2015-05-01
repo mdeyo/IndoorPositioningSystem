@@ -34,15 +34,15 @@ public class DrawingView extends View {
 
     private float brushSize, lastBrushSize;
 
-    private boolean erase=false;
+    private boolean erase = false;
 
-    public DrawingView(Context context, AttributeSet attrs){
+    public DrawingView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setupDrawing();
     }
 
-    private void setupDrawing(){
-    //get drawing area setup for interaction
+    private void setupDrawing() {
+        //get drawing area setup for interaction
         drawPath = new Path();
         drawPaint = new Paint();
         drawPaint.setColor(paintColor);
@@ -61,30 +61,31 @@ public class DrawingView extends View {
 
     }
 
-    public void startNew(){
+    public void startNew() {
         drawCanvas.drawColor(0, PorterDuff.Mode.CLEAR);
         invalidate();
     }
 
-    public void setErase(boolean isErase){
+    public void setErase(boolean isErase) {
         //set erase true or false
-        erase=isErase;
-        if(erase) drawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
+        erase = isErase;
+        if (erase) drawPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.CLEAR));
         else drawPaint.setXfermode(null);
     }
 
-    public void setBrushSize(float newSize){
+    public void setBrushSize(float newSize) {
         //update size
         float pixelAmount = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 newSize, getResources().getDisplayMetrics());
-        brushSize=pixelAmount;
+        brushSize = pixelAmount;
         drawPaint.setStrokeWidth(brushSize);
     }
 
-    public void setLastBrushSize(float lastSize){
-        lastBrushSize=lastSize;
+    public void setLastBrushSize(float lastSize) {
+        lastBrushSize = lastSize;
     }
-    public float getLastBrushSize(){
+
+    public float getLastBrushSize() {
         return lastBrushSize;
     }
 
@@ -103,29 +104,26 @@ public class DrawingView extends View {
         canvas.drawPath(drawPath, drawPaint);
     }
 
-    public void setColor(String newColor){
+    public void setColor(String newColor) {
         //set color
         invalidate();
         paintColor = Color.parseColor(newColor);
         drawPaint.setColor(paintColor);
     }
 
-    public void updatePath(List<Point> points){
+    public void updatePath(List<Point> points) {
         Path path = new Path();
         Boolean first = true;
 
-        for(int i = 0; i < points.size(); i += 2){
+        for (int i = 0; i < points.size(); i += 2) {
             Point point = points.get(i);
-            if(first){
+            if (first) {
                 first = false;
                 path.moveTo(point.x, point.y);
-            }
-
-            else if(i < points.size() - 1){
+            } else if (i < points.size() - 1) {
                 Point next = points.get(i + 1);
                 path.quadTo(point.x, point.y, next.x, next.y);
-            }
-            else{
+            } else {
                 path.lineTo(point.x, point.y);
             }
         }
@@ -160,7 +158,7 @@ public class DrawingView extends View {
         //detect user touch
         float touchX = event.getX();
         float touchY = event.getY();
-        Log.d("rawr", "x:"+touchX+" y:"+touchY);
+        Log.d("rawr", "x:" + touchX + " y:" + touchY);
 
 //
 //        switch (event.getAction()) {

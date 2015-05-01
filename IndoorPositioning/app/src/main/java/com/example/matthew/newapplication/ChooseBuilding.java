@@ -20,8 +20,8 @@ import java.util.ArrayList;
 public class ChooseBuilding extends Activity {
 
     private Button Button33;
-    private Button  Button35;
-    private  Button Button37, wifiButton, newProjectButton;
+    private Button Button35;
+    private Button Button37, wifiButton, newProjectButton;
     ListView projects;
     TextView BuildingTitle;
     String projectKey = "com.example.matthew.indoornav.projectNames";
@@ -41,7 +41,7 @@ public class ChooseBuilding extends Activity {
         newProjectButton = (Button) findViewById(R.id.new_button);
         TextView BuildingTitle = (TextView) findViewById(R.id.building_title);
         projects = (ListView) findViewById(R.id.list_projects);
-        String[] rawr = new String[]{"one","two"};
+        String[] rawr = new String[]{"one", "two"};
 
 
         prefs = this.getBaseContext().getSharedPreferences("com.example.matthew.indoornav", Context.MODE_PRIVATE);
@@ -180,7 +180,7 @@ public class ChooseBuilding extends Activity {
         updateFromPrefs();
 
         super.onResume();
-        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -204,7 +204,7 @@ public class ChooseBuilding extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void updateFromPrefs(){
+    public void updateFromPrefs() {
         /////////////// projects //////////////////////
         projectNamesList.clear();
         String projectString = prefs.getString(projectKey, null);
@@ -216,7 +216,7 @@ public class ChooseBuilding extends Activity {
             for (int i = 0; i < length; i++) {
                 String name = projectArray[i];
                 name = name.replaceAll("_", " ");
-                if(!name.equals(" ") && !name.equals("") && !name.equals(null)) {
+                if (!name.equals(" ") && !name.equals("") && !name.equals(null)) {
                     projectNamesList.add(name);
                 }
             }

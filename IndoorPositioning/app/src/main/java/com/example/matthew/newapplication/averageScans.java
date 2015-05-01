@@ -13,29 +13,29 @@ public class averageScans {
     RouterObject[] result;
     ArrayList<RouterObject> resultArray = new ArrayList<>();
 
-    public averageScans(RouterObject[] scan1, RouterObject[] scan2){
-        this.scan1=scan1;
-        this.scan2=scan2;
-        int total = scan1.length+scan2.length;
+    public averageScans(RouterObject[] scan1, RouterObject[] scan2) {
+        this.scan1 = scan1;
+        this.scan2 = scan2;
+        int total = scan1.length + scan2.length;
         this.result = new RouterObject[total];
         //add all the RouterObjects from the first scan
-        for(int i=0;i<this.scan1.length;i++){
+        for (int i = 0; i < this.scan1.length; i++) {
             resultArray.add(scan1[i]);
         }
         //integrate in the second scan by checking for repeated IDs
-        for(int i=0;i<this.scan2.length;i++){
-            boolean repeat=false;
-            for(int n=0;n<resultArray.size();n++){
-                if (resultArray.get(n).printBSSID()==scan2[i].printBSSID()){
-                    repeat=true;
-                    int averageStrength = (resultArray.get(n).getStrength()+scan2[i].getStrength())/2;
+        for (int i = 0; i < this.scan2.length; i++) {
+            boolean repeat = false;
+            for (int n = 0; n < resultArray.size(); n++) {
+                if (resultArray.get(n).printBSSID() == scan2[i].printBSSID()) {
+                    repeat = true;
+                    int averageStrength = (resultArray.get(n).getStrength() + scan2[i].getStrength()) / 2;
                     String id = resultArray.get(n).printBSSID();
                     resultArray.remove(n);
-                    resultArray.add(new RouterObject(id,averageStrength));
+                    resultArray.add(new RouterObject(id, averageStrength));
                     break;
                 }
             }
-            if(!repeat){
+            if (!repeat) {
                 resultArray.add(scan2[i]);
             }
 
@@ -47,14 +47,15 @@ public class averageScans {
 
 
     }
-    public averageScans(RouterObject[] scan1, RouterObject[] scan2, RouterObject[] scan3){
-        this.scan1=scan1;
-        this.scan2=scan2;
-        this.scan3=scan3;
+
+    public averageScans(RouterObject[] scan1, RouterObject[] scan2, RouterObject[] scan3) {
+        this.scan1 = scan1;
+        this.scan2 = scan2;
+        this.scan3 = scan3;
 
     }
 
-    public RouterObject[] calculate(){
+    public RouterObject[] calculate() {
         return result;
     }
 

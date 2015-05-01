@@ -8,23 +8,23 @@ import java.util.ArrayList;
 public class CreateStrongerPrints {
     private int length;
     private ArrayList<GridData> dataList;
-    private ArrayList<GridData> strongerDataList =new ArrayList<>();
+    private ArrayList<GridData> strongerDataList = new ArrayList<>();
 
     public CreateStrongerPrints(ArrayList<GridData> allData) {
-        dataList=allData;
-        length=allData.size();
+        dataList = allData;
+        length = allData.size();
 
         //re-initialize the count of every object to 1
-        for(int i=0;i<length;i++){
+        for (int i = 0; i < length; i++) {
             dataList.get(i).setCount(1);
         }
 
-        for(int i=0;i<length;i++) {
+        for (int i = 0; i < length; i++) {
             GridData currentObj = dataList.get(i);
             String fullLocation = currentObj.printFullLocation();
 
             if (strongerDataList.size() != 0) {
-                boolean multiple=false;
+                boolean multiple = false;
 
                 for (int n = 0; n < strongerDataList.size(); n++) {
                     GridData compare = strongerDataList.get(n);
@@ -76,8 +76,8 @@ public class CreateStrongerPrints {
 
                         int previousCount = compare.getCount();
                         strongerDataList.remove(compare);
-                        GridData newAverageObj = new GridData(newAveragesList,compare.getPosition(),compare.getBuilding(),compare.getFloor(),compare.printID());
-                        newAverageObj.setCount(previousCount+1);
+                        GridData newAverageObj = new GridData(newAveragesList, compare.getPosition(), compare.getBuilding(), compare.getFloor(), compare.printID());
+                        newAverageObj.setCount(previousCount + 1);
                         strongerDataList.add(newAverageObj);
                         //compare.putNewRouters(newAveragesList);
                         //compare.setCount(compare.getCount() + 1);
@@ -87,7 +87,7 @@ public class CreateStrongerPrints {
                     strongerDataList.add(currentObj);
                 }
 
-             }else {
+            } else {
                 strongerDataList.add(currentObj);
             }
 
@@ -95,7 +95,7 @@ public class CreateStrongerPrints {
 
     }
 
-    public ArrayList<GridData> getStrongerDataList(){
+    public ArrayList<GridData> getStrongerDataList() {
         return strongerDataList;
     }
 

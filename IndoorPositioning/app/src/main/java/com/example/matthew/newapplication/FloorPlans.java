@@ -52,10 +52,9 @@ import com.parse.SaveCallback;
 import android.widget.ProgressBar;
 
 
-
 public class FloorPlans extends Activity implements SensorEventListener {
     private ImageView map;
-    private  String buildingnumber, floornumber;
+    private String buildingnumber, floornumber;
     private Button sendDataButton, updateButton, viewDataButton, testAlg;
     private SensorManager sensorManager;
     private boolean color = false;
@@ -69,16 +68,15 @@ public class FloorPlans extends Activity implements SensorEventListener {
     ListView scanlist;
     ListView datalistView;
     RouterObject wifis[];
-    int[] coords = new int[]{0,0};
-    private int lastPosition=999;
+    int[] coords = new int[]{0, 0};
+    private int lastPosition = 999;
     int numberOfRoutersSaved, numberOfRoutersUsed;
-    RouterObject[] mostRecentScan =null;
+    RouterObject[] mostRecentScan = null;
 
     GridView gridView;
     CustomGridAdapter gridAdapter;
     int[] numbers = new int[288];
     private DrawingView drawView;
-
 
 
     ArrayList<GridData> dataList = new ArrayList<GridData>();
@@ -110,20 +108,20 @@ public class FloorPlans extends Activity implements SensorEventListener {
 
         //sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
-        scanlist = (ListView)findViewById(R.id.listView1);
-        scanTitle = (TextView)findViewById(R.id.scanTextView);
+        scanlist = (ListView) findViewById(R.id.listView1);
+        scanTitle = (TextView) findViewById(R.id.scanTextView);
         datalistView = (ListView) findViewById(R.id.data_listView);
         mainWifiObj = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         wifiReciever = new WifiScanReceiver();
 
         //progress bar class creation
-        progressLayout = (RelativeLayout)findViewById(R.id.progressBar_layout);
-        mProgressBar = (ProgressBar)findViewById(R.id.progressBar);
-        progressBarText = (TextView)findViewById(R.id.progressBar_text);
+        progressLayout = (RelativeLayout) findViewById(R.id.progressBar_layout);
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBarText = (TextView) findViewById(R.id.progressBar_text);
         truckImage = (ImageView) findViewById(R.id.truck_image);
         buildImage = (ImageView) findViewById(R.id.build_image);
         cloudImage = (ImageView) findViewById(R.id.parse_image);
-        drawView = (DrawingView)findViewById(R.id.drawing);
+        drawView = (DrawingView) findViewById(R.id.drawing);
 
 
         numberOfRoutersSaved = 9;
@@ -147,40 +145,48 @@ public class FloorPlans extends Activity implements SensorEventListener {
             buildingnumber = (String) savedInstanceState.getSerializable("building");
         }
 
-        if(buildingnumber.equals(null)){
+        if (buildingnumber.equals(null)) {
             Log.d("null", "error in FloorPlans");
-        }
-
-        else if(buildingnumber.equals("33")){
+        } else if (buildingnumber.equals("33")) {
 
             RelativeLayout layout = (RelativeLayout) findViewById(R.id.mapGridLayout);
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)layout.getLayoutParams();
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) layout.getLayoutParams();
             int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
             int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
             int margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
             params.setMargins(margin_left, margin_top, margin_right, 0);
             layout.setLayoutParams(params);
 
-           // gridView.setColumnWidth(90);
+            // gridView.setColumnWidth(90);
 
 
-            if (floornumber.equals("0")) {map.setImageResource(R.drawable.floor0_33);}
+            if (floornumber.equals("0")) {
+                map.setImageResource(R.drawable.floor0_33);
+            }
 
-            if (floornumber.equals("1")) {map.setImageResource(R.drawable.floor1_33);}
+            if (floornumber.equals("1")) {
+                map.setImageResource(R.drawable.floor1_33);
+            }
 
-            if (floornumber.equals("2")) {map.setImageResource(R.drawable.floor2_33);}
+            if (floornumber.equals("2")) {
+                map.setImageResource(R.drawable.floor2_33);
+            }
 
-            if (floornumber.equals("3")) {map.setImageResource(R.drawable.floor3_35);}
+            if (floornumber.equals("3")) {
+                map.setImageResource(R.drawable.floor3_35);
+            }
 
-            if (floornumber.equals("4")) {map.setImageResource(R.drawable.floor4_35);}
+            if (floornumber.equals("4")) {
+                map.setImageResource(R.drawable.floor4_35);
+            }
 
-            if (floornumber.equals("5")) {map.setImageResource(R.drawable.floor5_35);}
-        }
-
-        else if(buildingnumber.equals("35")){
+            if (floornumber.equals("5")) {
+                map.setImageResource(R.drawable.floor5_35);
+            }
+        } else if (buildingnumber.equals("35")) {
 
             RelativeLayout layout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams)layout.getLayoutParams();
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) layout.getLayoutParams();
 
 //            int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 134, getResources().getDisplayMetrics()));
 //            int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 106, getResources().getDisplayMetrics()));
@@ -188,9 +194,11 @@ public class FloorPlans extends Activity implements SensorEventListener {
 //            params.setMargins(margin_left, margin_top, margin_right, 0);
             //layout.setLayoutParams(params);
 
-           // gridView.setColumnWidth(90);
+            // gridView.setColumnWidth(90);
 
-            if (floornumber.equals("0")) {map.setImageResource(R.drawable.floor0_35);}
+            if (floornumber.equals("0")) {
+                map.setImageResource(R.drawable.floor0_35);
+            }
 
             if (floornumber.equals("1")) {
 //                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 70, getResources().getDisplayMetrics()));
@@ -198,21 +206,32 @@ public class FloorPlans extends Activity implements SensorEventListener {
 //                margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 116, getResources().getDisplayMetrics()));
 //                params.setMargins(margin_left, margin_top, margin_right, 0);
                 //layout.setLayoutParams(params);
-                map.setImageResource(R.drawable.floor1_35);}
+                map.setImageResource(R.drawable.floor1_35);
+            }
 
-            if (floornumber.equals("2")) {map.setImageResource(R.drawable.floor2_35);}
+            if (floornumber.equals("2")) {
+                map.setImageResource(R.drawable.floor2_35);
+            }
 
-            if (floornumber.equals("3")) {map.setImageResource(R.drawable.floor3_35);}
+            if (floornumber.equals("3")) {
+                map.setImageResource(R.drawable.floor3_35);
+            }
 
-            if (floornumber.equals("4")) {map.setImageResource(R.drawable.floor4_35);}
+            if (floornumber.equals("4")) {
+                map.setImageResource(R.drawable.floor4_35);
+            }
 
-            if (floornumber.equals("5")) { map.setImageResource(R.drawable.floor5_35);}
+            if (floornumber.equals("5")) {
+                map.setImageResource(R.drawable.floor5_35);
+            }
         }
 
         //initialize image mapping to all zeros
-        for(int i=0;i<numbers.length;i++){numbers[i]=0;}
+        for (int i = 0; i < numbers.length; i++) {
+            numbers[i] = 0;
+        }
 
-        Log.d("length",Integer.toString(numbers.length));
+        Log.d("length", Integer.toString(numbers.length));
 
         updateGrid();
 
@@ -234,11 +253,11 @@ public class FloorPlans extends Activity implements SensorEventListener {
                 adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         // if this button is clicked...nothing happens
-                        numbers[position]=originalValue;
+                        numbers[position] = originalValue;
 
-                        numbers[110]=10;
-                        numbers[133]=11;
-                        numbers[132]=9;
+                        numbers[110] = 10;
+                        numbers[133] = 11;
+                        numbers[132] = 9;
 
                         updateGrid();
                         dialog.cancel();
@@ -253,12 +272,13 @@ public class FloorPlans extends Activity implements SensorEventListener {
                         lastPosition = position;
                         //if (buildingnumber.equals("35")) {coords = ScanGrid35(position);}
                         //if (buildingnumber.equals("33")) {coords = ScanGrid33(position);}
-                        Toast.makeText(getApplicationContext(),"Scanning nearby routers", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Scanning nearby routers", Toast.LENGTH_SHORT).show();
                         mainWifiObj.startScan();
 
-                        numbers[position]=originalValue+1;
-                        updateGrid(); }
-                        });
+                        numbers[position] = originalValue + 1;
+                        updateGrid();
+                    }
+                });
                 adb.show();
             }
         });
@@ -271,7 +291,7 @@ public class FloorPlans extends Activity implements SensorEventListener {
         sendDataButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 int length = dataList.size();
-                Toast.makeText(getApplicationContext(),"Sending data...", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Sending data...", Toast.LENGTH_SHORT).show();
 
                 gridDataOnline = new ParseObject("gridDataOnline");
 
@@ -279,28 +299,28 @@ public class FloorPlans extends Activity implements SensorEventListener {
                 String positionString = obj.printPosition();
                 //System.out.println(obj.printPosition());
 
-                    int[] coordinatesFinal = new int[2];
+                int[] coordinatesFinal = new int[2];
 
-                    if (buildingnumber.equals("35")) {
-                        coordinatesFinal = ScanGrid35(Integer.parseInt(positionString));
-                    } else if (buildingnumber.equals("33")) {
-                        coordinatesFinal = ScanGrid33(Integer.parseInt(positionString));
-                    }
+                if (buildingnumber.equals("35")) {
+                    coordinatesFinal = ScanGrid35(Integer.parseInt(positionString));
+                } else if (buildingnumber.equals("33")) {
+                    coordinatesFinal = ScanGrid33(Integer.parseInt(positionString));
+                }
 
-                    gridDataOnline.put("buildingNumber", obj.getBuilding());
-                    gridDataOnline.put("floorNumber", obj.getFloor());
-                    gridDataOnline.put("position", Integer.parseInt(positionString));
-                    gridDataOnline.put("yCoord", coordinatesFinal[0]);
-                    gridDataOnline.put("xCoord", coordinatesFinal[1]);
-                    gridDataOnline.put("routers", obj.printRouters());
-                    gridDataOnline.saveInBackground();
+                gridDataOnline.put("buildingNumber", obj.getBuilding());
+                gridDataOnline.put("floorNumber", obj.getFloor());
+                gridDataOnline.put("position", Integer.parseInt(positionString));
+                gridDataOnline.put("yCoord", coordinatesFinal[0]);
+                gridDataOnline.put("xCoord", coordinatesFinal[1]);
+                gridDataOnline.put("routers", obj.printRouters());
+                gridDataOnline.saveInBackground();
 
                 gridDataOnline.saveInBackground(new SaveCallback() {
                     public void done(ParseException e) {
                         if (e == null) {
-                            Toast.makeText(getApplicationContext(),"Saved successfully!",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Saved successfully!", Toast.LENGTH_SHORT).show();
                         } else {
-                            Toast.makeText(getApplicationContext(),"Failed to send... :(",Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "Failed to send... :(", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -317,8 +337,8 @@ public class FloorPlans extends Activity implements SensorEventListener {
                 updatePathView(287);
                 updatePathView(50);
                 updatePathView(40);
-                }
-            });
+            }
+        });
 
         viewDataButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
@@ -369,37 +389,34 @@ public class FloorPlans extends Activity implements SensorEventListener {
                         String routers = obj.printRouters();
                         final String ID = obj.printID();
 
-                        adb.setTitle("Box:"+title);
+                        adb.setTitle("Box:" + title);
                         adb.setMessage(routers);
 
                         adb.setPositiveButton("Cancel", null);
-                        adb.setNegativeButton("Remove this data from server",new DialogInterface.OnClickListener() {
+                        adb.setNegativeButton("Remove this data from server", new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
 
-                                if(ID.equals("0")){
+                                if (ID.equals("0")) {
 
-                                    Toast.makeText(getApplicationContext(),"This piece of data isn't on the server yet", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(getApplicationContext(), "This piece of data isn't on the server yet", Toast.LENGTH_SHORT).show();
                                     return;
-                                }
-                                else{
-                                    Toast.makeText(getApplicationContext(),"Deleting from online server now...", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(getApplicationContext(), "Deleting from online server now...", Toast.LENGTH_SHORT).show();
                                     ParseQuery<ParseObject> query = ParseQuery.getQuery("gridDataOnline");
                                     query.getInBackground(obj.printID(), new GetCallback<ParseObject>() {
                                         public void done(ParseObject object, ParseException e) {
                                             if (e == null) {
                                                 object.deleteInBackground(new DeleteCallback() {
                                                     public void done(ParseException e) {
-                                                        if(e==null){
-                                                            Toast.makeText(getApplicationContext(),"Removed from server!",Toast.LENGTH_SHORT).show();
-                                                        }
-                                                        else{
-                                                            Toast.makeText(getApplicationContext(),"Failed to remove :/",Toast.LENGTH_SHORT).show();
+                                                        if (e == null) {
+                                                            Toast.makeText(getApplicationContext(), "Removed from server!", Toast.LENGTH_SHORT).show();
+                                                        } else {
+                                                            Toast.makeText(getApplicationContext(), "Failed to remove :/", Toast.LENGTH_SHORT).show();
                                                         }
                                                     }
                                                 });
-                                            }
-                                            else {
-                                                Toast.makeText(getApplicationContext(),"Couldn't find it on the server",Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                Toast.makeText(getApplicationContext(), "Couldn't find it on the server", Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     });
@@ -415,7 +432,8 @@ public class FloorPlans extends Activity implements SensorEventListener {
                         adb.show();
                         return true;
 
-                    }});
+                    }
+                });
 
     }
 
@@ -433,6 +451,7 @@ public class FloorPlans extends Activity implements SensorEventListener {
             }
         }
     }
+
     public int[] ConvertGrid(int position) {
         int xpos = (position % 24) + 1;
         int ypos = position / 24 + 1;
@@ -449,7 +468,7 @@ public class FloorPlans extends Activity implements SensorEventListener {
                 sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION),
                 SensorManager.SENSOR_DELAY_NORMAL);
 */
-       // registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        // registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
 
         super.onResume();
 
@@ -461,7 +480,7 @@ public class FloorPlans extends Activity implements SensorEventListener {
         //unregisterReceiver(wifiReciever);
         super.onPause();
 
-       // sensorManager.unregisterListener(this);
+        // sensorManager.unregisterListener(this);
     }
 
     @Override
@@ -479,21 +498,20 @@ public class FloorPlans extends Activity implements SensorEventListener {
         // Movement
         float x = values[0];
         float y = values[1];
-        float z = values[2]-0.33f;
+        float z = values[2] - 0.33f;
         DecimalFormat df = new DecimalFormat("#.###");
 /*
         x_accel.setText("x:"+df.format(x));
         y_accel.setText("y:"+df.format(y));
         z_accel.setText("z:"+df.format(z));
 */
-        float accelerationSquareRoot = (x * x + y * y );
+        float accelerationSquareRoot = (x * x + y * y);
         //float accelationSquareRoot = (z * z);//(SensorManager.GRAVITY_EARTH * SensorManager.GRAVITY_EARTH);
         //long actualTime = event.timestamp;
         long actualTime = System.currentTimeMillis();
 
-        if (accelerationSquareRoot >= 4)
-        {
-            if(actualTime - lastUpdate > 2000) {
+        if (accelerationSquareRoot >= 4) {
+            if (actualTime - lastUpdate > 2000) {
                 lastUpdate = System.currentTimeMillis();
 
                 if (color) {
@@ -622,7 +640,7 @@ public class FloorPlans extends Activity implements SensorEventListener {
         return timerThread;
     }
 
-    public void PullFromServer(){
+    public void PullFromServer() {
 
         Thread timer = makeProgressThread();
         timer.start();
@@ -634,9 +652,9 @@ public class FloorPlans extends Activity implements SensorEventListener {
                 ArrayList<GridData> result = new ArrayList<GridData>();
                 if (e == null) {
                     int numberOfPoints = newDataList.size();
-                    if(!newDataList.isEmpty()){
+                    if (!newDataList.isEmpty()) {
                         //Toast.makeText(getApplicationContext(),"Waiting for server...",Toast.LENGTH_LONG);
-                        for (int i=0; i<numberOfPoints; i++) {
+                        for (int i = 0; i < numberOfPoints; i++) {
                             ParseObject obj = newDataList.get(i);
                             int pos = obj.getInt("position");
                             String routers = obj.getString("routers");
@@ -652,30 +670,29 @@ public class FloorPlans extends Activity implements SensorEventListener {
                             RouterObject[] routerResults = new RouterObject[splitRaw.length];
 
                             //Log.d("object",id);
-                            for(int n=0; n<splitRaw.length; n++) {
+                            for (int n = 0; n < splitRaw.length; n++) {
                                 Pattern pattern2 = Pattern.compile(Pattern.quote("="));
                                 String[] eachRouter = pattern2.split(splitRaw[n]);
                                 int strength = Integer.parseInt(eachRouter[1]);
-                                routerResults[n] = (new RouterObject(eachRouter[0],strength));
+                                routerResults[n] = (new RouterObject(eachRouter[0], strength));
                             }
 
-                            GridData item = new GridData(routerResults,pos,build,flo,id);
+                            GridData item = new GridData(routerResults, pos, build, flo, id);
                             result.add(item);
 
                         }
-                        dataList=result;
+                        dataList = result;
                         //print statement used to see if loading bar time is sufficient
-                        Log.d("update","all done");
+                        Log.d("update", "all done");
                     }
-                }
-                else {
-                    Toast.makeText(getApplicationContext(),"Error connecting to server",Toast.LENGTH_SHORT);
+                } else {
+                    Toast.makeText(getApplicationContext(), "Error connecting to server", Toast.LENGTH_SHORT);
                 }
             }
         });
     }
 
-    public void UpdateFromServer(){
+    public void UpdateFromServer() {
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery("gridDataOnline");
 
@@ -688,10 +705,10 @@ public class FloorPlans extends Activity implements SensorEventListener {
                 RouterObject[] routerResults = new RouterObject[numberOfRoutersUsed];
                 if (e == null) {
                     int numberOfPoints = newDataList.size();
-                    if(!newDataList.isEmpty()){
+                    if (!newDataList.isEmpty()) {
                         //timerThread.run();
-                        Toast.makeText(getApplicationContext(),"Waiting for server...",Toast.LENGTH_LONG).show();
-                        for (int i=0; i<numberOfPoints; i++) {
+                        Toast.makeText(getApplicationContext(), "Waiting for server...", Toast.LENGTH_LONG).show();
+                        for (int i = 0; i < numberOfPoints; i++) {
                             ParseObject obj = newDataList.get(i);
                             int pos = obj.getInt("position");
                             String routers = obj.getString("routers");
@@ -704,49 +721,46 @@ public class FloorPlans extends Activity implements SensorEventListener {
 
                             //System.out.println("position: "+Integer.toString(pos));
 
-                            for(int n=0; n<numberOfRoutersUsed; n++) {
+                            for (int n = 0; n < numberOfRoutersUsed; n++) {
                                 Pattern pattern2 = Pattern.compile(Pattern.quote("="));
                                 String[] eachRouter = pattern2.split(splitRaw[n]);
-                                routerResults[n] = (new RouterObject(eachRouter[0],Integer.parseInt(eachRouter[1])));
+                                routerResults[n] = (new RouterObject(eachRouter[0], Integer.parseInt(eachRouter[1])));
                                 //System.out.println("id: "+routerResults[n].printBSSID());
                             }
 
-                            GridData item = new GridData(routerResults,pos,build,flo,id);
+                            GridData item = new GridData(routerResults, pos, build, flo, id);
                             result.add(item);
 
                         }
-                        dataList=result;
+                        dataList = result;
                         //print statement used to see if loading bar time is sufficient
-                        Log.d("update","all done");
+                        Log.d("update", "all done");
                         viewLocalData();
                     }
-                }
-                else {
+                } else {
                 }
             }
         });
     }
 
-    public void viewLocalData(){
+    public void viewLocalData() {
         int length = dataList.size();
         GridData[] displayDataList = new GridData[length];
-        int n=0;
+        int n = 0;
 
-        for(int i=0;i<length;i++){
+        for (int i = 0; i < length; i++) {
             GridData obj = dataList.get(i);
-            if(obj.getFloor().equals(floornumber)){
-                if(obj.getBuilding().equals(buildingnumber)){
-                    displayDataList[n]=obj;
-                    n+=1;
+            if (obj.getFloor().equals(floornumber)) {
+                if (obj.getBuilding().equals(buildingnumber)) {
+                    displayDataList[n] = obj;
+                    n += 1;
                 }
             }
         }
-        if(n==0){
+        if (n == 0) {
             Toast.makeText(getApplicationContext(), "no data for this floor :(", Toast.LENGTH_SHORT).show();
             return;
-        }
-
-        else {
+        } else {
             GridData[] sortDisplay = new GridData[n];
             System.arraycopy(displayDataList, 0, sortDisplay, 0, sortDisplay.length);
             Arrays.sort(sortDisplay);
@@ -754,11 +768,13 @@ public class FloorPlans extends Activity implements SensorEventListener {
             ArrayList<GridData> finalDisplay = new ArrayList<GridData>();
 
             //re-initialize image mapping to all zeros
-            for(int i=0;i<numbers.length;i++){numbers[i]=0;}
+            for (int i = 0; i < numbers.length; i++) {
+                numbers[i] = 0;
+            }
 
             for (int i = 0; i < sortDisplay.length; i++) {
                 finalDisplay.add(i, sortDisplay[i]);
-                numbers[sortDisplay[i].getPosition()]+=1;
+                numbers[sortDisplay[i].getPosition()] += 1;
                 updateGrid();
             }
 
@@ -774,15 +790,15 @@ public class FloorPlans extends Activity implements SensorEventListener {
 
             List<ScanResult> wifiScanList = mainWifiObj.getScanResults();
 
-            numberOfRoutersSaved=wifiScanList.size();
+            numberOfRoutersSaved = wifiScanList.size();
             wifis = new RouterObject[numberOfRoutersSaved];
-            for(int i = 0; i < numberOfRoutersSaved; i++){
+            for (int i = 0; i < numberOfRoutersSaved; i++) {
                 int level = wifiScanList.get(i).level;
                 //String name = wifiScanList.get(i).SSID;
                 String id = wifiScanList.get(i).BSSID;
                 //int strength = WifiManager.calculateSignalLevel(level,100);
                 int strength = level;
-                RouterObject router = new RouterObject(id,strength);
+                RouterObject router = new RouterObject(id, strength);
                 wifis[i] = router;
             }
 
@@ -791,18 +807,17 @@ public class FloorPlans extends Activity implements SensorEventListener {
             mostRecentScan = wifis;
 
             String[] wifiText = new String[numberOfRoutersSaved];
-            for(int i = 0; i < numberOfRoutersSaved; i++){
+            for (int i = 0; i < numberOfRoutersSaved; i++) {
                 wifiText[i] = wifis[i].print();
             }
 
-            if(wifis!=null || wifis.length!=0) {
+            if (wifis != null || wifis.length != 0) {
                 dataList.add(new GridData(wifis, lastPosition, buildingnumber, floornumber, "0"));
-            }
-            else{
-                Log.d("app","routers not found");
+            } else {
+                Log.d("app", "routers not found");
             }
 
-            for(int i = 0; i < dataList.size(); i++){
+            for (int i = 0; i < dataList.size(); i++) {
                 dataStringList.add(dataList.get(i).print());
             }
 
@@ -810,28 +825,28 @@ public class FloorPlans extends Activity implements SensorEventListener {
 
             scanlist.setAdapter(new ArrayAdapter<String>(getApplicationContext(),
                     R.layout.router_list_item, wifiText));
-            scanTitle.setText("Current data\nBox:"+lastPosition);
+            scanTitle.setText("Current data\nBox:" + lastPosition);
 
-            Toast.makeText(getApplicationContext(),"Add to the server with the 'Send Data' button", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Add to the server with the 'Send Data' button", Toast.LENGTH_SHORT).show();
             unregisterReceiver(wifiReciever);
 
         }
     }
 
-    public int[] ScanGrid35(int position){
-        int xpos = (position%22)+1;
-        int ypos = position/22+1;
-        return new int[]{ypos,xpos};
+    public int[] ScanGrid35(int position) {
+        int xpos = (position % 22) + 1;
+        int ypos = position / 22 + 1;
+        return new int[]{ypos, xpos};
     }
 
-    public int[] ScanGrid33(int position){
-        int xpos = (position%14)+1;
-        int ypos = position/14+1;
-        return new int[]{ypos,xpos};
+    public int[] ScanGrid33(int position) {
+        int xpos = (position % 14) + 1;
+        int ypos = position / 14 + 1;
+        return new int[]{ypos, xpos};
     }
 
-    public void updateGrid(){
-        gridAdapter = new com.example.matthew.newapplication.CustomGridAdapter(getApplicationContext(), numbers );
+    public void updateGrid() {
+        gridAdapter = new com.example.matthew.newapplication.CustomGridAdapter(getApplicationContext(), numbers);
         gridView.setAdapter(gridAdapter);
         gridAdapter.notifyDataSetChanged();
     }

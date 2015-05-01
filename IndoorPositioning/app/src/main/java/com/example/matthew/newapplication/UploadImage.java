@@ -26,7 +26,7 @@ import android.widget.TextView;
 public class UploadImage extends Activity {
 
     TextView textTargetUri;
-    ImageView targetImage,holderImage;
+    ImageView targetImage, holderImage;
     Button buttonLoadImage, buttonSaveImage;
     String chosenName;
     EditText projectNameInput;
@@ -71,7 +71,7 @@ public class UploadImage extends Activity {
             @Override
             public void onClick(View arg0) {
                 // TODO Auto-generated method stub
-                Intent intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(intent, 0);
 
             }
@@ -82,14 +82,14 @@ public class UploadImage extends Activity {
             public void onClick(View arg0) {
                 // TODO Auto-generated method stub
                 chosenName = projectNameInput.getText().toString();
-                if(!chosenName.equals("") && !chosenName.equals(" ") && !chosenName.equals("  ") ) {
+                if (!chosenName.equals("") && !chosenName.equals(" ") && !chosenName.equals("  ")) {
                     projectNamesList.add(chosenName);
                 }
 
-                String projectNamesString="";
-                for(int i=0;i<projectNamesList.size();i++){
+                String projectNamesString = "";
+                for (int i = 0; i < projectNamesList.size(); i++) {
                     String Projectname = projectNamesList.get(i);
-                    if(!Projectname.equals("") && !Projectname.equals(" ") ) {
+                    if (!Projectname.equals("") && !Projectname.equals(" ")) {
                         Projectname = Projectname.replaceAll(" ", "_");
                         projectNamesString = projectNamesString + " " + Projectname;
                     }
@@ -105,7 +105,7 @@ public class UploadImage extends Activity {
         });
     }
 
-    public void saveImage(Context context, Bitmap b,String name){
+    public void saveImage(Context context, Bitmap b, String name) {
 
         FileOutputStream out;
         try {
@@ -123,14 +123,14 @@ public class UploadImage extends Activity {
         // TODO Auto-generated method stub
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK){
+        if (resultCode == RESULT_OK) {
             Uri targetUri = data.getData();
             textTargetUri.setText(targetUri.toString());
             Bitmap bitmap;
             try {
                 bitmap = BitmapFactory.decodeStream(getContentResolver().openInputStream(targetUri));
                 targetImage.setImageBitmap(bitmap);
-                chosenImage=bitmap;
+                chosenImage = bitmap;
                 buttonSaveImage.setVisibility(View.VISIBLE);
                 holderImage.setVisibility(View.INVISIBLE);
             } catch (FileNotFoundException e) {

@@ -20,7 +20,7 @@ public class CustomGridAdapter extends BaseAdapter {
 
     //Constructor to initialize values
     public CustomGridAdapter(Context context, int[] images) {
-        this.context        = context;
+        this.context = context;
         this.images = images;
     }
 
@@ -31,7 +31,7 @@ public class CustomGridAdapter extends BaseAdapter {
         return images.length;
     }
 
-    public int getGridValue(int position){
+    public int getGridValue(int position) {
         return images[position];
     }
 
@@ -46,7 +46,7 @@ public class CustomGridAdapter extends BaseAdapter {
         return 0;
     }
 
-    public void setAsCurrent(int position){
+    public void setAsCurrent(int position) {
 
     }
 /*
@@ -72,7 +72,7 @@ public class CustomGridAdapter extends BaseAdapter {
 
             // get layout from grid_item.xml ( Defined Below )
 
-            gridView = inflater.inflate( R.layout.item , null);
+            gridView = inflater.inflate(R.layout.item, null);
 
             // set value into textview
 
@@ -83,15 +83,15 @@ public class CustomGridAdapter extends BaseAdapter {
             // set image based on selected text
 
             imageView = (ImageView) gridView.findViewById(R.id.grid_item_image);
-           // border = (ImageView) gridView.findViewById(R.id.item_background);
+            // border = (ImageView) gridView.findViewById(R.id.item_background);
             //imageView.setImageResource(R.drawable.placemarker2);
 
-           // biggerImageView = (ImageView) gridView.findViewById(R.id.item_background);
+            // biggerImageView = (ImageView) gridView.findViewById(R.id.item_background);
 
 
             // if(gridValues.equals("999")){
-           //     imageView.setImageResource(R.drawable.placemarker);
-           // }
+            //     imageView.setImageResource(R.drawable.placemarker);
+            // }
             //String arrLabel = gridValues[ position ];
 
         } else {
@@ -99,34 +99,27 @@ public class CustomGridAdapter extends BaseAdapter {
             gridView = (View) convertView;
         }
 
-        if (images[position]==-1) {
+        if (images[position] == -1) {
             // show nothing
-        }
-
-        else if (images[position]==0) {
+        } else if (images[position] == 0) {
             imageView.setImageResource(R.drawable.placemarker0);
-        } else if(images[position]==1) {
+        } else if (images[position] == 1) {
             imageView.setImageResource(R.drawable.placemarker1);
-        }
-        else if(images[position]==2) {
+        } else if (images[position] == 2) {
             imageView.setImageResource(R.drawable.placemarker2);
-        }
-        else if(images[position]==9){
+        } else if (images[position] == 9) {
             //Log.d("position",String.valueOf(position));
             imageView.setImageResource(R.drawable.path_horizontal);
             //gridView.setBackgroundResource(R.drawable.horizontal_path);
-        }
-        else if(images[position]==10){
+        } else if (images[position] == 10) {
             //Log.d("position",String.valueOf(position));
             imageView.setImageResource(R.drawable.path_horizontal_down_left);
             //gridView.setBackgroundResource(R.drawable.horizontal_path);
-        }
-        else if(images[position]==11){
+        } else if (images[position] == 11) {
             //Log.d("position",String.valueOf(position));
             imageView.setImageResource(R.drawable.path_horizontal_up_right);
             //gridView.setBackgroundResource(R.drawable.horizontal_path);
-        }
-        else if(images[position]>2) {
+        } else if (images[position] > 2) {
             imageView.setImageResource(R.drawable.placemarker3);
         }
         return gridView;

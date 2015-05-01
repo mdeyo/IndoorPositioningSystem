@@ -79,7 +79,7 @@ public class checkUpload extends Activity {
             for (int i = 0; i < length; i++) {
                 String name = projectArray[i];
                 name = name.replaceAll("_", " ");
-                if(!name.equals(" ") && !name.equals("") && !name.equals(null)) {
+                if (!name.equals(" ") && !name.equals("") && !name.equals(null)) {
                     projectNamesList.add(name);
                 }
             }
@@ -97,7 +97,7 @@ public class checkUpload extends Activity {
                         final String currentString = projects.getItemAtPosition(position).toString();
                         currentName = currentString;
 
-                        Bitmap b = getImageBitmap(getApplicationContext(),currentString);
+                        Bitmap b = getImageBitmap(getApplicationContext(), currentString);
                         //image.setImageBitmap(b);
 
                         //Bitmap map = BitmapFactory.decodeResource(getResources(), R.drawable.build_image);
@@ -127,11 +127,11 @@ public class checkUpload extends Activity {
 
                                 projectNamesList.remove(selectedPosition);
 
-                                String projectNamesString="";
-                                for(int i=0;i<projectNamesList.size();i++){
+                                String projectNamesString = "";
+                                for (int i = 0; i < projectNamesList.size(); i++) {
                                     String Projectname = projectNamesList.get(i);
                                     Projectname = Projectname.replaceAll(" ", "_");
-                                    projectNamesString=projectNamesString+" "+Projectname;
+                                    projectNamesString = projectNamesString + " " + Projectname;
                                 }
 
                                 prefs.edit().putString(projectKey, projectNamesString).commit();
@@ -171,8 +171,8 @@ public class checkUpload extends Activity {
 //        return super.onOptionsItemSelected(item);
 //    }
 
-    public Bitmap getImageBitmap(Context context,String name){
-        try{
+    public Bitmap getImageBitmap(Context context, String name) {
+        try {
             FileInputStream fis = context.openFileInput(name);
             Bitmap b = BitmapFactory.decodeStream(fis);
             fis.close();
@@ -180,8 +180,7 @@ public class checkUpload extends Activity {
             //title.setText(targetUri);
             return b;
 
-        }
-        catch(Exception e){
+        } catch (Exception e) {
         }
         return null;
     }

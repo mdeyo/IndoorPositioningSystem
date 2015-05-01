@@ -22,7 +22,7 @@ import java.util.List;
 
 
 public class MainActivity extends Activity {
-    private Button buildButton,runButton,wifiButton;
+    private Button buildButton, runButton, wifiButton;
     ImageView mapWithPin;
     TextView title;
     private DrawingView drawView;
@@ -33,8 +33,6 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
 
 
         setContentView(R.layout.activity_main);
@@ -50,9 +48,7 @@ public class MainActivity extends Activity {
         final int clickedColor = Color.parseColor("#5CBDFF");
 
 
-        drawView = (DrawingView)findViewById(R.id.drawing);
-
-
+        drawView = (DrawingView) findViewById(R.id.drawing);
 
 
         buildButton.setOnTouchListener(new View.OnTouchListener() {
@@ -110,7 +106,6 @@ public class MainActivity extends Activity {
         });
 
 
-
         runButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 //runButton.setBackgroundResource(R.drawable.round_rect_grey_highlighted);
@@ -128,8 +123,8 @@ public class MainActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanResult != null) {
-            Log.d("request code:"+String.valueOf(requestCode),"result code:"+ String.valueOf(resultCode));
-            Log.d("scan result: ",scanResult.getContents());
+            Log.d("request code:" + String.valueOf(requestCode), "result code:" + String.valueOf(resultCode));
+            Log.d("scan result: ", scanResult.getContents());
             // handle scan result
 
         }
@@ -180,7 +175,6 @@ public class MainActivity extends Activity {
 //
 //        canvas.drawPath(path, paint);
 //    }
-
 
 
     class Point {
