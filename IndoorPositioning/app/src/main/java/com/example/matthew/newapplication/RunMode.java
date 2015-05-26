@@ -71,7 +71,6 @@ public class RunMode extends Activity implements SensorEventListener {
     private boolean color = false;
     private TextView textAccel, headingText;
     private long lastUpdate;
-    private Context ctx;
     int lastPrediction;
     GridData result;
     int[] mapsize = new int[240];
@@ -154,10 +153,6 @@ public class RunMode extends Activity implements SensorEventListener {
     private In in;
     private Graph G;
 
-
-    //QRCodeLocation firstQR = new QRCodeLocation("001","33","1",129);
-    //QRCodeLocation secondQR = new QRCodeLocation("002","33","1",110);
-
     Map<String, QRCodeLocation> QRmap = new HashMap<String, QRCodeLocation>();
     //ArrayList<QRCodeLocation> QRCodes = new ArrayList<>();
 
@@ -182,10 +177,23 @@ public class RunMode extends Activity implements SensorEventListener {
         //QRmap.put("001",firstQR);
         //QRmap.put("002",secondQR);
 
+        String pathColor=null;
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            pathColor = extras.getString("path");
+            drawView.setColor(pathColor);
+
+        } else {
+            floornumber = (String) savedInstanceState.getSerializable("floor");
+            buildingnumber = (String) savedInstanceState.getSerializable("building");
+        }
+
         try {
+            //initialize Graph G from file NodeMap
             in = new In("NodeMap");
             G = new Graph(in, ",",getResources().getAssets().open("NodeMap"));
 
+            //initialize QRMap from file QRCodeList
             AssetManager assetManager = getResources().getAssets();
             InputStream is = assetManager.open("QRCodeList");
             BufferedReader r = new BufferedReader(new InputStreamReader(is));
@@ -218,7 +226,6 @@ public class RunMode extends Activity implements SensorEventListener {
 
         Log.d("graph",G.toString());
 
-        ctx = this;
         QRScan = (Button) findViewById(R.id.qr_scan_button);
         scanAgainButton = (Button) findViewById(R.id.button_next_floor);
         viewDataButton = (Button) findViewById(R.id.button_viewdata);
@@ -238,6 +245,9 @@ public class RunMode extends Activity implements SensorEventListener {
         ACCELEROMETER_WAIT_TIME = 1000;
 
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        Sensor senAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensorManager.registerListener(this, senAccelerometer , SensorManager.SENSOR_DELAY_NORMAL);
 
         locationText = (TextView) findViewById(R.id.location_text);
         scanlist = (ListView) findViewById(R.id.listView1);
@@ -337,18 +347,18 @@ public class RunMode extends Activity implements SensorEventListener {
             textAccel = (TextView) findViewById(R.id.textView);
             textAccel.setBackgroundColor(Color.GREEN);
 
-            scanAgainButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View arg0) {
-                    if (scanOn) {
-                        unregisterReceiver(wifiReciever);
-                        scanOn = false;
-                        showCustomAlert("Scanning Off");
-                    } else if (!scanOn) {
-                        registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-                        mainWifiObj.startScan();
-                        scanOn = true;
-                        showCustomAlert("Scanning On");
-                    }
+//            scanAgainButton.setOnClickListener(new View.OnClickListener() {
+//                public void onClick(View arg0) {
+//                    if (scanOn) {
+//                        unregisterReceiver(wifiReciever);
+//                        scanOn = false;
+//                        showCustomAlert("Scanning Off");
+//                    } else if (!scanOn) {
+//                        registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+//                        mainWifiObj.startScan();
+//                        scanOn = true;
+//                        showCustomAlert("Scanning On");
+//                    }
 //                //toast.show();
 //
 //                int buildingInt = Integer.parseInt(buildingnumber);
@@ -367,53 +377,52 @@ public class RunMode extends Activity implements SensorEventListener {
 //                buildingnumber = String.valueOf(buildingInt);
 //                numbers = updateMapView();
 //
-                }
-            });
+//                }
+//            });
 
             final GestureDetector gestureDetector;
-            gestureDetector = new GestureDetector(new MyGestureDetector());
+//            gestureDetector = new GestureDetector(new MyGestureDetector());
 
-            CoverButton.setOnTouchListener(new View.OnTouchListener() {
-
-                public boolean onTouch(View v, MotionEvent event) {
-                    hand.setVisibility(View.VISIBLE);
-                    if (gestureDetector.onTouchEvent(event)) {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }
-            });
-            SmallCoverButton.setOnTouchListener(new View.OnTouchListener() {
-
-                public boolean onTouch(View v, MotionEvent event) {
-                    if (gestureDetector.onTouchEvent(event)) {
-                        return false;
-                    } else {
-                        return true;
-                    }
-                }
-            });
-
-            viewDataButton.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View arg0) {
-                    viewLocalData();
-                    if (localDataVisible) {
-                        unregisterReceiver(wifiReciever);
-                        scanOn = false;
-                        localDataLayout.setVisibility(View.VISIBLE);
-                        localDataVisible = false;
-                    } else if (!localDataVisible) {
-                        registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-                        mainWifiObj.startScan();
-                        scanOn = true;
-                        localDataLayout.setVisibility(View.GONE);
-                        localDataVisible = true;
-                        hideLocalData();
-                    }
-
-                }
-            });
+//            CoverButton.setOnTouchListener(new View.OnTouchListener() {
+//
+//                public boolean onTouch(View v, MotionEvent event) {
+//                    hand.setVisibility(View.VISIBLE);
+//                    if (gestureDetector.onTouchEvent(event)) {
+//                        return false;
+//                    } else {
+//                        return true;
+//                    }
+//                }
+//            });
+//            SmallCoverButton.setOnTouchListener(new View.OnTouchListener() {
+//
+//                public boolean onTouch(View v, MotionEvent event) {
+//                    if (gestureDetector.onTouchEvent(event)) {
+//                        return false;
+//                    } else {
+//                        return true;
+//                    }
+//                }
+//            });
+//            viewDataButton.setOnClickListener(new View.OnClickListener() {
+//                public void onClick(View arg0) {
+//                    viewLocalData();
+//                    if (localDataVisible) {
+//                        unregisterReceiver(wifiReciever);
+//                        scanOn = false;
+//                        localDataLayout.setVisibility(View.VISIBLE);
+//                        localDataVisible = false;
+//                    } else if (!localDataVisible) {
+//                        registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+//                        mainWifiObj.startScan();
+//                        scanOn = true;
+//                        localDataLayout.setVisibility(View.GONE);
+//                        localDataVisible = true;
+//                        hideLocalData();
+//                    }
+//
+//                }
+//            });
 //        datalistView.setOnItemLongClickListener(
 //                new AdapterView.OnItemLongClickListener() {
 //                    @Override
@@ -482,7 +491,6 @@ public class RunMode extends Activity implements SensorEventListener {
                     AlertDialog.Builder adb = new AlertDialog.Builder(RunMode.this);
                     adb.setCancelable(true);
                     adb.setTitle("QR code scanner");
-                    //adb.setMessage("Save your current wifi data as this place on the map?");
                     adb.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             dialog.cancel();
@@ -532,7 +540,9 @@ public class RunMode extends Activity implements SensorEventListener {
                 buildingnumber = obj.getBuilding();
                 floornumber = obj.getFloor();
                 currentPosition = QRPosition;
+                updatePathView(currentPosition);
                 updateMapView();
+                mainWifiObj.startScan();
             }
 
             //continue normal operations after the QR Code Scan
@@ -554,12 +564,12 @@ public class RunMode extends Activity implements SensorEventListener {
         // register this class as a listener for the orientation and
         // accelerometer sensors
         sensorManager.registerListener(this,
-                sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION),
+                sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
                 SensorManager.SENSOR_DELAY_NORMAL);
 
-        sensorManager.registerListener(this,
-                sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY),
-                SensorManager.SENSOR_DELAY_NORMAL);
+//        sensorManager.registerListener(this,
+//                sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY),
+//                SensorManager.SENSOR_DELAY_NORMAL);
 
         // for the system's orientation sensor registered listeners
 //        sensorManager.registerListener(this, sensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION),
@@ -601,58 +611,54 @@ public class RunMode extends Activity implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        //Toast.makeText(this, "sensor changed", Toast.LENGTH_SHORT).show();
 
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             getAccelerometer(event);
         }
-        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
-            getAccelerometer(event);
-        }
 
-        if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
-            updateGravityVector(event);
-        }
-
-        if (event.sensor.getType() == Sensor.TYPE_ORIENTATION) {
-            // get the angle around the z-axis rotated
-            float degree = Math.round(event.values[0]);
-            //headingText.setText("Heading: " + Float.toString(degree) + " degrees");
-        }
+        //lost capabilities without gyroscope on the cell phone
+//        if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+//            getAccelerometer(event);
+//        }
+//        if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
+//            updateGravityVector(event);
+//        }
 
     }
 
-    private void updateGravityVector(SensorEvent event) {
-        float[] values = event.values;
-        float x = values[0];
-        float y = values[1];
-        float z = values[2];
-
-        float magnitude = (float) Math.sqrt(x * x + y * y + z * z);
-
-        gravityVector[0] = x / magnitude;
-        gravityVector[1] = y / magnitude;
-        gravityVector[2] = z / magnitude;
-
-
-    }
+//    private void updateGravityVector(SensorEvent event) {
+//        float[] values = event.values;
+//        float x = values[0];
+//        float y = values[1];
+//        float z = values[2];
+//
+//        float magnitude = (float) Math.sqrt(x * x + y * y + z * z);
+//
+//        gravityVector[0] = x / magnitude;
+//        gravityVector[1] = y / magnitude;
+//        gravityVector[2] = z / magnitude;
+//    }
 
     private void getAccelerometer(SensorEvent event) {
         float[] values = event.values;
         // Movement
-        float x = values[0] - 0.01f;
+        float x = values[0];
         float y = values[1];
-        float z = values[2] - 0.33f;
+        float z = values[2];
         //float z =values[2];
 
-        float xInGravity = x * gravityVector[0];
-        float yInGravity = y * gravityVector[1];
-        float zInGravity = z * gravityVector[2];
+        float accelerations = (float)Math.sqrt(x*x+y*y+z*z);
 
-        float accelerationInGravity = (float) Math.sqrt(xInGravity * xInGravity + yInGravity * yInGravity + zInGravity + zInGravity);
-        textAccel.setText(String.valueOf(accelerationInGravity));
+        Log.d("accelerations",String.valueOf(accelerations));
 
-        if (Math.abs(accelerationInGravity) > 4) {
+//        float xInGravity = x * gravityVector[0];
+//        float yInGravity = y * gravityVector[1];
+//        float zInGravity = z * gravityVector[2];
+//        float accelerationInGravity = (float) Math.sqrt(xInGravity * xInGravity + yInGravity * yInGravity + zInGravity + zInGravity);
+
+        textAccel.setText("movement: "+String.valueOf(accelerations));
+
+        if (Math.abs(accelerations) > 14) {
 
             if (color) {
                 textAccel.setBackgroundColor(Color.GREEN);
@@ -662,42 +668,37 @@ public class RunMode extends Activity implements SensorEventListener {
             color = !color;
         }
 
-
-        float linearAccelerationSquared = (x * x + y * y);
+//        float linearAccelerationSquared = (x * x + y * y);
         //long actualTime = event.timestamp;
         long actualTime = System.currentTimeMillis();
 
-
-        if (linearAccelerationSquared > changesAccelerometer) {
-            changesAccelerometer = linearAccelerationSquared;
+        if (accelerations> changesAccelerometer) {
+            changesAccelerometer = accelerations;
         }
 
-        if ((z * z) > 7) {
-            accelerationZ = true;
-        }
+//        if ((z * z) > 7) {
+//            accelerationZ = true;
+//        }
 
-
-        if (linearAccelerationSquared >= 4) {
+        if (changesAccelerometer >= 12) {
             if (actualTime - lastUpdate > ACCELEROMETER_WAIT_TIME) {
 
                 lastUpdate = System.currentTimeMillis();
-                recentChangesAccelerometer = linearAccelerationSquared;
+                recentChangesAccelerometer = changesAccelerometer;
                 //Log.d("linearA",String.valueOf(recentChangesAccelerometer));
                 localPoints.setText("local: 9");
-                //textAccel.setText(String.valueOf(recentChangesAccelerometer));
+                textAccel.setText(String.valueOf(recentChangesAccelerometer));
                 //recentChangesAccelerometer=0;
 
-                if (linearAccelerationSquared > 20) {
+                if (changesAccelerometer > 16) {
                     localPoints.setText("local: 24");
                 }
-
-
                 //Toast.makeText(getApplicationContext(), "Guessing position...", Toast.LENGTH_SHORT).show();
-                startScanTime = System.currentTimeMillis();
+//                startScanTime = System.currentTimeMillis();
                 //Log.d("wifi listener","register! ***********************************************************************");
 
                 //registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-                mainWifiObj.startScan();
+//                mainWifiObj.startScan();
                 //Log.d("wifi listener","scanning...");
 
             }
@@ -778,8 +779,8 @@ public class RunMode extends Activity implements SensorEventListener {
                                     //mainWifiObj.disconnect();
                                     if (!scanOn) {
                                         registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-                                        mainWifiObj.startScan();
-                                        scanOn = true;
+//                                        mainWifiObj.startScan();
+//                                        scanOn = true;
                                         //showCustomAlert("Scanning On");
                                     }
                                     Log.d("wifi listener", "scanning...");
@@ -945,61 +946,60 @@ public class RunMode extends Activity implements SensorEventListener {
 //            }
 //        });
 //    }
-
-    public void viewLocalData() {
-        int length = dataList.size();
-        GridData[] displayDataList = new GridData[length];
-        int n = 0;
-
-        for (int i = 0; i < length; i++) {
-            GridData obj = dataList.get(i);
-            if (obj.getFloor().equals(floornumber)) {
-                if (obj.getBuilding().equals(buildingnumber)) {
-                    displayDataList[n] = obj;
-                    n += 1;
-                }
-            }
-        }
-        if (n == 0) {
-            showCustomAlert("No available data for this floor :(");
-            //Toast.makeText(getApplicationContext(), "no data for this floor :(", Toast.LENGTH_SHORT).show();
-            return;
-        } else {
-            GridData[] sortDisplay = new GridData[n];
-            System.arraycopy(displayDataList, 0, sortDisplay, 0, sortDisplay.length);
-            Arrays.sort(sortDisplay);
-
-            ArrayList<GridData> finalDisplay = new ArrayList<GridData>();
-
-            if (result != null) {
-                lastPrediction = result.getPosition();
-            }
-
-            //re-initialize image mapping to all zeros
-            for (int i = 0; i < numbers.length; i++) {
-                numbers[i] = 0;
-            }
-
-            for (int i = 0; i < sortDisplay.length; i++) {
-                finalDisplay.add(i, sortDisplay[i]);
-                numbers[sortDisplay[i].getPosition()] += 1;
-                updateGrid();
-            }
-
-            datalistView.setAdapter(new ViewDataAdapter(finalDisplay, getApplicationContext()));
-            //Toast.makeText(getApplicationContext(), "data!", Toast.LENGTH_SHORT).show();
-        }
-
-    }
-
-    public void hideLocalData() {
-        //re-initialize image mapping to all zeros
-        for (int i = 0; i < numbers.length; i++) {
-            numbers[i] = -1;
-        }
-        numbers[lastPrediction] = 0;
-        updateGrid();
-    }
+//    public void viewLocalData() {
+//        int length = dataList.size();
+//        GridData[] displayDataList = new GridData[length];
+//        int n = 0;
+//
+//        for (int i = 0; i < length; i++) {
+//            GridData obj = dataList.get(i);
+//            if (obj.getFloor().equals(floornumber)) {
+//                if (obj.getBuilding().equals(buildingnumber)) {
+//                    displayDataList[n] = obj;
+//                    n += 1;
+//                }
+//            }
+//        }
+//        if (n == 0) {
+//            showCustomAlert("No available data for this floor :(");
+//            //Toast.makeText(getApplicationContext(), "no data for this floor :(", Toast.LENGTH_SHORT).show();
+//            return;
+//        } else {
+//            GridData[] sortDisplay = new GridData[n];
+//            System.arraycopy(displayDataList, 0, sortDisplay, 0, sortDisplay.length);
+//            Arrays.sort(sortDisplay);
+//
+//            ArrayList<GridData> finalDisplay = new ArrayList<GridData>();
+//
+//            if (result != null) {
+//                lastPrediction = result.getPosition();
+//            }
+//
+//            //re-initialize image mapping to all zeros
+//            for (int i = 0; i < numbers.length; i++) {
+//                numbers[i] = 0;
+//            }
+//
+//            for (int i = 0; i < sortDisplay.length; i++) {
+//                finalDisplay.add(i, sortDisplay[i]);
+//                numbers[sortDisplay[i].getPosition()] += 1;
+//                updateGrid();
+//            }
+//
+//            datalistView.setAdapter(new ViewDataAdapter(finalDisplay, getApplicationContext()));
+//            //Toast.makeText(getApplicationContext(), "data!", Toast.LENGTH_SHORT).show();
+//        }
+//
+//    }
+//
+//    public void hideLocalData() {
+//        //re-initialize image mapping to all zeros
+//        for (int i = 0; i < numbers.length; i++) {
+//            numbers[i] = -1;
+//        }
+//        numbers[lastPrediction] = 0;
+//        updateGrid();
+//    }
 
     class WifiScanReceiver extends BroadcastReceiver {
         @SuppressLint("UseValueOf")
@@ -1270,7 +1270,7 @@ public class RunMode extends Activity implements SensorEventListener {
                 scanCount = 0;
                 averageScans average = new averageScans(olderScan, mostRecentScan);
                 averageOfRecentScans = average.calculate();
-                FingerprintingAlg Alg = new FingerprintingAlg(currentPosition, accelerationZ, recentChangesAccelerometer, previousChangesAccelerometer, floornumber, buildingnumber, strongerDataList, averageOfRecentScans);
+                FingerprintingAlg Alg = new FingerprintingAlg(currentPosition, G, recentChangesAccelerometer, previousChangesAccelerometer, floornumber, buildingnumber, strongerDataList, averageOfRecentScans);
 
                 //Accelerations over time need to be updated
                 accelerationZ = false;
@@ -1307,7 +1307,7 @@ public class RunMode extends Activity implements SensorEventListener {
                     floornumber = algResult.getFloor();
                     currentPosition = algResult.getPosition();
                     if (buildingnumber.equals("35") && previousBuilding.equals("33")) {
-                        animate35over33();
+//                        animate35over33();
                         previousPosition = currentPosition;
                         previousBuilding = buildingnumber;
                         previousFloor = floornumber;
@@ -1340,73 +1340,71 @@ public class RunMode extends Activity implements SensorEventListener {
         }
     }
 
-    private class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
-
-        private static final int SWIPE_MIN_DISTANCE = 200;
-        //private static final int SWIPE_MAX_OFF_PATH = 250;
-        private static final int SWIPE_THRESHOLD_VELOCITY = 280;
-
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-                               float velocityY) {
-
-            System.out.println(" in onFling() :: ");
-            //if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
-            //return false;
-            if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                Animation animateCoverLeft = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.cover_left_animation);
-                animateCoverLeft.setAnimationListener(AnimationLeftListener);
-                SmallCoverButton.startAnimation(animateCoverLeft);
-
-
-            } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
-                    && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-
-                hand.setVisibility(View.VISIBLE);
-                Animation animateCoverRight = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.cover_right_animation);
-                animateCoverRight.setAnimationListener(AnimationRightListener);
-                CoverButton.startAnimation(animateCoverRight);
-            }
-            return super.onFling(e1, e2, velocityX, velocityY);
-        }
-    }
-
-    Animation.AnimationListener AnimationRightListener = new Animation.AnimationListener() {
-        @Override
-        public void onAnimationEnd(Animation animation) {
-            CoverButton.setVisibility(View.GONE);
-            SmallCoverButton.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        public void onAnimationRepeat(Animation animation) {
-            // TODO Auto-generated method stub
-        }
-
-        @Override
-        public void onAnimationStart(Animation animation) {
-            // TODO Auto-generated method stub
-        }
-    };
-
-    Animation.AnimationListener AnimationLeftListener = new Animation.AnimationListener() {
-        @Override
-        public void onAnimationEnd(Animation animation) {
-            SmallCoverButton.setVisibility(View.GONE);
-            CoverButton.setVisibility(View.VISIBLE);
-            hand.setVisibility(View.GONE);
-
-        }
-
-        @Override
-        public void onAnimationRepeat(Animation animation) {
-            // TODO Auto-generated method stub
-        }
-
-        @Override
-        public void onAnimationStart(Animation animation) {
-            // TODO Auto-generated method stub
-        }
-    };
+//    private class MyGestureDetector extends GestureDetector.SimpleOnGestureListener {
+//
+//        private static final int SWIPE_MIN_DISTANCE = 200;
+//        //private static final int SWIPE_MAX_OFF_PATH = 250;
+//        private static final int SWIPE_THRESHOLD_VELOCITY = 280;
+//
+//        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+//                               float velocityY) {
+//
+//            System.out.println(" in onFling() :: ");
+//            //if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+//            //return false;
+//            if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+//                Animation animateCoverLeft = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.cover_left_animation);
+//                animateCoverLeft.setAnimationListener(AnimationLeftListener);
+//                SmallCoverButton.startAnimation(animateCoverLeft);
+//
+//
+//            } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE
+//                    && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+//
+//                hand.setVisibility(View.VISIBLE);
+//                Animation animateCoverRight = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.cover_right_animation);
+//                animateCoverRight.setAnimationListener(AnimationRightListener);
+//                CoverButton.startAnimation(animateCoverRight);
+//            }
+//            return super.onFling(e1, e2, velocityX, velocityY);
+//        }
+//    }
+//
+//    Animation.AnimationListener AnimationRightListener = new Animation.AnimationListener() {
+//        @Override
+//        public void onAnimationEnd(Animation animation) {
+//            CoverButton.setVisibility(View.GONE);
+//            SmallCoverButton.setVisibility(View.VISIBLE);
+//        }
+//
+//        @Override
+//        public void onAnimationRepeat(Animation animation) {
+//        }
+//
+//        @Override
+//        public void onAnimationStart(Animation animation) {
+//        }
+//    };
+//
+//    Animation.AnimationListener AnimationLeftListener = new Animation.AnimationListener() {
+//        @Override
+//        public void onAnimationEnd(Animation animation) {
+//            SmallCoverButton.setVisibility(View.GONE);
+//            CoverButton.setVisibility(View.VISIBLE);
+//            hand.setVisibility(View.GONE);
+//
+//        }
+//
+//        @Override
+//        public void onAnimationRepeat(Animation animation) {
+//            // TODO Auto-generated method stub
+//        }
+//
+//        @Override
+//        public void onAnimationStart(Animation animation) {
+//            // TODO Auto-generated method stub
+//        }
+//    };
 
     public void showCustomAlert(String inputString) {
         toastActivated = true;
@@ -1482,41 +1480,41 @@ public class RunMode extends Activity implements SensorEventListener {
         }
     }
 
-    public void animate35over33() {
+//    public void animate35over33() {
+//
+//        if (floornumber.equals("1")) {
+//            newBuildingInt = R.drawable.floor1_35;
+//        } else if (floornumber.equals("2")) {
+//            newBuildingInt = R.drawable.floor2_35;
+//        }
+//
+//        Animation animateIncomingRight = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.incoming_walls_right);
+//        wallsViewRight.startAnimation(animateIncomingRight);
+//
+//        Animation animateChangeWalls = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.walls_change);
+//        animateChangeWalls.setAnimationListener(AnimationListenerForRightWall);
+//        map.startAnimation(animateChangeWalls);
+//
+//        map.setImageResource(newBuildingInt);
+//    }
 
-        if (floornumber.equals("1")) {
-            newBuildingInt = R.drawable.floor1_35;
-        } else if (floornumber.equals("2")) {
-            newBuildingInt = R.drawable.floor2_35;
-        }
-
-        Animation animateIncomingRight = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.incoming_walls_right);
-        wallsViewRight.startAnimation(animateIncomingRight);
-
-        Animation animateChangeWalls = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.walls_change);
-        animateChangeWalls.setAnimationListener(AnimationListenerForRightWall);
-        map.startAnimation(animateChangeWalls);
-
-        map.setImageResource(newBuildingInt);
-    }
-
-    Animation.AnimationListener AnimationListenerForRightWall = new Animation.AnimationListener() {
-        @Override
-        public void onAnimationEnd(Animation animation) {
-            wallsViewRight.setVisibility(View.INVISIBLE);
-            //map.setImageResource(newBuildingInt);
-        }
-
-        @Override
-        public void onAnimationRepeat(Animation animation) {
-            // TODO Auto-generated method stub
-        }
-
-        @Override
-        public void onAnimationStart(Animation animation) {
-            // TODO Auto-generated method stub
-        }
-    };
+//    Animation.AnimationListener AnimationListenerForRightWall = new Animation.AnimationListener() {
+//        @Override
+//        public void onAnimationEnd(Animation animation) {
+//            wallsViewRight.setVisibility(View.INVISIBLE);
+//            //map.setImageResource(newBuildingInt);
+//        }
+//
+//        @Override
+//        public void onAnimationRepeat(Animation animation) {
+//            // TODO Auto-generated method stub
+//        }
+//
+//        @Override
+//        public void onAnimationStart(Animation animation) {
+//            // TODO Auto-generated method stub
+//        }
+//    };
 
     public void checkForExtremes() {
         wallsViewRight.setVisibility(View.INVISIBLE);

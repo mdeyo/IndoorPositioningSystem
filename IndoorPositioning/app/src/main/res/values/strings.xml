@@ -11,5 +11,6 @@
     <string name="title_activity_upload_image">UploadImage</string>
     <string name="title_activity_check_upload">checkUpload</string>
     <string name="title_activity_main_activity2">MainActivity2</string>
+    <string name="title_activity_choose_path">ChoosePath</string>
 
 </resources>

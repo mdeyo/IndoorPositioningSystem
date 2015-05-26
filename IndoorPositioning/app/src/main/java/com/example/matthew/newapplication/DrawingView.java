@@ -111,6 +111,23 @@ public class DrawingView extends View {
         drawPaint.setColor(paintColor);
     }
 
+//    public void setStroke(BasicStroke stroke){
+//        invalidate();
+//        drawPaint.setStroke();
+//    }
+//
+//    final static float dash1[] = {10.0f};
+//    final static BasicStroke dashed =
+//            new BasicStroke(1.0f,
+//                    BasicStroke.CAP_BUTT,
+//                    BasicStroke.JOIN_MITER,
+//                    10.0f, dash1, 0.0f);
+//    g2.setStroke(dashed);
+//    g2.draw(new RoundRectangle2D.Double(x, y,
+//    rectWidth,
+//    rectHeight,
+//            10, 10));
+
     public void updatePath(List<Point> points) {
         Path path = new Path();
         Boolean first = true;

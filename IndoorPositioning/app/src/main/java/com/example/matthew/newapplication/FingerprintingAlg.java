@@ -25,8 +25,13 @@ public class FingerprintingAlg {
     private float previousAccelerationData;
 
     private boolean edgeEffect;
+    private Graph G;
 
-    public FingerprintingAlg(int currentPosition, boolean accelerationZ, float accelerationData, float previousAccelerationData, String currentFloor, String currentBuilding, ArrayList<GridData> data, RouterObject[] scanned) {
+    //TODO design new floor switching technique
+    boolean accelerationZ = false;
+
+    public FingerprintingAlg(int currentPosition,Graph graph, float accelerationData, float previousAccelerationData, String currentFloor, String currentBuilding, ArrayList<GridData> data, RouterObject[] scanned) {
+        this.G=graph;
         pos = currentPosition;
         dataPoints = data;
         scan = scanned;
@@ -37,6 +42,15 @@ public class FingerprintingAlg {
         this.currentFloor = currentFloor;
         edgeEffect = false;
 
+        String graphVertex = currentBuilding+":"+currentFloor+":"+String.valueOf(currentPosition);
+
+        if(G.hasVertex(graphVertex)){
+            Log.d("check location value","found in Graph!");
+        //TODO new algorithm using Graph points
+
+        }
+
+
 
         ArrayList<Integer> localPositions = new ArrayList<Integer>();
         localPositions.clear();
@@ -44,7 +58,7 @@ public class FingerprintingAlg {
         Log.d("currentA", String.valueOf(accelerations));
         Log.d("previousA", String.valueOf(previousAccelerationData));
 
-        if (accelerationData > 4 && previousAccelerationData > 4) {
+        if (accelerationData > 16 && previousAccelerationData > 14) {
             Log.d("alg", "accelerations!");
             //faster linear acceleration -> don't include previous location
             //create acceptable range of positions

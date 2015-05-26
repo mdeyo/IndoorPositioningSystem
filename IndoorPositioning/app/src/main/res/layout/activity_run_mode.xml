@@ -87,7 +87,7 @@
             android:layout_above="@+id/button_next_floor"/>
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/textView1"
             android:layout_width="130dp"
             android:layout_height="40dp"
             android:gravity="center"
@@ -97,11 +97,11 @@
             android:text="movement" />
 
         <TextView
-            android:id="@+id/textLocal"
+            android:id="@+id/textLocal1"
             android:layout_width="130dp"
             android:layout_height="60dp"
             android:gravity="center"
-            android:layout_above="@+id/textView"
+            android:layout_above="@+id/textView1"
             android:layout_alignLeft="@+id/button_next_floor"
             android:layout_alignRight="@+id/button_next_floor"
             android:text="local: 9" />
@@ -242,6 +242,27 @@
 
 </RelativeLayout>
 
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="200dp"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="100dp"
+        android:layout_marginBottom="4dp"
+        android:text="movement" />
+
+    <TextView
+        android:id="@+id/textLocal"
+        android:layout_width="130dp"
+        android:layout_height="30dp"
+        android:gravity="center"
+        android:layout_above="@+id/textView"
+        android:layout_alignLeft="@+id/textView"
+        android:text="local: 9" />
+
+
     <ImageView
         android:visibility="gone"
         android:id="@+id/wallsViewRight"
@@ -260,6 +281,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/progressBar_layout"
+        android:visibility="gone"
         >
 
         <RelativeLayout

@@ -31,7 +31,6 @@
             android:name=".ChooseBuilding"
             android:label="Build Mode"
             android:screenOrientation="landscape" >
-
         </activity>
         <activity
             android:name=".MainActivity"
@@ -39,6 +38,7 @@
             android:screenOrientation="landscape" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -56,7 +56,6 @@
             android:name=".UploadImage"
             android:label="@string/title_activity_upload_image"
             android:screenOrientation="landscape" >
-
         </activity>
         <activity
             android:name=".checkUpload"
@@ -67,7 +66,10 @@
             android:name=".ImageViewTest"
             android:label="@string/title_activity_main_activity2"
             android:screenOrientation="landscape" >
-
+        </activity>
+        <activity
+            android:name=".ChoosePath"
+            android:label="@string/title_activity_choose_path" >
         </activity>
     </application>
 

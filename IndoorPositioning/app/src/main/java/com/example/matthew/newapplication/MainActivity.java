@@ -109,7 +109,7 @@ public class MainActivity extends Activity {
         runButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 //runButton.setBackgroundResource(R.drawable.round_rect_grey_highlighted);
-                Intent nextScreen = new Intent(getApplicationContext(), RunMode.class);
+                Intent nextScreen = new Intent(getApplicationContext(), ChoosePath.class);
                 startActivity(nextScreen);
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
 
