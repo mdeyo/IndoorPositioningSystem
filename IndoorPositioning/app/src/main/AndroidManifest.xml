@@ -28,6 +28,11 @@
             android:screenOrientation="landscape" >
         </activity>
         <activity
+            android:name=".SideView37"
+            android:label="Building 37"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
             android:name=".ChooseBuilding"
             android:label="Build Mode"
             android:screenOrientation="landscape" >

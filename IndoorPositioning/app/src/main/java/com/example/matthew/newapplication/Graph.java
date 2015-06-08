@@ -63,7 +63,6 @@ public class Graph {
     private Map points;
 //	private static JFrame frame;
 
-
     // number of edges
     private int E;
 
@@ -79,8 +78,6 @@ public class Graph {
      */
     public Graph(In in, String delimiter, InputStream is) {
 
-
-
         st = new ST<String, SET<String>>();
         points = new HashMap();
 
@@ -93,12 +90,17 @@ public class Graph {
             if ( is != null) {
 
                 while ((line = r.readLine()) != null) {
-                    String[] names = line.split(delimiter);
-                    if (!points.containsKey(names[0])) {
-                        points.put(names[0], names[1]);
+                    if(line.startsWith("//")){
+                        //do nothing with this line
                     }
-                    for (int i = 2; i < names.length; i++) {
-                        addEdge(names[0], names[i]);
+                    else {
+                        String[] names = line.split(delimiter);
+                        if (!points.containsKey(names[0])) {
+                            points.put(names[0], names[1]);
+                        }
+                        for (int i = 2; i < names.length; i++) {
+                            addEdge(names[0], names[i]);
+                        }
                     }
                 }
             }
@@ -221,12 +223,13 @@ public class Graph {
     public String toString() {
         StringBuilder s = new StringBuilder();
         for (String v : st) {
+            s.append("\n");
             s.append(v + "  - (");
+            Log.d("debug node",v);
             s.append(points.get(v).toString() + "points)  - ");
             for (String w : st.get(v)) {
                 s.append(w + " - ");
             }
-            s.append("\n");
         }
         return s.toString();
     }

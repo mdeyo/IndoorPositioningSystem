@@ -109,6 +109,16 @@
             android:orientation="vertical"
             android:visibility="gone">
 
+            <ListView
+                android:id="@+id/listView1"
+                android:layout_height="fill_parent"
+                android:layout_width="match_parent"
+                android:layout_gravity="center"
+                android:textAlignment="center"
+                android:listSelector="@android:color/darker_gray"
+                android:scrollbars="vertical"
+                android:background="#fff">
+            </ListView>
             <TextView
                 android:id="@+id/scanTextView"
                 android:layout_width="match_parent"
@@ -122,16 +132,7 @@
                 android:background="#fff"
                 android:textSize="23dp"
                 android:textColor="#638e22"/>
-            <ListView
-                android:id="@+id/listView1"
-                android:layout_height="fill_parent"
-                android:layout_width="match_parent"
-                android:layout_gravity="center"
-                android:textAlignment="center"
-                android:listSelector="@android:color/darker_gray"
-                android:scrollbars="vertical"
-                android:background="#fff">
-            </ListView>
+
 
         </LinearLayout>
 

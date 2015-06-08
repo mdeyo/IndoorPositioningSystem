@@ -29,7 +29,7 @@ public class SideView33 extends Activity {
         Button Button2 = (Button) findViewById(R.id.button_floor2_33);
         Button Button3 = (Button) findViewById(R.id.button_floor3_33);
         Button Button4 = (Button) findViewById(R.id.button_floor4_33);
-        Button Button5 = (Button) findViewById(R.id.button_floor5_33);
+//        Button Button5 = (Button) findViewById(R.id.button_floor5_33);
 
         Typeface font = Typeface.createFromAsset(getAssets(), "myriad_pro.ttf");
         Button0.setTypeface(font);
@@ -37,7 +37,7 @@ public class SideView33 extends Activity {
         Button2.setTypeface(font);
         Button3.setTypeface(font);
         Button4.setTypeface(font);
-        Button5.setTypeface(font);
+//        Button5.setTypeface(font);
 
         Button0.setOnTouchListener(new View.OnTouchListener() {
             public boolean onTouch(View v, MotionEvent event) {
@@ -124,23 +124,23 @@ public class SideView33 extends Activity {
                 return false;
             }
         });
-        Button5.setOnTouchListener(new View.OnTouchListener() {
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN: {
-                        v.setBackgroundResource(R.drawable.round_button_highlighted);
-                        v.invalidate();
-                        break;
-                    }
-                    case MotionEvent.ACTION_UP: {
-                        v.setBackgroundResource(R.drawable.round_button_outline);
-                        v.invalidate();
-                        break;
-                    }
-                }
-                return false;
-            }
-        });
+//        Button5.setOnTouchListener(new View.OnTouchListener() {
+//            public boolean onTouch(View v, MotionEvent event) {
+//                switch (event.getAction()) {
+//                    case MotionEvent.ACTION_DOWN: {
+//                        v.setBackgroundResource(R.drawable.round_button_highlighted);
+//                        v.invalidate();
+//                        break;
+//                    }
+//                    case MotionEvent.ACTION_UP: {
+//                        v.setBackgroundResource(R.drawable.round_button_outline);
+//                        v.invalidate();
+//                        break;
+//                    }
+//                }
+//                return false;
+//            }
+//        });
 
         Button0.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
@@ -167,7 +167,7 @@ public class SideView33 extends Activity {
                 startActivity(nextScreen);
             }
         });
-            /*
+
             Button3.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View arg0) {
                     Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
@@ -184,6 +184,7 @@ public class SideView33 extends Activity {
                     startActivity(nextScreen);
                 }
             });
+        /*
             Button5.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View arg0) {
                     Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);

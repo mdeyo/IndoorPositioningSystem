@@ -31,6 +31,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
@@ -160,6 +161,7 @@ public class RunMode extends Activity implements SensorEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_run_mode);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         gridView = (GridView) findViewById(R.id.mapGrid);
         map = (ImageView) findViewById(R.id.wallsView);
         wallsViewRight = (ImageView) findViewById(R.id.wallsViewRight);
@@ -170,12 +172,6 @@ public class RunMode extends Activity implements SensorEventListener {
 
         scanOn = false;
         viewingLocalData = false;
-//
-//        In in = new In("NodeMap");
-//        Graph G = new Graph(in, ",",getResources().getAssets());
-
-        //QRmap.put("001",firstQR);
-        //QRmap.put("002",secondQR);
 
         String pathColor=null;
         if (savedInstanceState == null) {
@@ -255,7 +251,7 @@ public class RunMode extends Activity implements SensorEventListener {
         datalistView = (ListView) findViewById(R.id.data_listView);
         mainWifiObj = (WifiManager) getSystemService(Context.WIFI_SERVICE);
         wifiReciever = new WifiScanReceiver();
-        mainWifiObj.createWifiLock(WifiManager.WIFI_MODE_SCAN_ONLY, "rawr");
+//        mainWifiObj.createWifiLock(WifiManager.WIFI_MODE_SCAN_ONLY, "rawr");
 
         //progress bar class creation
         progressLayout = (RelativeLayout) findViewById(R.id.progressBar_layout);
@@ -542,16 +538,15 @@ public class RunMode extends Activity implements SensorEventListener {
                 currentPosition = QRPosition;
                 updatePathView(currentPosition);
                 updateMapView();
-                mainWifiObj.startScan();
-            }
 
-            //continue normal operations after the QR Code Scan
-            if (scanOn) {
-                mainWifiObj.startScan();
-            } else {
-                registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-                mainWifiObj.startScan();
-                scanOn = true;
+                //continue normal operations after the QR Code Scan
+                if (scanOn) {
+                    mainWifiObj.startScan();
+                } else {
+                    registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+                    mainWifiObj.startScan();
+                    scanOn = true;
+                }
             }
         }
         // else continue with any other code you need in the method
@@ -601,8 +596,10 @@ public class RunMode extends Activity implements SensorEventListener {
 
         sensorManager.unregisterListener(this);
 
-        unregisterReceiver(wifiReciever);
+//        unregisterReceiver(wifiReciever);
         if (scanOn) {
+            unregisterReceiver(wifiReciever);
+
             //mainWifiObj.reconnect();
 //            unregisterReceiver(wifiReciever);
             scanOn = false;
@@ -1104,6 +1101,11 @@ public class RunMode extends Activity implements SensorEventListener {
 //            gridView.setColumnWidth(90);
 
             if (floornumber.equals("0")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -18, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
                 map.setImageResource(R.drawable.floor0_33);
             }
 
@@ -1112,20 +1114,25 @@ public class RunMode extends Activity implements SensorEventListener {
             }
 
             if (floornumber.equals("2")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -12, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
                 map.setImageResource(R.drawable.floor2_33);
             }
 
             if (floornumber.equals("3")) {
-                map.setImageResource(R.drawable.floor3_35);
+                map.setImageResource(R.drawable.floor3_33);
             }
 
             if (floornumber.equals("4")) {
-                map.setImageResource(R.drawable.floor4_35);
+                map.setImageResource(R.drawable.floor4_33);
             }
 
-            if (floornumber.equals("5")) {
-                map.setImageResource(R.drawable.floor5_35);
-            }
+//            if (floornumber.equals("5")) {
+//                map.setImageResource(R.drawable.floor5_35);
+//            }
 
             if (!localDataVisible) {
                 //initialize image mapping to all blank
@@ -1181,9 +1188,9 @@ public class RunMode extends Activity implements SensorEventListener {
                 map.setImageResource(R.drawable.floor4_35);
             }
 
-            if (floornumber.equals("5")) {
-                map.setImageResource(R.drawable.floor5_35);
-            }
+//            if (floornumber.equals("5")) {
+//                map.setImageResource(R.drawable.floor5_35);
+//            }
 
             //initialize image mapping to all blank
             for (int i = 0; i < mapsize.length; i++) {
@@ -1213,28 +1220,28 @@ public class RunMode extends Activity implements SensorEventListener {
             layout.setLayoutParams(params);
 //            gridView.setColumnWidth(99);
 
-            if (floornumber.equals("0")) {
-                map.setImageResource(R.drawable.floor0_35);
-            }
-
             if (floornumber.equals("1")) {
-                map.setImageResource(R.drawable.floor1_35);
+                map.setImageResource(R.drawable.floor1_37);
             }
 
             if (floornumber.equals("2")) {
-                map.setImageResource(R.drawable.floor2_35);
+                map.setImageResource(R.drawable.floor2_37);
             }
 
             if (floornumber.equals("3")) {
-                map.setImageResource(R.drawable.floor3_35);
+                map.setImageResource(R.drawable.floor3_37);
             }
 
             if (floornumber.equals("4")) {
-                map.setImageResource(R.drawable.floor4_35);
+                map.setImageResource(R.drawable.floor4_37);
             }
 
             if (floornumber.equals("5")) {
-                map.setImageResource(R.drawable.floor5_35);
+                map.setImageResource(R.drawable.floor5_37);
+            }
+
+            if (floornumber.equals("6")) {
+                map.setImageResource(R.drawable.floor6_37);
             }
 
             //initialize image mapping to all zeros
@@ -1328,7 +1335,9 @@ public class RunMode extends Activity implements SensorEventListener {
                         showCustomAlert("We can't find your position :(");
                         //Toast.makeText(getApplicationContext(),"We can't find your position :(",Toast.LENGTH_LONG).show();
                     } else {
-                        showCustomAlert("No result:(");
+//                        showCustomAlert("No result:(");
+                        Log.d("checkpoint", "1");
+
 //                    Toast.makeText(getApplicationContext(), "No result :(", Toast.LENGTH_SHORT).show();
                     }
 

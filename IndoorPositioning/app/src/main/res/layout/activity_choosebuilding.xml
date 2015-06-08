@@ -25,7 +25,7 @@
     <Button
         android:layout_width="wrap_content"
         android:textColor="@color/text_color1"
-        android:layout_height="50dp"
+        android:layout_height="56dp"
         android:text="Building 33"
         android:id="@+id/button33"
         android:layout_alignParentLeft="true"
@@ -39,7 +39,7 @@
 
     <Button
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="56dp"
         android:text="Building 35"
         android:textColor="@color/text_color1"
         android:layout_above="@+id/button37"
@@ -54,7 +54,7 @@
 
     <Button
         android:layout_width="wrap_content"
-        android:layout_height="50dp"
+        android:layout_height="56dp"
         android:text="Building 37"
         android:id="@+id/button37"
         android:layout_alignParentLeft="true"

@@ -14,42 +14,34 @@ import android.widget.ImageView;
  * Created by Matthew on 1/1/2015.
  */
 
-public class SideView35 extends Activity {
+public class SideView37 extends Activity {
 
     private ImageView map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_sideview35);
+        setContentView(R.layout.activity_sideview37);
 
-        Button Button0 = (Button) findViewById(R.id.button_floor0);
         Button Button1 = (Button) findViewById(R.id.button_floor1);
         Button Button2 = (Button) findViewById(R.id.button_floor2);
         Button Button3 = (Button) findViewById(R.id.button_floor3);
         Button Button4 = (Button) findViewById(R.id.button_floor4);
-//        Button Button5 = (Button) findViewById(R.id.button_floor5);
+        Button Button5 = (Button) findViewById(R.id.button_floor5);
+        Button Button6 = (Button) findViewById(R.id.button_floor6);
 
         Typeface font = Typeface.createFromAsset(getAssets(), "myriad_pro.ttf");
-        Button0.setTypeface(font);
         Button1.setTypeface(font);
         Button2.setTypeface(font);
         Button3.setTypeface(font);
         Button4.setTypeface(font);
-//        Button5.setTypeface(font);
+        Button5.setTypeface(font);
+        Button6.setTypeface(font);
 
-        Button0.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View arg0) {
-                Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
-                nextScreen.putExtra("building", "35");
-                nextScreen.putExtra("floor", "0");
-                startActivity(nextScreen);
-            }
-        });
         Button1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
-                nextScreen.putExtra("building", "35");
+                nextScreen.putExtra("building", "37");
                 nextScreen.putExtra("floor", "1");
                 startActivity(nextScreen);
             }
@@ -57,7 +49,7 @@ public class SideView35 extends Activity {
         Button2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
-                nextScreen.putExtra("building", "35");
+                nextScreen.putExtra("building", "37");
                 nextScreen.putExtra("floor", "2");
                 startActivity(nextScreen);
             }
@@ -65,7 +57,7 @@ public class SideView35 extends Activity {
         Button3.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
-                nextScreen.putExtra("building", "35");
+                nextScreen.putExtra("building", "37");
                 nextScreen.putExtra("floor", "3");
                 startActivity(nextScreen);
             }
@@ -73,19 +65,27 @@ public class SideView35 extends Activity {
         Button4.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
-                nextScreen.putExtra("building", "35");
+                nextScreen.putExtra("building", "37");
                 nextScreen.putExtra("floor", "4");
                 startActivity(nextScreen);
             }
         });
-//        Button5.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View arg0) {
-//                Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
-//                nextScreen.putExtra("building", "35");
-//                nextScreen.putExtra("floor", "5");
-//                startActivity(nextScreen);
-//            }
-//        });
+        Button5.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+                Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
+                nextScreen.putExtra("building", "37");
+                nextScreen.putExtra("floor", "5");
+                startActivity(nextScreen);
+            }
+        });
+        Button6.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+                Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
+                nextScreen.putExtra("building", "37");
+                nextScreen.putExtra("floor", "6");
+                startActivity(nextScreen);
+            }
+        });
 
     }
 

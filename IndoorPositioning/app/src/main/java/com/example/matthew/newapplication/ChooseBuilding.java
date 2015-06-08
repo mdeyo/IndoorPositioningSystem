@@ -165,14 +165,14 @@ public class ChooseBuilding extends Activity {
                 startActivity(nextScreen);
             }
         });
-        /*
+
         Button37.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
-                Intent nextScreen = new Intent(getApplicationContext(), SideView35.class);
+                Intent nextScreen = new Intent(getApplicationContext(), SideView37.class);
                 startActivity(nextScreen);
             }
         });
-        */
+
     }
 
     @Override

@@ -40,17 +40,51 @@ public class FingerprintingAlg {
         this.previousAccelerationData = previousAccelerationData;
         this.currentBuilding = currentBuilding;
         this.currentFloor = currentFloor;
-        edgeEffect = false;
 
         String graphVertex = currentBuilding+":"+currentFloor+":"+String.valueOf(currentPosition);
 
-        if(G.hasVertex(graphVertex)){
-            Log.d("check location value","found in Graph!");
-        //TODO new algorithm using Graph points
+        if(G.hasVertex(graphVertex)) {
+            Log.d("check location value 1", graphVertex+" - found in Graph!");
+            //TODO new algorithm using Graph points
+            //this method returns an Iterable<String> object with all the neighbor Node strings
+            Iterable<String> neighbors = G.adjacentTo(graphVertex);
+            Log.d("check location value 2", neighbors.toString());
 
+            //Convert the Iterable<String> to an ArrayList<String>
+            ArrayList<String> listOfNeighbors = new ArrayList<String>();
+            listOfNeighbors.add(graphVertex);
+            if (neighbors != null) {
+                for (String e : neighbors) {
+                    listOfNeighbors.add(e);
+                }
+            }
+
+            // Prepping the fingerprinting algorithm by only including locations within the localOfNeighbors defined above
+            ArrayList<GridData> edit0 = new ArrayList<GridData>();
+
+            for (int i = 0; i < dataPoints.size(); i++) {
+                GridData obj = dataPoints.get(i);
+                String floor = obj.getFloor();
+                String build = obj.getBuilding();
+                String pos = String.valueOf(obj.getPosition());
+
+                String vertex = build + ":" + floor + ":" + pos;
+
+                if (listOfNeighbors.contains(vertex)) {
+                    edit0.add(obj);
+                }
+            }
+            Log.d("alg", "check0 had " + Integer.toString(edit0.size()) + " results");
+
+            if (edit0.size() == 0) {
+                edit0 = dataPoints;
+            }
+
+            result = secondAlgorithm(edit0, scan);
         }
 
 
+/*
 
         ArrayList<Integer> localPositions = new ArrayList<Integer>();
         localPositions.clear();
@@ -213,6 +247,7 @@ public class FingerprintingAlg {
                 Log.d("alg", "check2 had " + Integer.toString(edit2.size()) + " results");
                 result = secondAlgorithm(edit2, scan);
             }
+            */
 //                /*
 //
 //                //third iteration! using two routers signal strengths
@@ -345,7 +380,7 @@ public class FingerprintingAlg {
 //                }
 //            }
 //    */
-        }
+//        }
 
         //prevBuilding=this.currentBuilding;
         //prevFloor=this.currentFloor;
