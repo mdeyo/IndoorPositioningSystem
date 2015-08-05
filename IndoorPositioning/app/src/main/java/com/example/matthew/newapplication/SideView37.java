@@ -28,7 +28,7 @@ public class SideView37 extends Activity {
         Button Button3 = (Button) findViewById(R.id.button_floor3);
         Button Button4 = (Button) findViewById(R.id.button_floor4);
         Button Button5 = (Button) findViewById(R.id.button_floor5);
-        Button Button6 = (Button) findViewById(R.id.button_floor6);
+//        Button Button6 = (Button) findViewById(R.id.button_floor6);
 
         Typeface font = Typeface.createFromAsset(getAssets(), "myriad_pro.ttf");
         Button1.setTypeface(font);
@@ -36,7 +36,7 @@ public class SideView37 extends Activity {
         Button3.setTypeface(font);
         Button4.setTypeface(font);
         Button5.setTypeface(font);
-        Button6.setTypeface(font);
+//        Button6.setTypeface(font);
 
         Button1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
@@ -78,14 +78,14 @@ public class SideView37 extends Activity {
                 startActivity(nextScreen);
             }
         });
-        Button6.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View arg0) {
-                Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
-                nextScreen.putExtra("building", "37");
-                nextScreen.putExtra("floor", "6");
-                startActivity(nextScreen);
-            }
-        });
+//        Button6.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View arg0) {
+//                Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
+//                nextScreen.putExtra("building", "37");
+//                nextScreen.putExtra("floor", "6");
+//                startActivity(nextScreen);
+//            }
+//        });
 
     }
 

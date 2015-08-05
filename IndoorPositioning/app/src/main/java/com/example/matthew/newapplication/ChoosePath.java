@@ -1,78 +1,134 @@
 package com.example.matthew.newapplication;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 
-public class ChoosePath extends ActionBarActivity {
+public class ChoosePath extends Activity {
 
-    private Button Button1,Button2,Button3;
+    //    private Button option1,option2,option3;
+    RelativeLayout button1, button2, button3;
+//    private CustomButton b1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_choose_path);
+//        b1 = (CustomButton) findViewById(R.id.custom1);
+//        option1 = (Button) findViewById(R.id.b1);
+//        option2 = (Button) findViewById(R.id.b2);
+//        option3 = (Button) findViewById(R.id.b3);
 
-        Button1 = (Button) findViewById(R.id.button_1);
-        Button2 = (Button) findViewById(R.id.button_3);
-        Button3 = (Button) findViewById(R.id.button_2);
+        button1 = (RelativeLayout) findViewById(R.id.button_1);
+        button2 = (RelativeLayout) findViewById(R.id.button_2);
+        button3 = (RelativeLayout) findViewById(R.id.button_3);
 
-//        runButton = (Button) findViewById(R.id.button_run_mode);
-//        mapWithPin = (ImageView) findViewById(R.id.imageViewMain);
-//        title = (TextView) findViewById(R.id.main_title);
-        Typeface font = Typeface.createFromAsset(getAssets(), "myriad_pro.ttf");
-//        title.setTypeface(font);
-        Button1.setTypeface(font);
+        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View v = inflater.inflate(R.layout.path_button_layout, null);
+        TextView text = (TextView) v.findViewById(R.id.optionNumber);
+        text.setText("Option number 2");
 
-        final int clickedColor = Color.parseColor("#5CBDFF");
-
-        Button1.setOnClickListener(new View.OnClickListener() {
+        button1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 //runButton.setBackgroundResource(R.drawable.round_rect_grey_highlighted);
-                Intent nextScreen = new Intent(getApplicationContext(), RunMode.class);
-                nextScreen.putExtra("path", "#66CCFF");
-                startActivity(nextScreen);
+                Intent nextScreen = new Intent(getApplicationContext(), SideViewPreview.class);
+                nextScreen.putExtra("path", "1");
+                startActivityForResult(nextScreen, 1);
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-
             }
         });
 
-        Button2.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View arg0) {
-                //runButton.setBackgroundResource(R.drawable.round_rect_grey_highlighted);
-                Intent nextScreen = new Intent(getApplicationContext(), RunMode.class);
-                nextScreen.putExtra("path", "#FF00FF");
-                startActivity(nextScreen);
-                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-
+        button1.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN: {
+                        v.setBackgroundResource(R.drawable.round_button_blue_highlighted);
+                        v.invalidate();
+                        break;
+                    }
+                    case MotionEvent.ACTION_UP: {
+                        v.setBackgroundResource(R.drawable.round_button_blue_outline);
+                        v.invalidate();
+                        break;
+                    }
+                }
+                return false;
             }
         });
 
-        Button3.setOnClickListener(new View.OnClickListener() {
+        button2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 //runButton.setBackgroundResource(R.drawable.round_rect_grey_highlighted);
-                Intent nextScreen = new Intent(getApplicationContext(), RunMode.class);
-                nextScreen.putExtra("path", "#660066");
-                startActivity(nextScreen);
+                Intent nextScreen = new Intent(getApplicationContext(), SideViewPreview.class);
+                nextScreen.putExtra("path", "2");
+                startActivityForResult(nextScreen, 1);
                 overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
-
             }
         });
 
+        button2.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN: {
+                        v.setBackgroundResource(R.drawable.round_button_blue_highlighted);
+                        v.invalidate();
+                        break;
+                    }
+                    case MotionEvent.ACTION_UP: {
+                        v.setBackgroundResource(R.drawable.round_button_blue_outline);
+                        v.invalidate();
+                        break;
+                    }
+                }
+                return false;
+            }
+        });
+
+        button3.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+                //runButton.setBackgroundResource(R.drawable.round_rect_grey_highlighted);
+                Intent nextScreen = new Intent(getApplicationContext(), SideViewPreview.class);
+                nextScreen.putExtra("path", "3");
+                startActivityForResult(nextScreen, 1);
+                overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            }
+        });
+
+        button3.setOnTouchListener(new View.OnTouchListener() {
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN: {
+                        v.setBackgroundResource(R.drawable.round_button_blue_highlighted);
+                        v.invalidate();
+                        break;
+                    }
+                    case MotionEvent.ACTION_UP: {
+                        v.setBackgroundResource(R.drawable.round_button_blue_outline);
+                        v.invalidate();
+                        break;
+                    }
+                }
+                return false;
+            }
+        });
 
     }
 
 
+    public void selfDestruct(View view) {
+        view.setVisibility(View.GONE);
+    }
 
 
     @Override

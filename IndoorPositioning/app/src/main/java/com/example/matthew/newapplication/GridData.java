@@ -9,10 +9,7 @@ public class GridData implements Comparable<GridData> {
 
     private RouterObject[] routers;
     private int pos;
-    private String floor;
-    private String building;
-    private String stringIds = "";
-    private String id;
+    private String id, floor, building, stringIds = "";
     private ArrayList<String> routerIDs = new ArrayList<String>();
     private ArrayList<RouterObject> routerArray = new ArrayList<RouterObject>();
     private int count;

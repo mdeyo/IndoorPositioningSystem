@@ -168,22 +168,22 @@ public class SideView33 extends Activity {
             }
         });
 
-            Button3.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View arg0) {
-                    Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
-                    nextScreen.putExtra("building","33");
-                    nextScreen.putExtra("floor", "3");
-                    startActivity(nextScreen);
-                }
-            });
-            Button4.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View arg0) {
-                    Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
-                    nextScreen.putExtra("building","33");
-                    nextScreen.putExtra("floor", "4");
-                    startActivity(nextScreen);
-                }
-            });
+        Button3.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+                Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
+                nextScreen.putExtra("building", "33");
+                nextScreen.putExtra("floor", "3");
+                startActivity(nextScreen);
+            }
+        });
+        Button4.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+                Intent nextScreen = new Intent(getApplicationContext(), FloorPlans.class);
+                nextScreen.putExtra("building", "33");
+                nextScreen.putExtra("floor", "4");
+                startActivity(nextScreen);
+            }
+        });
         /*
             Button5.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View arg0) {

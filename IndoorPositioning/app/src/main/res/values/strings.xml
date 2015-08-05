@@ -12,5 +12,9 @@
     <string name="title_activity_check_upload">checkUpload</string>
     <string name="title_activity_main_activity2">MainActivity2</string>
     <string name="title_activity_choose_path">ChoosePath</string>
+    <string name="title_activity_questionnaire">Questionnaire</string>
+    <string name="title_activity_side_view_preview">SideViewPreview</string>
+    <string name="title_activity_choose_nav_mode_and_goal">ChooseNavModeAndGoal</string>
+    <string name="title_activity_choose_trial">ChooseTrial</string>
 
 </resources>

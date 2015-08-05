@@ -1,0 +1,103 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.example.matthew.newapplication.ChooseTrial">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/adaptiveButton"
+                android:layout_width="140dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:text="Adapative Mode"
+                android:background="@drawable/round_button_outline"
+                android:textSize="22dp"
+                android:gravity="center"
+                android:layout_marginBottom="10dp"/>
+
+            <TextView
+                android:id="@+id/adaptableButton"
+                android:layout_width="140dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center"
+                android:text="Adapatable Mode"
+                android:background="@drawable/round_button_outline"
+                android:textSize="22dp"
+                android:gravity="center"/>
+
+        </LinearLayout>
+
+    <LinearLayout
+        android:layout_weight="1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:orientation="vertical"
+        android:layout_gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_gravity="center"
+            android:text="Choose Operation:"
+            android:textSize="22dp"/>
+
+        <ListView
+            android:id="@+id/trialListView"
+            android:layout_width="220dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
+            android:background="@drawable/rect_button_outline"/>
+
+    <Button
+        android:visibility="gone"
+        android:id="@+id/trial1"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:text="Trial 1"
+        android:onClick="setTrial"
+        android:layout_margin="10dp"/>
+
+    <Button
+        android:visibility="gone"
+
+        android:id="@+id/trial2"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:text="Trial 2"
+        android:onClick="setTrial"
+        android:layout_margin="10dp"/>
+
+    <Button
+        android:visibility="gone"
+
+        android:id="@+id/trial3"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:text="Trial 3"
+        android:onClick="setTrial"
+        android:layout_margin="10dp"/>
+
+    </LinearLayout>
+
+    </LinearLayout>
+
+
+
+</RelativeLayout>

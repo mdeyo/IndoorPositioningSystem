@@ -1,0 +1,70 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context="com.example.matthew.newapplication.SideViewPreview"
+    >
+    <!--android:background="@drawable/side_view_preview"-->
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/drawingLayout"
+        android:translationZ="-1dp">
+
+    <com.example.matthew.newapplication.DrawingView
+        android:id="@+id/drawingView1"
+        android:translationZ="-1dp"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        />
+
+    </RelativeLayout>
+
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:translationZ="10dp"
+        android:id="@+id/sideView"
+        android:scaleType="fitXY"
+
+        android:src="@drawable/side_view_clear"/>
+    <!--android:scaleType="fitXY"-->
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="20dp"
+        android:id="@+id/points"
+        android:textColor="#1F497D"
+        android:textSize="22dp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_below="@+id/points"
+        android:id="@+id/numberQR"
+        android:textColor="#1F497D"
+        android:textSize="22dp"
+        android:textStyle="bold"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Test"
+        android:id="@+id/button"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"/>
+
+
+
+</RelativeLayout>

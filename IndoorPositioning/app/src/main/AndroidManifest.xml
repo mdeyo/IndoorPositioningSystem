@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -36,6 +37,13 @@
             android:name=".ChooseBuilding"
             android:label="Build Mode"
             android:screenOrientation="landscape" >
+
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".MainActivity"
@@ -74,7 +82,33 @@
         </activity>
         <activity
             android:name=".ChoosePath"
-            android:label="@string/title_activity_choose_path" >
+            android:label="@string/title_activity_choose_path"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name=".ChoosePathColor"
+            android:label="@string/title_activity_choose_path"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name=".Questionnaire"
+            android:label="@string/title_activity_questionnaire"
+            android:screenOrientation="portrait" >
+        </activity>
+        <activity
+            android:name=".SideViewPreview"
+            android:label="@string/title_activity_side_view_preview"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name=".ChooseNavModeAndGoal"
+            android:label="@string/title_activity_choose_nav_mode_and_goal"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name=".ChooseTrial"
+            android:label="@string/title_activity_choose_trial"
+            android:screenOrientation="landscape">
         </activity>
     </application>
 

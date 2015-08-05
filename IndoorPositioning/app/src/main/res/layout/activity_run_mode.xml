@@ -1,19 +1,32 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
-    android:layout_height="fill_parent" tools:context=".MainActivity" android:background="#fff"
-    >
+    android:layout_height="fill_parent" tools:context=".MainActivity" android:background="#fff">
+
+    <!--topView-->
+    <RelativeLayout
+    android:id="@+id/topView_layout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
 
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/wallsView_layout">
+        
+        <ImageView
+            android:id="@+id/closedFloors"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:src="@drawable/closed_floor"/>
 
         <ImageView
             android:id="@+id/wallsView"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:src="@drawable/floor1_33">
+            android:src="@drawable/navigation">
         </ImageView>
+
+
 
         <com.example.matthew.newapplication.DrawingView
             android:id="@+id/drawing"
@@ -21,9 +34,6 @@
             android:layout_height="fill_parent"
             android:layout_weight="1"
             />
-
-
-
 
     </RelativeLayout>
 
@@ -44,17 +54,72 @@
             android:layout_height="fill_parent"
             android:layout_centerHorizontal="true"/>
 
-        <Button
-            android:layout_width="200dp"
-            android:layout_height="60dp"
+        <TextView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
             android:id="@+id/qr_scan_button"
             android:background="@drawable/round_button_outline"
             android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="10dp"
-            android:layout_marginLeft="60dp"
+            android:layout_marginLeft="10dp"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:textSize="20dp"
+            android:textStyle="bold"
             android:text="QR Code"
+
             />
+
+        <LinearLayout
+            android:id="@+id/informationDisplay"
+            android:layout_width="320dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_toRightOf="@+id/qr_scan_button"
+            android:layout_alignBottom="@+id/qr_scan_button"
+            android:paddingLeft="10dp"
+            android:background="#fff"
+            android:alpha="0.8"
+            android:layout_marginLeft="40dp"
+            >
+
+        <TextView
+            android:id="@+id/pointsCollectedText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:text="Points Collected: 12/18"/>
+
+            <!--<TextView-->
+                <!--android:id="@+id/pointsRemainingText"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:textSize="16dp"-->
+                <!--android:text="Points Remaining on Route: 12/18"/>-->
+
+            <TextView
+                android:id="@+id/qrCodesRemainingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18dp"
+                android:text="QR Codes Remaining: 3"/>
+
+            <TextView
+                android:id="@+id/timeRemainingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"/>
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="movement" />
+
+        </LinearLayout>
+
 
     </RelativeLayout>
 
@@ -213,55 +278,45 @@
 
 
     <RelativeLayout
-        android:layout_width="300dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="10dp"
+        android:layout_width="260dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="0dp"
+        android:paddingTop="-4dp"
         android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
-        android:background="@drawable/toast_border">
+        android:background="@drawable/toast_border_square_top">
 
-    <ImageView
-        android:id="@+id/compass_beating"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:layout_marginLeft="2dp"
-        android:layout_centerVertical="true"
-        android:layout_alignParentLeft="true"
-        android:src="@drawable/navigation2">
-    </ImageView>
+    <!--<ImageView-->
+        <!--android:id="@+id/compass_beating"-->
+        <!--android:layout_width="40dp"-->
+        <!--android:layout_height="40dp"-->
+        <!--android:layout_marginLeft="2dp"-->
+        <!--android:layout_centerVertical="true"-->
+        <!--android:layout_alignParentLeft="true"-->
+        <!--android:src="@drawable/navigation2">-->
+    <!--</ImageView>-->
 
     <TextView
-        android:layout_width="200dp"
-        android:layout_height="70dp"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
         android:gravity="center"
         android:id="@+id/location_text"
-        android:textSize="24dp"
-        android:layout_toRightOf="@+id/compass_beating"
+        android:text="Need First Scan"
+        android:textSize="22dp"
+
         android:layout_alignParentRight="true"
         />
 
 </RelativeLayout>
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="200dp"
-        android:layout_height="30dp"
-        android:gravity="center"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="100dp"
-        android:layout_marginBottom="4dp"
-        android:text="movement" />
-
-    <TextView
-        android:id="@+id/textLocal"
-        android:layout_width="130dp"
-        android:layout_height="30dp"
-        android:gravity="center"
-        android:layout_above="@+id/textView"
-        android:layout_alignLeft="@+id/textView"
-        android:text="local: 9" />
-
+    <!--<TextView-->
+        <!--android:id="@+id/textLocal"-->
+        <!--android:layout_width="130dp"-->
+        <!--android:layout_height="30dp"-->
+        <!--android:gravity="center"-->
+        <!--android:layout_above="@+id/textView"-->
+        <!--android:layout_alignLeft="@+id/textView"-->
+        <!--android:text="" />-->
 
     <ImageView
         android:visibility="gone"
@@ -276,7 +331,179 @@
         android:src="@drawable/floor1_35">
     </ImageView>
 
+</RelativeLayout>
 
+    <!--sideView-->
+    <RelativeLayout
+        android:id="@+id/sideView_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/drawingLayout"
+            android:translationZ="-1dp">
+
+            <com.example.matthew.newapplication.DrawingView
+                android:id="@+id/drawingView1"
+                android:translationZ="-1dp"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                />
+
+        </RelativeLayout>
+
+        <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:translationZ="10dp"
+            android:id="@+id/sideView"
+            android:scaleType="fitXY"
+            android:src="@drawable/side_view_clear_0_2"/>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="50dp"
+            android:layout_marginLeft="20dp"
+            android:id="@+id/points"
+            android:textColor="#1F497D"
+            android:textSize="22dp"
+            android:textStyle="bold"/>
+
+        <!--<Button-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="Test"-->
+            <!--android:id="@+id/button"-->
+            <!--android:layout_alignParentTop="true"-->
+            <!--android:layout_alignParentRight="true"-->
+            <!--android:layout_marginRight="20dp"-->
+            <!--android:layout_marginTop="10dp"/>-->
+
+    </RelativeLayout>
+
+    <!--sideViewToggle-->
+    <RelativeLayout
+        android:id="@+id/sideViewToggle"
+        android:layout_width="100dp"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="4dp"
+        android:background="@drawable/round_button_outline">
+
+    <ImageView
+        android:id="@+id/sideViewToggleImage"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scaleType="fitXY"
+        android:src="@drawable/side_view_clear_0_2"
+        android:alpha="0.7"
+        android:padding="2dp"
+        android:background="@drawable/round_button_outline">
+
+    </ImageView>
+
+    <TextView
+        android:id="@+id/sideViewToggleText"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:textAlignment="center"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:text="Side View"/>
+
+    </RelativeLayout>
+
+    <!--alertBar-->
+    <RelativeLayout
+        android:id="@+id/alertBarToggleLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="200dp"
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:id="@+id/alertBarToggleText"
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:gravity="center"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:textSize="30dp"
+            android:textAlignment="center"
+            android:layout_alignParentTop="true"
+            android:text="Alert Bar ON"
+            android:background="@drawable/grey_rectangle_outline"            />
+
+        <TextView
+            android:id="@+id/alertBarTextBelow"
+            android:layout_width="fill_parent"
+            android:layout_height="40dp"
+            android:layout_below="@+id/alertBarToggleText"
+            android:layout_marginTop="-2dp"
+            android:gravity="center"
+            android:textColor="#fff"
+            android:textStyle="bold"
+            android:textSize="26dp"
+            android:textAlignment="center"
+            android:text="Choose Route"
+            android:background="@drawable/grey_rectangle_outline"            />
+
+        <ImageView
+            android:id="@+id/alertBarToggle"
+            android:layout_width="80dp"
+            android:layout_height="40dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/alert_bar_toggle"
+            android:background="@drawable/grey_rectangle_outline"/>
+
+
+
+        </RelativeLayout>
+
+    <!--finished-->
+    <RelativeLayout
+        android:id="@+id/finishedLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#b0b0b0">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="30dp"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="50dp"
+            android:text="Out of Time"/>
+
+        <TextView
+            android:id="@+id/finishedButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:textStyle="bold"
+            android:textSize="26dp"
+            android:padding="6dp"
+            android:textAlignment="center"
+            android:text="continue to survey"
+            android:background="@drawable/round_button_outline"            />
+
+    </RelativeLayout>
+
+    <!--progressBar-->
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -317,7 +544,7 @@
                     android:layout_marginLeft="20dp"
                     android:layout_marginRight="20dp"
                     android:progressDrawable="@drawable/greenprogress"
-                />
+                    />
 
 
                 <TextView
@@ -381,9 +608,198 @@
 
     </RelativeLayout>
 
+    <!--adaptableChoices-->
+    <RelativeLayout
+        android:id="@+id/adaptableChoicesLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent">
 
+        <RelativeLayout
+            android:id="@+id/adaptableChoicesButtons"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="#80b0b0b0">
 
+        <RelativeLayout
+            android:id="@+id/button_1"
+            android:clickable="true"
+            android:layout_width="380dp"
+            android:layout_height="80dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="40dp"
+            android:layout_marginLeft="30dp"
+            android:background="@drawable/round_button_green">
 
+            <TextView
+                android:id="@+id/button1text"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:text="Option 1"
+                android:layout_marginLeft="10dp"
+                android:textStyle="bold"
+                android:textColor="#1F497D"
+                android:textSize="18dp"/>
 
+            <TextView
+                android:id="@+id/button1points"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/button1text"
+                android:layout_marginLeft="10dp"
+                android:text="Points: 30"
+                android:textStyle="bold"
+                android:textColor="#1F497D"
+                android:textSize="18dp"/>
+
+            <TextView
+                android:id="@+id/button1time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/button1points"
+                android:layout_marginLeft="10dp"
+                android:text="Floor changes: 4"
+                android:textStyle="bold"
+                android:textColor="#1F497D"
+                android:textSize="18dp"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/button_2"
+            android:clickable="true"
+            android:layout_width="380dp"
+            android:layout_height="80dp"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/button_1"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="30dp"
+            android:background="@drawable/round_button_purple">
+            <!--android:onClick="selfDestruct"-->
+
+            <TextView
+                android:id="@+id/button2text"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:text="Option 2"
+                android:layout_marginLeft="10dp"
+                android:textStyle="bold"
+                android:textColor="#1F497D"
+                android:textSize="18dp"/>
+
+            <TextView
+                android:id="@+id/button2points"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/button2text"
+                android:layout_marginLeft="10dp"
+                android:text="Points: 30"
+                android:textStyle="bold"
+                android:textColor="#1F497D"
+                android:textSize="18dp"/>
+
+            <TextView
+                android:id="@+id/button2time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/button2points"
+                android:layout_marginLeft="10dp"
+                android:text="Floor changes: 4"
+                android:textStyle="bold"
+                android:textColor="#1F497D"
+                android:textSize="18dp"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/button_3"
+            android:clickable="true"
+            android:layout_width="380dp"
+            android:layout_height="80dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="30dp"
+            android:layout_below="@+id/button_2"
+            android:background="@drawable/round_button_blue">
+
+            <TextView
+                android:id="@+id/button3text"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:text="Option 3"
+                android:layout_marginLeft="10dp"
+                android:textStyle="bold"
+                android:textColor="#1F497D"
+                android:textSize="18dp"/>
+
+            <TextView
+                android:id="@+id/button3points"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/button3text"
+                android:layout_marginLeft="10dp"
+                android:text="Points: "
+                android:textStyle="bold"
+                android:textColor="#1F497D"
+                android:textSize="18dp"/>
+
+            <TextView
+                android:id="@+id/button3time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/button3points"
+                android:layout_marginLeft="10dp"
+                android:text="Time: "
+                android:textStyle="bold"
+                android:textColor="#1F497D"
+                android:textSize="18dp"/>
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/adaptableChoose"
+            android:layout_width="150dp"
+            android:layout_height="100dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="20dp"
+            android:text="Choose Route"
+            android:textStyle="bold"
+            android:textColor="#1F497D"
+            android:background="@drawable/round_button_blue_outline"
+            android:textSize="18dp"
+            android:gravity="center"/>
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/adaptableToggle"
+            android:layout_width="150dp"
+            android:layout_height="60dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="Preview Routes"
+            android:textStyle="bold"
+            android:textColor="#1F497D"
+            android:background="@drawable/round_button_blue_outline"
+            android:textSize="18dp"
+            android:gravity="center"/>
+
+        </RelativeLayout>
 
 </RelativeLayout>

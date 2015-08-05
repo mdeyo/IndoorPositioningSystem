@@ -89,7 +89,7 @@
             android:layout_alignRight="@+id/button_data"
             android:text="nothing"
             android:visibility="gone"/>
-<!--
+
         <Button
             android:textSize="14dp"
             android:layout_width="130dp"
@@ -97,8 +97,8 @@
             android:text="Test Algorithm"
             android:id="@+id/button_test"
             android:layout_alignParentRight="true"
-            android:layout_above="@+id/textView"/>
--->
+            android:layout_alignParentBottom="true"/>
+
 
         <LinearLayout
             android:layout_width="220dp"

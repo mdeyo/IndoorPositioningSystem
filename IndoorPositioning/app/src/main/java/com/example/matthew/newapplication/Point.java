@@ -7,7 +7,7 @@ public class Point {
     float x, y;
     float dx, dy;
 
-    public void Point(int X, int Y) {
+    public Point(int X, int Y) {
         x = X;
         y = Y;
     }

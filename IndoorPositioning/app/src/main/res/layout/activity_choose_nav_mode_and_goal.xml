@@ -1,0 +1,132 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.example.matthew.newapplication.ChooseNavModeAndGoal">
+
+    <RelativeLayout
+        android:layout_width="280dp"
+        android:layout_height="110dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="10dp">
+
+    <TextView
+        android:id="@+id/navModeText"
+        android:text="Choose Navigation Mode:"
+        android:layout_width="fill_parent"
+        android:gravity="center"
+        android:textSize="24dp"
+        android:layout_height="60dp"
+        android:layout_alignParentTop="true"/>
+
+    <Button
+        android:id="@+id/adaptiveButton"
+        android:layout_width="130dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:background="@drawable/round_button_outline"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:text="Adaptive"
+        />
+
+    <Button
+        android:id="@+id/adaptableButton"
+        android:layout_width="130dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/round_button_outline"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:text="Adaptable"
+        />
+
+</RelativeLayout>
+
+    <Button
+        android:id="@+id/goalQRButton"
+        android:layout_width="200dp"
+        android:layout_height="80dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="120dp"
+        android:background="@drawable/round_button_outline"
+        android:gravity="center"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:text="Scan Goal QR"
+        />
+
+    <TextView
+        android:id="@+id/scanOptionText"
+        android:layout_width="160dp"
+        android:layout_height="30dp"
+        android:text="Scan Averaging"
+        android:layout_alignLeft="@+id/scanOptionSwitch"
+        android:gravity="center"
+        android:layout_above="@+id/scanOptionSwitch"/>
+
+    <Switch
+        android:id="@+id/scanOptionSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:textOff="single"
+        android:textOn="double"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="20dp"
+        android:thumb="@drawable/round_button_highlighted"
+        android:textColor="#7A7777"/>
+
+    <TextView
+        android:id="@+id/matchOptionText"
+        android:layout_width="160dp"
+        android:layout_height="30dp"
+        android:text="Matching Option"
+        android:layout_alignLeft="@+id/matchOptionSwitch"
+        android:gravity="center"
+        android:layout_above="@+id/matchOptionSwitch"/>
+
+    <Switch
+        android:id="@+id/matchOptionSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:textOff="include"
+        android:textOn="exclude"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:layout_alignParentRight="true"
+        android:thumb="@drawable/round_button_highlighted"
+        android:layout_marginRight="20dp"/>
+
+    <TextView
+        android:id="@+id/sideViewOptionText"
+        android:layout_width="160dp"
+        android:layout_height="30dp"
+        android:text="Side View"
+        android:layout_alignLeft="@+id/sideViewOptionSwitch"
+        android:gravity="center"
+        android:layout_above="@+id/sideViewOptionSwitch"/>
+
+    <Switch
+        android:id="@+id/sideViewOptionSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:textOff="static"
+        android:textOn="dynamic"
+        android:gravity="center"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:thumb="@drawable/round_button_highlighted"
+        android:layout_centerHorizontal="true"/>
+
+</RelativeLayout>

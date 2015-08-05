@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
@@ -18,6 +17,7 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
@@ -29,16 +29,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -91,35 +86,42 @@ public class FloorPlans extends Activity implements SensorEventListener {
 
     ArrayList<String> dataStringList = new ArrayList<String>();
 
-    int TIMER_RUNTIME = 3000; // in ms --> 6seconds
+    int TIMER_RUNTIME = 5000; // in ms --> 6seconds
     boolean mbActive;
     ProgressBar mProgressBar;
     RelativeLayout progressLayout;
     TextView progressBarText;
     ImageView truckImage, cloudImage, buildImage;
-    private In in;
     private Graph G;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_floorplans35);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         gridView = (GridView) findViewById(R.id.mapGrid);
         map = (ImageView) findViewById(R.id.wallsView);
 
-        try {
-            //initialize Graph G from file NodeMap
-            in = new In("NodeMap");
-            G = new Graph(in, ",",getResources().getAssets().open("NodeMap"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Assets assets = new Assets(getResources().getAssets(),this);
+        G = Assets.G;
+
+//        Log.d("Assets print",G.toString());
+
+
+//        try {
+//            //initialize Graph G from file NodeMap
+//            in = new In("NodeMap");
+//            G = new Graph(in, ",",getResources().getAssets().open("NodeMap"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         ctx = this;
         sendDataButton = (Button) findViewById(R.id.button_data);
         viewDataButton = (Button) findViewById(R.id.button_viewdata);
         updateButton = (Button) findViewById(R.id.button_update);
-        //testAlg = (Button) findViewById(R.id.button_test);
+        testAlg = (Button) findViewById(R.id.button_test);
 
         //sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -142,8 +144,8 @@ public class FloorPlans extends Activity implements SensorEventListener {
         numberOfRoutersSaved = 9;
         numberOfRoutersUsed = 9;
 
-        Parse.initialize(this, "9IFIo0LdgpyPESCd8eNaCrdiFjAM61Jz3B9EvbYo", "BGwRcE1fJtEwvpmuEn7n4WsL3P0HIqK242MdpEIu");
-        PullFromServer();
+//        Parse.initialize(this, "9IFIo0LdgpyPESCd8eNaCrdiFjAM61Jz3B9EvbYo", "BGwRcE1fJtEwvpmuEn7n4WsL3P0HIqK242MdpEIu");
+//        PullFromServer();
 
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
@@ -160,207 +162,13 @@ public class FloorPlans extends Activity implements SensorEventListener {
             buildingnumber = (String) savedInstanceState.getSerializable("building");
         }
 
-        if (buildingnumber.equals(null)) {
-            Log.d("null", "error in FloorPlans");
-        } else if (buildingnumber.equals("33")) {
-
-            RelativeLayout layout = (RelativeLayout) findViewById(R.id.mapGridLayout);
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) layout.getLayoutParams();
-            int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
-            int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
-            int margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
-            params.setMargins(margin_left, margin_top, margin_right, 0);
-            layout.setLayoutParams(params);
-            // gridView.setColumnWidth(90);
-
-            if (floornumber.equals("0")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -18, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -26, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor0_33);
-            }
-
-            if (floornumber.equals("1")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -56, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor1_33);
-            }
-
-            if (floornumber.equals("2")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -54, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor2_33);
-            }
-
-            if (floornumber.equals("3")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor3_33);
-            }
-
-            if (floornumber.equals("4")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -18, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -18, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor4_33);
-            }
-
-        } else if (buildingnumber.equals("35")) {
-
-            RelativeLayout layout = (RelativeLayout) findViewById(R.id.mapGridLayout);
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) layout.getLayoutParams();
-            int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
-            int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
-            int margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
-            params.setMargins(margin_left, margin_top, margin_right, 0);
-            layout.setLayoutParams(params);
-
-            // gridView.setColumnWidth(90);
-
-            if (floornumber.equals("0")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -38, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -16, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor0_35);
-            }
-
-            if (floornumber.equals("1")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -74, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -16, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor1_35);
-            }
-
-            if (floornumber.equals("2")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -36, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -16, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor2_35);
-            }
-
-            if (floornumber.equals("3")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -34, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -16, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor3_35);
-            }
-
-            if (floornumber.equals("4")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -36, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -16, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor4_35);
-            }
-
-        }else if (buildingnumber.equals("37")) {
-            RelativeLayout layout = (RelativeLayout) findViewById(R.id.mapGridLayout);
-            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) layout.getLayoutParams();
-            int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
-            int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
-            int margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
-            params.setMargins(margin_left, margin_top, margin_right, 0);
-            layout.setLayoutParams(params);
+        Parse.initialize(this, "9IFIo0LdgpyPESCd8eNaCrdiFjAM61Jz3B9EvbYo", "BGwRcE1fJtEwvpmuEn7n4WsL3P0HIqK242MdpEIu");
+        PullFromServer();
 
 
-            if (floornumber.equals("1")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -68, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -8, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor1_37);
-            }
+        updateMapView();
 
-            if (floornumber.equals("2")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -64, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -6, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor2_37);
-            }
-
-            if (floornumber.equals("3")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -69, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -10, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor3_37);
-            }
-
-            if (floornumber.equals("4")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -69, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -10, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor4_37);
-            }
-
-            if (floornumber.equals("5")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -69, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -10, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor5_37);
-            }
-
-            if (floornumber.equals("6")) {
-                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
-                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
-                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -68, getResources().getDisplayMetrics()));
-                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -11, getResources().getDisplayMetrics()));
-                margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()));
-                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
-                wallsLayout.setLayoutParams(wallsParams);
-                map.setImageResource(R.drawable.floor6_37);
-            }
-        }
-
-        //initialize image mapping to all blank spaces
-        for (int i = 0; i < numbers.length; i++) {
-            numbers[i] = -1;
-        }
+        resetFloor();
 
         Log.d("length", Integer.toString(numbers.length));
 
@@ -372,7 +180,7 @@ public class FloorPlans extends Activity implements SensorEventListener {
                                     final int position, long id) {
                 final int originalValue = numbers[position];
 
-                if(originalValue!=-1) {
+                if (originalValue != -1) {
 
                     updateGrid();
 
@@ -452,13 +260,14 @@ public class FloorPlans extends Activity implements SensorEventListener {
         updateButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 UpdateFromServer();
-//                updatePathView(0);
-//                updatePathView(23);
-//                updatePathView(287);
-//                updatePathView(50);
-//                updatePathView(40);
+//                showPathHistory(0);
+//                showPathHistory(23);
+//                showPathHistory(287);
+//                showPathHistory(50);
+//                showPathHistory(40);
             }
         });
+
 
         viewDataButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
@@ -466,8 +275,12 @@ public class FloorPlans extends Activity implements SensorEventListener {
             }
         });
 
-//        testAlg.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View arg0) {
+        testAlg.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+
+//                Intent nextScreen = new Intent(getApplicationContext(), Questionnaire.class);
+//                startActivity(nextScreen);
+
 //                if(mostRecentScan!=null) {
 //                    FingerprintingAlg Alg = new FingerprintingAlg(lastPosition, buildingnumber, dataList, mostRecentScan);
 //                    GridData result;
@@ -491,8 +304,8 @@ public class FloorPlans extends Activity implements SensorEventListener {
 //                    Toast.makeText(getApplicationContext(),"Need to scan location first",Toast.LENGTH_SHORT).show();
 //                }
 //                return;
-//            }
-//        });
+            }
+        });
 
         datalistView.setOnItemLongClickListener(
                 new AdapterView.OnItemLongClickListener() {
@@ -558,16 +371,18 @@ public class FloorPlans extends Activity implements SensorEventListener {
     }
 
     public void updatePathView(int position) {
-        Point point = new Point();
+//        Point point = new Point();
         int[] pos = ConvertGrid(position);
         Log.d("position", String.valueOf(pos[0]) + "," + String.valueOf(pos[1]));
-        point.x = (float) (25 + 49 * (pos[0] - 1));
-        point.y = (float) (45 + 52 * (pos[1] - 1));
+//        point.x = (float) (25 + 49 * (pos[0] - 1));
+//        point.y = (float) (45 + 52 * (pos[1] - 1));
+        Point point = new Point((25 + 49 * (pos[0] - 1)), (45 + 52 * (pos[1] - 1)));
+
         Log.d("coords", point.toString());
         if (buildingnumber.equals("33")) {
             if (floornumber.equals("1")) {
                 points.add(point);
-                drawView.updatePath(points);
+                drawView.updatePathHistory(points);
             }
         }
     }
@@ -716,7 +531,7 @@ public class FloorPlans extends Activity implements SensorEventListener {
                             waited += 100;
                             updateProgress(waited);
                         }
-                        if (waited == TIMER_RUNTIME/2) {
+                        if (waited == TIMER_RUNTIME / 2) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -724,7 +539,7 @@ public class FloorPlans extends Activity implements SensorEventListener {
                                 }
                             });
                         }
-                        if (waited == TIMER_RUNTIME/2+1000) {
+                        if (waited == TIMER_RUNTIME / 2 + 1000) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -766,6 +581,8 @@ public class FloorPlans extends Activity implements SensorEventListener {
         timer.start();
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery("gridDataOnline");
+        query.whereEqualTo("buildingNumber", buildingnumber);
+        query.whereEqualTo("floorNumber", floornumber);
 
         query.findInBackground(new FindCallback<ParseObject>() {
             public void done(List<ParseObject> newDataList, ParseException e) {
@@ -780,6 +597,8 @@ public class FloorPlans extends Activity implements SensorEventListener {
                             String routers = obj.getString("routers");
                             String build = obj.getString("buildingNumber");
                             String flo = obj.getString("floorNumber");
+                            String full = build + ":" + flo + ":" + String.valueOf(pos);
+//                            Log.d("from Parse",full);
                             String id = obj.getObjectId();
 
                             //String raw = dataList.get(i).print();
@@ -810,6 +629,205 @@ public class FloorPlans extends Activity implements SensorEventListener {
                 }
             }
         });
+    }
+
+    public void updateMapView() {
+        if (buildingnumber.equals(null)) {
+            Log.d("null", "error in FloorPlans");
+        } else if (buildingnumber.equals("33")) {
+
+            RelativeLayout layout = (RelativeLayout) findViewById(R.id.mapGridLayout);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) layout.getLayoutParams();
+            int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
+            int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
+            int margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
+            params.setMargins(margin_left, margin_top, margin_right, 0);
+            layout.setLayoutParams(params);
+            // gridView.setColumnWidth(90);
+
+            if (floornumber.equals("0")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -43, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -26, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor0_33);
+            }
+
+            if (floornumber.equals("1")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -81, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor1_33);
+            }
+
+            if (floornumber.equals("2")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -79, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor2_33);
+            }
+
+            if (floornumber.equals("3")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -21, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor3_33);
+            }
+
+            if (floornumber.equals("4")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -43, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -18, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor4_33);
+            }
+
+        } else if (buildingnumber.equals("35")) {
+
+            //subtract 25 from top margin!
+
+            RelativeLayout layout = (RelativeLayout) findViewById(R.id.mapGridLayout);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) layout.getLayoutParams();
+            int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
+            int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
+            int margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
+            params.setMargins(margin_left, margin_top, margin_right, 0);
+            layout.setLayoutParams(params);
+
+            if (floornumber.equals("0")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -63, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -16, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor0_35);
+            }
+
+            if (floornumber.equals("1")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -99, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -16, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor1_35);
+            }
+
+            if (floornumber.equals("2")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -61, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -16, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor2_35);
+            }
+
+            if (floornumber.equals("3")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -59, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -16, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor3_35);
+            }
+
+            if (floornumber.equals("4")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -61, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -16, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor4_35);
+            }
+
+        } else if (buildingnumber.equals("37")) {
+            RelativeLayout layout = (RelativeLayout) findViewById(R.id.mapGridLayout);
+            RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) layout.getLayoutParams();
+            int margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8, getResources().getDisplayMetrics()));
+            int margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
+            int margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0, getResources().getDisplayMetrics()));
+            params.setMargins(margin_left, margin_top, margin_right, 0);
+            layout.setLayoutParams(params);
+
+
+            if (floornumber.equals("1")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -93, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -8, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor1_37);
+            }
+
+            if (floornumber.equals("2")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -89, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -6, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor2_37);
+            }
+
+            if (floornumber.equals("3")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -94, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -10, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor3_37);
+            }
+
+            if (floornumber.equals("4")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -94, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -10, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor4_37);
+            }
+
+            if (floornumber.equals("5")) {
+                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -94, getResources().getDisplayMetrics()));
+                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -10, getResources().getDisplayMetrics()));
+                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+                wallsLayout.setLayoutParams(wallsParams);
+                map.setImageResource(R.drawable.floor5_37);
+            }
+
+//            if (floornumber.equals("6")) {
+//                RelativeLayout wallsLayout = (RelativeLayout) findViewById(R.id.wallsView_layout);
+//                RelativeLayout.LayoutParams wallsParams = (RelativeLayout.LayoutParams) wallsLayout.getLayoutParams();
+//                margin_top = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -68, getResources().getDisplayMetrics()));
+//                margin_left = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, -11, getResources().getDisplayMetrics()));
+//                margin_right = (int) Math.round(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4, getResources().getDisplayMetrics()));
+//                wallsParams.setMargins(margin_left, margin_top, margin_right, 0);
+//                wallsLayout.setLayoutParams(wallsParams);
+//                map.setImageResource(R.drawable.floor6_37);
+//            }
+        }
     }
 
     public void UpdateFromServer() {
@@ -887,10 +905,11 @@ public class FloorPlans extends Activity implements SensorEventListener {
 
             ArrayList<GridData> finalDisplay = new ArrayList<GridData>();
 
+            resetFloor();
             //re-initialize image mapping to all zeros
-            for (int i = 0; i < numbers.length; i++) {
-                numbers[i] = 0;
-            }
+//            for (int i = 0; i < numbers.length; i++) {
+//                numbers[i] = 0;
+//            }
 
             for (int i = 0; i < sortDisplay.length; i++) {
                 finalDisplay.add(i, sortDisplay[i]);
@@ -959,8 +978,7 @@ public class FloorPlans extends Activity implements SensorEventListener {
         return new int[]{ypos, xpos};
     }
 
-
-    public void updateGrid() {
+    public void resetFloor() {
 
         //initialize image mapping to all blank spaces
         for (int i = 0; i < numbers.length; i++) {
@@ -972,17 +990,20 @@ public class FloorPlans extends Activity implements SensorEventListener {
         ArrayList<String> listOfVertices = new ArrayList<String>();
         if (vertices != null) {
             for (String e : vertices) {
-                if(e.startsWith(buildingnumber)){
-                    if(e.split(":")[1].equals(floornumber)){
+                if (e.startsWith(buildingnumber)) {
+                    if (e.split(":")[1].equals(floornumber)) {
                         listOfVertices.add(e);
-                        Log.d("floor plans found",e);
+                        Log.d("floor plans found", e);
                         Integer position = Integer.parseInt(e.split(":")[2]);
-                        numbers[position]=0;
+                        numbers[position] = 0;
                     }
                 }
             }
         }
 
+    }
+
+    public void updateGrid() {
         gridAdapter = new com.example.matthew.newapplication.CustomGridAdapter(getApplicationContext(), numbers);
         gridView.setAdapter(gridAdapter);
         gridAdapter.notifyDataSetChanged();

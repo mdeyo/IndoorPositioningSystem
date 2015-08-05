@@ -44,6 +44,19 @@ public class ST<Key extends Comparable<Key>, Value> implements Iterable<Key> {
     public ST() {
         st = new TreeMap<Key, Value>();
     }
+//  Tony edits to make this work hopefully
+
+    public ST(ST<Key, SET<Key>> st2) {
+        st = new TreeMap<Key, Value>();
+        ST<Key, SET<Key>> st1 = new ST<Key, SET<Key>>();
+        for (Key current : st2.keys()) {
+            SET<Key> setCurrent = st2.get(current);
+            SET<Key> second = setCurrent.clone();
+            st1.put(current, second);
+
+        }
+
+    }
 
 
     /**
@@ -72,6 +85,10 @@ public class ST<Key extends Comparable<Key>, Value> implements Iterable<Key> {
         if (key == null) throw new NullPointerException("called put() with null key");
         if (val == null) st.remove(key);
         else st.put(key, val);
+    }
+
+    void clear(){
+        st.clear();
     }
 
     /**
@@ -135,6 +152,7 @@ public class ST<Key extends Comparable<Key>, Value> implements Iterable<Key> {
      *
      * @return an iterator to all of the keys in the symbol table
      */
+    @Override
     public Iterator<Key> iterator() {
         return st.keySet().iterator();
     }

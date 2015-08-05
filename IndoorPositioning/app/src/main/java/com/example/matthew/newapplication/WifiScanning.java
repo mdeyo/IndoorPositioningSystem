@@ -127,7 +127,11 @@ public class WifiScanning extends Activity {
             //startAlgTime = System.currentTimeMillis();
 
             wifis = new RouterObject[numberOfRoutersSaved];
-            for (int i = 0; i < 9; i++) {
+            int number = 9;
+            if (wifiScanList.size() < 9) {
+                number = wifiScanList.size();
+            }
+            for (int i = 0; i < number; i++) {
                 int level = wifiScanList.get(i).level;
                 //String name = wifiScanList.get(i).SSID;
                 String id = wifiScanList.get(i).BSSID;

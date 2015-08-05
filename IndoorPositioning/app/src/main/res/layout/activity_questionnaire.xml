@@ -1,0 +1,161 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    tools:context="com.example.matthew.newapplication.Questionnaire">
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:gravity="center"
+        android:text="Input your first name:"
+        android:id="@+id/question"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="50dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"/>
+
+<LinearLayout
+    android:layout_width="200dp"
+    android:layout_height="fill_parent"
+    android:id="@+id/buttonLayout"
+    android:orientation="vertical"
+    android:layout_centerHorizontal="true"
+    android:padding="10dp">
+    <Button
+        android:layout_width="180dp"
+        android:layout_height="80dp"
+        android:text="Pre-Training Survey"
+        android:id="@+id/preButton"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/round_button_outline"/>
+
+    <Button
+        android:layout_width="180dp"
+        android:layout_height="80dp"
+        android:text="Mid-Block Survey"
+        android:id="@+id/midBlockButton"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/round_button_outline"/>
+
+    <Button
+        android:layout_width="180dp"
+        android:layout_height="80dp"
+        android:text="Between Block Survey"
+        android:id="@+id/betweenBlockButton"        android:layout_marginTop="10dp"
+
+        android:background="@drawable/round_button_outline"/>
+
+    <Button
+        android:layout_width="180dp"
+        android:layout_height="80dp"
+        android:text="SA Survey"
+        android:id="@+id/saButton"        android:layout_marginTop="10dp"
+
+        android:background="@drawable/round_button_outline"/>
+
+    <Button
+        android:layout_width="180dp"
+        android:layout_height="80dp"
+        android:text="Final Survey"
+        android:id="@+id/finalButton"        android:layout_marginTop="10dp"
+
+        android:background="@drawable/round_button_outline"/>
+
+</LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text=""
+        android:id="@+id/result"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="text"
+        android:autoText="true"
+        android:ems="10"
+        android:id="@+id/editText1"
+        android:layout_centerVertical="true"
+        android:layout_margin="20dp"
+        android:layout_centerHorizontal="true"/>
+
+    <EditText
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:autoText="true"
+        android:ems="10"
+        android:id="@+id/editText2"
+        android:layout_centerVertical="true"
+        android:layout_margin="20dp"
+        android:layout_centerHorizontal="true"/>
+
+    <RelativeLayout
+        android:id="@+id/sliderLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="80dp"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:layout_alignLeft="@+id/slideBar"
+                android:layout_below="@+id/slideBar"
+                android:id="@+id/leftText"
+                android:layout_marginTop="-10dp"
+                />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/slideBar"
+            android:id="@+id/middleText"
+            android:text="\nNeutral\n"
+            android:layout_marginTop="-10dp"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_alignRight="@+id/slideBar"
+            android:layout_below="@+id/slideBar"
+            android:id="@+id/rightText"
+            android:layout_marginTop="-10dp"
+            />
+
+        <SeekBar
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="30dp"
+            android:layout_marginLeft="30dp"
+            android:id="@+id/slideBar"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            />
+
+
+        </RelativeLayout>
+
+
+    <Button
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:text="Continue"
+        android:id="@+id/nextQ"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/round_button_outline"/>
+
+</RelativeLayout>

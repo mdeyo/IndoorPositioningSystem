@@ -50,6 +50,16 @@ public class SET<Key extends Comparable<Key>> implements Iterable<Key> {
         set.add(key);
     }
 
+    // Tony's Edits to make this work hopefully
+    public SET<Key> clone() {
+
+        SET<Key> copy = new SET();
+        TreeSet<Key> second = new TreeSet<Key>(set);
+        copy.set = second;
+
+        return copy;
+    }
+
 
     /**
      * Does this symbol table contain the given key?
@@ -100,6 +110,7 @@ public class SET<Key extends Comparable<Key>> implements Iterable<Key> {
      *
      * @return an iterator to all of the keys in the set
      */
+    @Override
     public Iterator<Key> iterator() {
         return set.iterator();
     }
@@ -211,6 +222,7 @@ public class SET<Key extends Comparable<Key>> implements Iterable<Key> {
      * @param y the other set
      * @return <tt>true</tt> if the two sets are equal; <tt>false</tt> otherwise
      */
+    @Override
     public boolean equals(Object y) {
         if (y == this) return true;
         if (y == null) return false;
@@ -232,6 +244,7 @@ public class SET<Key extends Comparable<Key>> implements Iterable<Key> {
      * @return a string representation of this set, with the keys separated
      * by single spaces
      */
+    @Override
     public String toString() {
         StringBuilder s = new StringBuilder();
         for (Key key : this)
