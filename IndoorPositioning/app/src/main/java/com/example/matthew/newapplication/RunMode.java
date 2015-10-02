@@ -3467,7 +3467,7 @@ public class RunMode extends Activity implements SensorEventListener {
         AlertDialog.Builder adb = new AlertDialog.Builder(RunMode.this);
         adb.setCancelable(true);
         adb.setTitle("Route Update");
-        adb.setMessage("You left the given route, do you wish to choose a new shorter one?");
+        adb.setMessage("You left the chosen route or are moving too slowly, do you wish to choose a new shorter one?");
         adb.setNegativeButton("No", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 dialog.cancel();
@@ -3484,7 +3484,7 @@ public class RunMode extends Activity implements SensorEventListener {
         AlertDialog.Builder adb = new AlertDialog.Builder(RunMode.this);
         adb.setCancelable(true);
         adb.setTitle("Route Update");
-        adb.setMessage("You left the given route, we have calculated a new one");
+        adb.setMessage("We have calculated a new route for you");
         adb.setNegativeButton("Continue", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 dialog.cancel();
