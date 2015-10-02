@@ -438,7 +438,7 @@
             android:textSize="30dp"
             android:textAlignment="center"
             android:layout_alignParentTop="true"
-            android:text="Alert Bar ON"
+            android:text="Alert Bar"
             android:background="@drawable/grey_rectangle_outline"            />
 
         <TextView
@@ -477,6 +477,7 @@
         android:background="#b0b0b0">
 
         <TextView
+            android:id="@+id/finishedText"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textStyle="bold"
@@ -613,6 +614,62 @@
         android:id="@+id/adaptableChoicesLayout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
+
+        <RelativeLayout
+            android:id="@+id/adaptiveChoiceLayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="#80b0b0b0">
+
+            <RelativeLayout
+                android:id="@+id/adaptiveRoute"
+                android:layout_width="380dp"
+                android:layout_height="80dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="50dp"
+                android:layout_marginLeft="20dp"
+                android:background="@drawable/round_button_green">
+
+                <TextView
+                    android:id="@+id/adaptiveText"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentLeft="true"
+                    android:text="Planned Route"
+                    android:layout_marginLeft="10dp"
+                    android:textStyle="bold"
+                    android:textColor="#1F497D"
+                    android:textSize="18dp"/>
+
+                <TextView
+                    android:id="@+id/adaptivePoints"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@+id/adaptiveText"
+                    android:layout_marginLeft="10dp"
+                    android:text="Points: 30"
+                    android:textStyle="bold"
+                    android:textColor="#1F497D"
+                    android:textSize="18dp"/>
+
+                <TextView
+                    android:id="@+id/adaptiveTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@+id/adaptivePoints"
+                    android:layout_marginLeft="10dp"
+                    android:text="Floor changes: 4"
+                    android:textStyle="bold"
+                    android:textColor="#1F497D"
+                    android:textSize="18dp"/>
+
+            </RelativeLayout>
+
+        </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/adaptableChoicesButtons"

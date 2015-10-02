@@ -148,6 +148,8 @@ public class MainActivity extends Activity {
                     case MotionEvent.ACTION_UP: {
                         v.setBackgroundResource(R.drawable.round_button_outline);
                         v.invalidate();
+//                        Assets.playUpdateSound();
+//                        Assets.playAlertSound();
                         break;
                     }
                 }

@@ -41,13 +41,17 @@ public class DrawingView extends View {
     private Canvas drawCanvas = new Canvas();
     //canvas bitmap
     private Bitmap canvasBitmap, star, starGold, circle, coin; //map;
-    public static Bitmap qr1, qr2, qr3, qr4, qr5, qr6, qr7, qr8, qr9;
+    public static Bitmap qr1, qr2, qr3, qr4, qr5, qr6, qr7, qr8, qr9,qr9_gone,qr10;
+    boolean isNineGone = false;
+    int[] positionOfNine = new int[4];
 
     DashPathEffect dashed = new DashPathEffect(new float[]{10, 20}, 0);
 
     Bitmap arrowUp, arrowRight, arrowLeft, arrowDown;
     Bitmap currentArrow;
     Point lastPosition = new Point(0, 0);
+
+    String goal="";
 
     private ArrayList<Bitmap> coinSequence = new ArrayList<>();
 
@@ -105,6 +109,9 @@ public class DrawingView extends View {
         qr7 = BitmapFactory.decodeResource(getResources(), R.drawable.qr7);
         qr8 = BitmapFactory.decodeResource(getResources(), R.drawable.qr8);
         qr9 = BitmapFactory.decodeResource(getResources(), R.drawable.qr9);
+        qr9_gone = BitmapFactory.decodeResource(getResources(),R.drawable.qr9_off);
+        qr10 = BitmapFactory.decodeResource(getResources(), R.drawable.qr_goal);
+
 
 //        map = BitmapFactory.decodeResource(getResources(),R.drawable.side_view_clear);
 
@@ -290,9 +297,12 @@ public class DrawingView extends View {
                     current = qr7;
                 } else if (p[0].equals("qr8")) {
                     current = qr8;
-                } else if (p[0].equals("qr9")) {
-                    current = qr9;
+                }else if (p[0].equals("qr9")) {
+                        current = qr9;
+                }else if(p[0].equals("qr10")) {
+                        current = qr10;
                 }
+
 
                 current = Bitmap.createScaledBitmap(current, Integer.parseInt(p[3]), Integer.parseInt(p[4]), false);
                 drawCanvas.drawBitmap(current, Float.parseFloat(p[1]), Float.parseFloat(p[2]), drawPaint);
@@ -555,12 +565,26 @@ public class DrawingView extends View {
                 } else if (p[0].equals("qr8")) {
                     current = qr8;
                 } else if (p[0].equals("qr9")) {
-                    current = qr9;
+                        current = qr9;
+                        positionOfNine[0]=Integer.parseInt(p[1]);
+                        positionOfNine[1]=Integer.parseInt(p[2]);
+                        positionOfNine[2]=Integer.parseInt(p[3]);
+                        positionOfNine[3]=Integer.parseInt(p[4]);
+
                 }
+
+
 
                 current = Bitmap.createScaledBitmap(current, Integer.parseInt(p[3]), Integer.parseInt(p[4]), false);
                 drawCanvas.drawBitmap(current, Float.parseFloat(p[1]) - current.getWidth() / 2, Float.parseFloat(p[2]) - current.getHeight() / 2, drawPaint);
             }
+        }
+
+
+
+        if(isNineGone){
+            current = Bitmap.createScaledBitmap(qr9_gone, positionOfNine[2],positionOfNine[3], false);
+            drawCanvas.drawBitmap(current,((float)positionOfNine[0])- current.getWidth() / 2, ((float)positionOfNine[1])-current.getHeight()/2, drawPaint);
         }
 
         invalidate();

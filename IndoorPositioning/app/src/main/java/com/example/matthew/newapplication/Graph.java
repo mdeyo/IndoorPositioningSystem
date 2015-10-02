@@ -62,6 +62,8 @@ public class Graph implements Cloneable {
     public ArrayList<String> stairs;
     private int baseFloorWeight;
     private int stairWeight;
+    private int stairMod;
+    private int floorMod;
     //	private static JFrame frame;
 // 	number of edges
     private int E;
@@ -71,7 +73,7 @@ public class Graph implements Cloneable {
      */
 //Will NOT Work because I'd have to deep clone/copy all of the objects within Graph and this is a pain the @$$ so I'm hard coding stuff instead
     //Maybe it can work...
-    public Graph(Graph g) {
+    public Graph(Graph g, int stairM, int floorM)  {
 //    	this.st = new ST<String, SET<String>>(g.st);
 
         this.st = new ST<String, SET<String>>();
@@ -93,14 +95,33 @@ public class Graph implements Cloneable {
         this.stairs = new ArrayList(g.stairs);
         this.baseFloorWeight = g.baseFloorWeight;
         this.stairWeight = g.stairWeight;
+        this.stairMod = stairM;
+        this.floorMod = floorM;
 
+//        System.out.println("stairM "+String.valueOf(stairMod));
+        floorModThisGraph(g);
+
+    }
+
+    private void floorModThisGraph(Graph g) {
+        for(int m=0; m < g.toList(g.vertices()).size(); m++){
+            String current = g.toList(g.vertices()).get(m);
+            if(getFloorWeight(current) == baseFloorWeight && !isStairs(current)){
+                continue;
+
+            }
+            else{
+                int changedWeight = getFloorWeightMod(current);
+                floorWeight.remove(current);
+                floorWeight.put(current, changedWeight);
+            }
+        }
 
     }
 
     public Graph() {
         st = new ST<String, SET<String>>();
     }
-
     /**
      * Create an graph from given input stream using given delimiter.
      */
@@ -119,6 +140,8 @@ public class Graph implements Cloneable {
         stairs = new ArrayList<String>();
         baseFloorWeight = baseWeight;
         stairWeight = stairW;
+        stairMod = 0;
+        floorMod = 0;
         String[] stairList = {"33:0:99", "33:0:118", "33:0:129", "33:1:26", "33:1:69", "33:1:74", "33:1:94", "33:1:107",
                 "33:2:45", "33:2:50", "33:2:70", "33:2:74", "33:3:74", "33:3:94", "33:4:73", "33:4:94",
                 "35:0:120", "35:0:142", "35:1:96", "35:1:120", "35:1:142", "35:2:120", "35:2:142", "35:3:120",
@@ -141,10 +164,7 @@ public class Graph implements Cloneable {
                         points.put(names[0], names[1]);
                     }
                     if (!floorWeight.containsKey(names[0])) {
-                        floorWeight.put(names[0], names[2]);
-//                		if(Integer.parseInt(names[2])>10){
-//                		stairs.add(names[0]);
-//                	}
+                        floorWeight.put(names[0], baseFloorWeight);
                     }
                     for (int i = 3; i < names.length; i++) {
                         addEdge(names[0], names[i]);
@@ -154,6 +174,8 @@ public class Graph implements Cloneable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+
 
 //        st = new ST<String, SET<String>>();
 //        points = new HashMap();
@@ -173,12 +195,14 @@ public class Graph implements Cloneable {
 //                addEdge(names[0], names[i]);
 //            }
 //        }
-
-        for (String n : stairs) {
-            floorWeight.remove(n);
-            floorWeight.put(n, stairWeight);
-        }
+//
+//        for (String n : stairs) {
+//            floorWeight.remove(n);
+//            floorWeight.put(n, stairWeight);
+//        }
     }
+
+    /*
 
     public Graph(In in, String delimiter, int baseWeight, int stairW) {
 
@@ -228,16 +252,18 @@ public class Graph implements Cloneable {
             floorWeight.put(n, stairWeight);
         }
     }
+    */
 
-//    @Override 
-//    protected Graph clone() { 
-//    	Graph clone = null; 
-//    	try{ clone = (Graph) super.clone(); 
+
+//    @Override
+//    protected Graph clone() {
+//    	Graph clone = null;
+//    	try{ clone = (Graph) super.clone();
 //    	}
 //    	catch(CloneNotSupportedException e){
-//    		throw new RuntimeException(e); // won't happen 
+//    		throw new RuntimeException(e); // won't happen
 //    		}
-//    		return clone; 
+//    		return clone;
 //    		}
 
 
@@ -253,17 +279,19 @@ public class Graph implements Cloneable {
             return 0;
         }
     }
-
     public int getBaseFloorWeight() {
         return baseFloorWeight;
     }
 
-    public int getTotalDistance(String current) {
+    public int getStairWeight() {
+        return stairWeight;
+    }
+
+    public int getTotalDistance(String current){
         int thisTotalDistance = getDistanceFromGoal(current) + getDistanceFromStart(current);
         return thisTotalDistance;
     }
-
-    public void markNeighbors(String goal, Graph G) {
+    public void markNeighbors(String goal, Graph G){
         distanceFromGoal.put(goal, 0);
         String current = goal;
         ArrayList<String> nList = new ArrayList<String>();
@@ -271,75 +299,82 @@ public class Graph implements Cloneable {
         int distance = 0;
         oldNeighbor.add(goal);
         int k = 0;
-        while (st.size() != distanceFromGoal.size()) {
+        while(st.size()!=distanceFromGoal.size()){
             // Like Astar, so we need two arrays, one with checked neighbors that have been assigned a distance
             // and one that has the next layer of neighbors to be assigned
             // We assign the distance value to ones that haven't already been assigned
 
-            for (k = 0; k < oldNeighbor.size(); k++) {
+            for(k=0; k<oldNeighbor.size(); k++){
 //    			oldNeighbor.remove(k);
                 nList = G.adjacentTo(oldNeighbor.get(k));
                 distance = G.getDistanceFromGoal(oldNeighbor.get(k));
 
 
-                for (String n : nList) {
+                for(String n: nList){
                     int nDistance = distance - G.getPointsAt(n) + G.getFloorWeight(n);
-                    if (!distanceFromGoal.containsKey(n)) {
+                    if(!distanceFromGoal.containsKey(n)){
                         distanceFromGoal.put(n, nDistance);
-                        if (!oldNeighbor.contains(n)) {
+                        if(!oldNeighbor.contains(n)){
                             oldNeighbor.add(n);
-                        }
-                    } else if (G.getDistanceFromGoal(n) > nDistance) {
+                        }}
+                    else if(G.getDistanceFromGoal(n)>nDistance){
                         distanceFromGoal.remove(n);
                         distanceFromGoal.put(n, nDistance);
 
                     }
-                }
-            }
-        }
+                }}}}
+
+
+    public int getStairMod() {
+        return stairMod;
     }
 
-    public void setDistanceFromStart(String node, int num) {
+    public void setStairMod(int stairMod) {
+        this.stairMod = stairMod;
+    }
+
+    public int getFloorMod() {
+        return floorMod;
+    }
+
+    public void setFloorMod(int floorMod) {
+        this.floorMod = floorMod;
+    }
+
+    public void setDistanceFromStart(String node, int num){
 
 
         distanceFromStart.put(node, num);
 
     }
-
-    public void setPreviousNode(String node, String oldOne) {
-        previousNode.put(node, oldOne);
+    public void setPreviousNode(String node, String oldOne){
+        previousNode.put(node,oldOne);
     }
-
-    public String getPreviousNode(String node) {
+    public String getPreviousNode(String node){
         validateVertex(node);
         return previousNode.get(node).toString();
     }
-
-    public int getDistanceFromStart(String v) {
+    public int getDistanceFromStart(String v){
         validateVertex(v);
         return Integer.parseInt(distanceFromStart.get(v).toString());
 
     }
-
     /**
      * Number of vertices.
      */
     public int V() {
         return st.size();
     }
-
     /**
      * Number of edges.
      */
     public int E() {
         return E;
     }
-
     // throw an exception if v is not a vertex
     public void validateVertex(String v) {
         if (!hasVertex(v)) throw new IllegalArgumentException(v + " is not a vertex");
     }
-
     /**
      * Degree of this vertex.
      */
@@ -347,7 +382,6 @@ public class Graph implements Cloneable {
         validateVertex(v);
         return st.get(v).size();
     }
-
     /**
      * Add edge v-w to this graph (if it is not already an edge)
      */
@@ -358,21 +392,18 @@ public class Graph implements Cloneable {
         st.get(v).add(w);
         st.get(w).add(v);
     }
-
     /**
      * Add vertex v to this graph (if it is not already a vertex)
      */
     public void addVertex(String v) {
         if (!hasVertex(v)) st.put(v, new SET<String>());
     }
-
     /**
      * Return the set of vertices as an Iterable.
      */
     public Iterable<String> vertices() {
         return st;
     }
-
     /**
      * Return the set of neighbors of vertex v as in ArrayList.
      */
@@ -381,24 +412,20 @@ public class Graph implements Cloneable {
         return toList(st.get(v));
 //        return st.get(v);
     }
-
     /**
      * Is v a vertex in this graph?
      */
     public boolean hasVertex(String v) {
         return st.contains(v);
     }
-
-    public boolean isObstacle(String v) {
+    public boolean isObstacle(String v){
         return obstacle.contains(v);
     }
-
-    public boolean isStairs(String v) {
+    public boolean isStairs(String v){
         return stairs.contains(v);
     }
-
-    public void setObstacle(String v) {
-        if (!this.obstacle.contains(v)) {
+    public void setObstacle(String v){
+        if(!this.obstacle.contains(v)){
             this.obstacle.add(v);
             distanceFromGoal.put(v, 9999999);
         }
@@ -428,70 +455,54 @@ public class Graph implements Cloneable {
         validateVertex(w);
         return st.get(v).contains(w);
     }
-
-    public int getPointsAt(String v) {
+    public int getPointsAt(String v){
         validateVertex(v);
         return Integer.parseInt(points.get(v).toString());
-    }
 
+    }
     public void removePoints(String v) {
         this.points.remove(v);
-        this.points.put(v, 0);
+        this.points.put(v,0);
     }
 
-    public void removeVertex(String v){
-        validateVertex(v);
-        st.delete(v);
-    }
-
-    Graph updateConnections(){
-
-       ST<String, SET<String>> st2 = new ST<>();
-
-        for(String s:st){
-            SET<String> edges = st.get(s);
-            SET<String> newEdges = new SET<>();
-            for(String neighbor:edges){
-                if(st.contains(neighbor)){
-                    newEdges.add(neighbor);
-                }
-            }
-            st2.put(s,newEdges);
-        }
-
-        Log.d("remove st",st.get("35:2:142").toString());
-        Log.d("remove st2",st2.get("35:2:142").toString());
-
-        st.clear();
-        st = st2;
-
-        Log.d("removed st",st.get("35:2:142").toString());
-
-        return this;
+    public void assignPoints(String v, int newValue) {
+        this.points.remove(v);
+        this.points.put(v, newValue);
     }
 
     public void doublePoints(String v) {
-        int newPoints = getPointsAt(v) * 2;
+        int newPoints = getPointsAt(v)*2;
         removePoints(v);
         points.put(v, newPoints);
 
     }
-
-    public int getFloorWeight(String v) {
+    public int getFloorWeight(String v){
         validateVertex(v);
         return Integer.parseInt(floorWeight.get(v).toString());
 
     }
 
-    public void gradientGraph(Graph Gmap) {
+    public int getFloorWeightMod(String v){
+        validateVertex(v);
+        if(isStairs(v)){
+            return (getFloorWeight(v) + stairMod);
+        }
+        else{
+            return (getFloorWeight(v) + floorMod);
+        }
 
-        ArrayList<String> goals = new ArrayList<String>();
 
-        HashMap<String, Integer> map = new HashMap<String, Integer>();
+    }
 
-        for (int m = 0; m < Gmap.toList(Gmap.vertices()).size(); m++) {
+    public void gradientGraph(Graph Gmap){
+
+        ArrayList <String> goals = new ArrayList<String>();
+
+        HashMap<String,Integer> map = new HashMap<String,Integer>();
+
+        for(int m=0; m < Gmap.toList(Gmap.vertices()).size(); m++){
             String current = Gmap.toList(Gmap.vertices()).get(m);
-            if (Gmap.getPointsAt(current) > 0) {
+            if(Gmap.getPointsAt(current)>0){
 //    		Goals now = new Goals(current, G.getPointsAt(current));
                 map.put(current, Gmap.getPointsAt(current));
             }
@@ -500,13 +511,12 @@ public class Graph implements Cloneable {
 //		System.out.println(goals);
 
 
-        for (String r : goals) {
-            Gmap.markWeightingsGradient(r, Gmap);
+        for(String r: goals){
+            Gmap.markWeightingsGradient(r,Gmap);
         }
 
     }
-
-    public void markWeightingsGradient(String goalcheck, Graph Gmap) {
+    public void markWeightingsGradient (String goalcheck, Graph Gmap){
 //      	String current = goalcheck;
         ArrayList<String> nList = new ArrayList<String>();
         ArrayList<String> oldNeighbor = new ArrayList<String>();
@@ -523,9 +533,9 @@ public class Graph implements Cloneable {
         rateChange.put(goalcheck, weightChange);
 //    	while(weightChange < 0 ){
 
-        for (int k = 0; k < oldNeighbor.size(); k++) {
+        for(int k=0; k<oldNeighbor.size(); k++){
 //    			oldNeighbor.remove(k);
-            if (isStairs(oldNeighbor.get(k))) {
+            if(isStairs(oldNeighbor.get(k))){
 
                 continue;
             }
@@ -534,34 +544,35 @@ public class Graph implements Cloneable {
 //    			weightChange = -(Gmap.getPointsAt(oldNeighbor.get(k))-1) -(10 - weighting);
             int increment = 1;
             int windowSize = 4;
-            if (Gmap.baseFloorWeight > 10) {
+            if(Gmap.baseFloorWeight > 10){
                 windowSize = 6;
             }
             weightChange = Integer.parseInt(rateChange.get(oldNeighbor.get(k)).toString()) + increment;
 //    			System.out.println(weightChange);
-            if (weightChange > 0) {
+            if(weightChange>0){
 //    				System.out.println("Say What???!?!?!");
                 break;
             }
-            if (qrPoint + weightChange > windowSize * increment) {
+            if(qrPoint+weightChange > windowSize*increment){
 //    				System.out.println("The difference is " + qrPoint+weightChange);
                 break;
             }
-            for (String n : nList) {
+            for(String n: nList){
 
                 int nWeight = weightChange + Gmap.getFloorWeight(n);
 
-                if (!rateChange.containsKey(n)) {
+                if(!rateChange.containsKey(n)){
                     rateChange.put(n, weightChange);
                 }
 
 
-                if (weightChange > 0) {
-                    if (!oldNeighbor.contains(n)) {
+                if(weightChange > 0){
+                    if(!oldNeighbor.contains(n)){
                         oldNeighbor.add(n);
                     }
                     continue;
-                } else if (oldNeighbor.contains(n)) {
+                }
+                else if(oldNeighbor.contains(n)){
                     continue;
                 }
 //    				else if(Gmap.getPointsAt(n)>0){
@@ -577,24 +588,22 @@ public class Graph implements Cloneable {
 //    					continue;
 //    				}
                 else {
-                    if (nWeight < 0) {
-                        nWeight = 0;
+                    if(nWeight<0){
+                        nWeight=0;
                     }
                     floorWeight.remove(n);
                     floorWeight.put(n, nWeight);
-                    if (!oldNeighbor.contains(n)) {
+                    if(!oldNeighbor.contains(n)){
                         oldNeighbor.add(n);
                     }
 
-                }
-            }
-        }
+                }}}
 //    		System.out.println(rateChange);
     }
 
 //    				}
 
-    public void reverseWeightingsGradient(String goalcheck, Graph Gmap) {
+    public void reverseWeightingsGradient (String goalcheck, Graph Gmap){
 //  	String current = goalcheck;
         ArrayList<String> nList = new ArrayList<String>();
         ArrayList<String> oldNeighbor = new ArrayList<String>();
@@ -611,9 +620,9 @@ public class Graph implements Cloneable {
         rateReverse.put(goalcheck, weightChange);
 //	while(weightChange < 0 ){
 
-        for (int k = 0; k < oldNeighbor.size(); k++) {
+        for(int k=0; k<oldNeighbor.size(); k++){
 //			oldNeighbor.remove(k);
-            if (isStairs(oldNeighbor.get(k))) {
+            if(isStairs(oldNeighbor.get(k))){
 
                 continue;
             }
@@ -624,29 +633,30 @@ public class Graph implements Cloneable {
             int windowSize = 4;
             weightChange = Integer.parseInt(rateReverse.get(oldNeighbor.get(k)).toString()) + increment;
 //			System.out.println(weightChange);
-            if (weightChange > 0) {
+            if(weightChange>0){
 //				System.out.println("Say What???!?!?!");
                 break;
             }
-            if (qrPoint + weightChange > windowSize * increment) {
+            if(qrPoint+weightChange > windowSize*increment){
 //				System.out.println("The difference is " + qrPoint+weightChange);
                 break;
             }
-            for (String n : nList) {
+            for(String n: nList){
 
                 int nWeight = -weightChange + Gmap.getFloorWeight(n);
 
-                if (!rateReverse.containsKey(n)) {
+                if(!rateReverse.containsKey(n)){
                     rateReverse.put(n, weightChange);
                 }
 
 
-                if (weightChange > 0) {
-                    if (!oldNeighbor.contains(n)) {
+                if(weightChange > 0){
+                    if(!oldNeighbor.contains(n)){
                         oldNeighbor.add(n);
                     }
                     continue;
-                } else if (oldNeighbor.contains(n)) {
+                }
+                else if(oldNeighbor.contains(n)){
                     continue;
                 }
 //				else if(Gmap.getPointsAt(n)>0){
@@ -662,29 +672,28 @@ public class Graph implements Cloneable {
 //					continue;
 //				}
                 else {
-                    if (nWeight < 0) {
-                        nWeight = 0;
+                    if(nWeight<0){
+                        nWeight=0;
                     }
                     floorWeight.remove(n);
                     floorWeight.put(n, nWeight);
-                    if (!oldNeighbor.contains(n)) {
+                    if(!oldNeighbor.contains(n)){
                         oldNeighbor.add(n);
                     }
 
-                }
-            }
-        }
-//		System.out.println(rateChange);
+                }}}
+
     }
 
 
-    public int getDistanceFromGoal(String v) {
+
+    public int getDistanceFromGoal(String v){
         validateVertex(v);
         return Integer.parseInt(distanceFromGoal.get(v).toString());
 
     }
 
-    public void setGoalLocation(String v) {
+    public void setGoalLocation(String v){
         this.goal = v;
     }
 
@@ -696,7 +705,7 @@ public class Graph implements Cloneable {
         return goal;
     }
 
-    public void setStartLocation(String v) {
+    public void setStartLocation(String v){
         this.start = v;
     }
 
@@ -720,18 +729,17 @@ public class Graph implements Cloneable {
 
 
     public static <E> ArrayList<E> toList(Iterable<E> iterable) {
-        if (iterable instanceof ArrayList) {
+        if(iterable instanceof ArrayList) {
             return (ArrayList<E>) iterable;
         }
         ArrayList<E> list = new ArrayList<E>();
-        if (iterable != null) {
-            for (E e : iterable) {
+        if(iterable != null) {
+            for(E e: iterable) {
                 list.add(e);
             }
         }
         return list;
     }
-
     // Converts the locations to x,y integer locations, but not useful for more than one floor
     public int[] ConvertGrid(int position) {
         int xpos = (position % 24) + 1;
@@ -739,9 +747,41 @@ public class Graph implements Cloneable {
         return new int[]{xpos, ypos};
     }
 
+    public void removeVertex(String v){
+        validateVertex(v);
+        st.delete(v);
+    }
+
+    Graph updateConnections(){
+
+        ST<String, SET<String>> st2 = new ST<>();
+
+        for(String s:st){
+            SET<String> edges = st.get(s);
+            SET<String> newEdges = new SET<>();
+            for(String neighbor:edges){
+                if(st.contains(neighbor)){
+                    newEdges.add(neighbor);
+                }
+            }
+            st2.put(s,newEdges);
+        }
+
+        Log.d("remove st",st.get("35:2:142").toString());
+        Log.d("remove st2",st2.get("35:2:142").toString());
+
+        st.clear();
+        st = st2;
+
+        Log.d("removed st",st.get("35:2:142").toString());
+
+        return this;
+    }
+
+
+
 
 }
-
 
 
 

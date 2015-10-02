@@ -194,14 +194,15 @@ public class SideViewPreview extends Activity {
         G.gradientGraph(G);
 
         HighPointPriority goalHigh = new HighPointPriority(G);
-        FloorRankingOrder goalLogic = new FloorRankingOrder(G, 200);
-        Algo pathLogic = new Algo(G, start, goal, goalLogic.goalList);
-        Algo pathHigh = new Algo(G, start, goal, goalHigh.goalPoint);
+//        FloorRankingOrder goalLogic = new FloorRankingOrder(G, 200);
+        int timeLeft=180;
+//        Algo pathLogic = new Algo(G, start, goal, goalLogic.goalList,timeLeft);
+//        Algo pathHigh = new Algo(G, start, goal, goalHigh.goalPoint,timeLeft);
 
-        nodeList = pathHigh.printPath();
+//        nodeList = pathHigh.getPath();
 
-        predictedQR = String.valueOf(pathHigh.getQRCollected());
-        predictedPoints = String.valueOf(pathHigh.getCollectedPoints());
+//        predictedQR = String.valueOf(pathHigh.getQRCollected());
+//        predictedPoints = String.valueOf(pathHigh.getCollectedPoints());
 
 //        nodeList = new ArrayList<>();
 //        nodeList.clear();

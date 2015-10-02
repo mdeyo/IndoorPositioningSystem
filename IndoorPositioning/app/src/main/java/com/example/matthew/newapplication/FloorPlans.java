@@ -104,6 +104,9 @@ public class FloorPlans extends Activity implements SensorEventListener {
         map = (ImageView) findViewById(R.id.wallsView);
 
         Assets assets = new Assets(getResources().getAssets(),this);
+
+        Assets.setGraph("Trial2R", getResources().getAssets());
+
         G = Assets.G;
 
 //        Log.d("Assets print",G.toString());

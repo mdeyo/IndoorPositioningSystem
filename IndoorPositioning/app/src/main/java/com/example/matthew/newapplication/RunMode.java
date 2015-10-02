@@ -3,7 +3,6 @@ package com.example.matthew.newapplication;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -19,9 +18,9 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.StrictMode;
 import android.text.format.Time;
 import android.util.Log;
 import android.util.TypedValue;
@@ -53,12 +52,45 @@ import java.util.Map;
 
 public class RunMode extends Activity implements SensorEventListener {
 
+    //Scenario updates definitions ********************
+
+    //Remove9-point QR update
+    String updateString = Assets.updateString;
+    int UPDATE_REMOVE9_TIME = 70*1000;
+    boolean isNineGone = false;
+    //2 - 70
+    //5 - 70
+    //8 - 40
+    //8R -80 change goal
+    //9R - 120 change goal
+    //11 - 80
+    int UPDATE_2R_TIME=70*1000;
+    int UPDATE_5_TIME=70*1000;
+    int UPDATE_8_TIME=40*1000;
+    int UPDATE_8R_TIME=80*1000;
+    int UPDATE_9R_TIME=120*1000;
+    int UPDATE_11_TIME=80*1000;
+
+    ArrayList<String> goalList = new ArrayList<String>();
+    ArrayList<String> goalListAdp1 = new ArrayList<String>();
+    ArrayList<String> goalListAdp2 = new ArrayList<String>();
+
+    int lengthOfGoalList = 0;
 
     //Close off floor 35:2 update
-    int UPDATE_CLOSED_TIME = 20*1000;
+    int UPDATE_CLOSED_TIME = 70*1000;
     boolean updateOccured = false;
     ArrayList<String> floor35_2;
     int floor2_35 = R.drawable.floor2_35;
+    //Close off floor 35:3 update
+    ArrayList<String> floor35_3;
+    int floor3_35 = R.drawable.floor3_35;
+
+    //move trial goal update
+    int UPDATE_MOVEGOAL_TIME = 80*1000;
+
+
+    //*************************************************
 
     //Absolute time and mainThread
     boolean firstQRscan = true;
@@ -66,9 +98,11 @@ public class RunMode extends Activity implements SensorEventListener {
     long trialStartTime = 0, appStartTime = 0, startDelay = 0, delayedQRTime = 0, delayedUpdateTime = 0;
     boolean adaptableUpdateChosen = false;
     final long TOTAL_TIME = 180 * 1000;
+    final long TOTAL_WALKTHROUGH_TIME = 20 * 60 * 1000; //20 minutes
     final long EXCESS_TIME = 60 * 1000;
-    final long REPEAT_TIME = 1200;
+    final long REPEAT_TIME = 1800;
     final long CLOCK_TIME = 200;
+    int timeLeft;
 
     Handler timerHandler = new Handler();
     Runnable scanTimerRunnable = new Runnable() {
@@ -77,16 +111,35 @@ public class RunMode extends Activity implements SensorEventListener {
         @Override
         public void run() {
             Log.d("heartbeat","scanTimer");
+
+
+            buildSidePath();
             if (currentRunMode == CurrentRunMode.SCANNING) {
-                Log.d("heartbeat","scanTimer:scanning");
+                //Log.d("heartbeat","scanTimer:scanning");
                 showQRCodes();
-                registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+
+                if (scanOn) {
+                    unregisterReceiver(wifiReciever);
+                    scanOn = false;
+                }
+                if (!scanOn) {
+                    registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+                }
+//
                 mainWifiObj.reconnect();
                 mainWifiObj.startScan();
                 startScanTime = System.currentTimeMillis();
                 scanOn = true;
-//                buildSidePath();
-                timerHandler.postDelayed(this, REPEAT_TIME);
+
+                timerHandler = new Handler();
+                timerHandler.removeCallbacks(this);
+                timerHandler.post(this);
+
+//                timerHandler.postDelayed(this, REPEAT_TIME);
+//                timerHandler2.postDelayed(this,REPEAT_TIME);
+
+//                this.run();
+
                 //TODO
 //                    if (scanOn) {
 //                        unregisterReceiver(wifiReciever);
@@ -94,6 +147,10 @@ public class RunMode extends Activity implements SensorEventListener {
 //                        scanOn = false;
 //                    }
             }
+
+//            timerHandler = new Handler();
+//            timerHandler.removeCallbacks(this);
+//            timerHandler.post(this);
         }
     };
 
@@ -105,55 +162,113 @@ public class RunMode extends Activity implements SensorEventListener {
 
         @Override
         public void run() {
-            Log.d("heartbeat","timer");
+//            Log.d("heartbeat","timer");
             if (countdownOn) {
-                Log.d("heartbeat","timer:countdownOn");
+//                Log.d("updateString value",updateString);
                 millis = System.currentTimeMillis() - trialStartTime - delayedQRTime - delayedUpdateTime;
-                if(millis>UPDATE_CLOSED_TIME && !updateOccured){
-                    closeFloor();
+                if(updateString.equals("close35:2")) {
+                    if (millis > UPDATE_2R_TIME && !updateOccured) {
+                        closeFloor352();
+                    }
                 }
-                if (millis < TOTAL_TIME) {
-                    millis = TOTAL_TIME - millis;
-                    seconds = (int) (millis / 1000);
-                    minutes = seconds / 60;
-                    seconds = seconds % 60;
-                    timeFromStart = String.format("%d:%02d", minutes, seconds);
-                    Log.d("heartbeat","timer:less than total "+timeFromStart);
-                    timeRemainingText.setText("Time Remaining: " + timeFromStart);
+                if(updateString.equals("close35:3")) {
+                    if (millis > UPDATE_11_TIME && !updateOccured) {
+                        closeFloor353();
+                    }
+                }
+                if(updateString.equals("remove9")) {
+                    if (trialNumber.equals("5") && millis > UPDATE_5_TIME && !updateOccured) {
+                        remove9();
+                    }
+                    if (trialNumber.equals("8") && millis > UPDATE_8_TIME && !updateOccured) {
+                        remove9();
+                    }
+                }
+                if(updateString.startsWith("moveGoal")){
+                    if (trialNumber.equals("8R") && millis > UPDATE_8R_TIME && !updateOccured) {
+                        moveGoal();
+                    }
+                    if (trialNumber.equals("9R") && millis > UPDATE_9R_TIME && !updateOccured) {
+                        moveGoal();
+                    }
+                }
+                if(!navMode.equals("walk")) {
+                    if (millis < TOTAL_TIME) {
+                        millis = TOTAL_TIME - millis;
+                        seconds = (int) (millis / 1000);
+                        timeLeft = seconds;
+                        minutes = seconds / 60;
+                        seconds = seconds % 60;
+                        timeFromStart = String.format("%d:%02d", minutes, seconds);
+//                    Log.d("heartbeat","timer:less than total "+timeFromStart);
+                        timeRemainingText.setText("Time Remaining: " + timeFromStart);
 //                    timerHandler2.postDelayed(this, CLOCK_TIME);
-                } else if (millis < (TOTAL_TIME + EXCESS_TIME)) {
-                    millis = Math.abs(TOTAL_TIME - millis);
-                    seconds = (int) (millis / 1000);
-                    minutes = seconds / 60;
-                    seconds = seconds % 60;
-                    timeFromStart = String.format("%d:%02d", minutes, seconds);
-                    Log.d("heartbeat","timer:out of time "+timeFromStart);
-                    timeRemainingText.setTextColor(Color.RED);
-                    timeRemainingText.setText("Time Remaining: -" + timeFromStart);
-                    alertBarOn = 2;
-                    alertBarText.setVisibility(View.VISIBLE);
-                    alertBarTextBelow.setVisibility(View.VISIBLE);
-                    alertBarText.setText("Time's Up!");
-                    alertBarTextBelow.setText("Hurry to the finish location");
+                    } else if (millis < (TOTAL_TIME + EXCESS_TIME)) {
+                        millis = Math.abs(TOTAL_TIME - millis);
+                        seconds = (int) (millis / 1000);
+                        minutes = seconds / 60;
+                        seconds = seconds % 60;
+                        timeFromStart = String.format("%d:%02d", minutes, seconds);
+//                    Log.d("heartbeat","timer:out of time "+timeFromStart);
+                        timeRemainingText.setTextColor(Color.RED);
+                        timeRemainingText.setText("Time Remaining: -" + timeFromStart);
+                        alertBarOn = 2;
+                        alertBarText.setVisibility(View.VISIBLE);
+                        alertBarTextBelow.setVisibility(View.VISIBLE);
+                        alertBarText.setText("Time's Up!");
+                        alertBarTextBelow.setText("Hurry to the finish location");
 //                    timerHandler2.postDelayed(this, CLOCK_TIME);
-                } else {
+                    } else {
 //                timeRemainingText.setText("Time's Up!");
-                    Log.d("heartbeat","timer:finished");
-                    onlyShowLayout(finishedLayout);
-                    //TODO
-//                    if (scanOn) {
-//                        unregisterReceiver(wifiReciever);
-//                        mainWifiObj.disconnect();
-//                        //mainWifiObj.reconnect();
-////            unregisterReceiver(wifiReciever);
-//                        scanOn = false;
-//                    }
+                        Log.d("heartbeat", "timer:finished");
+                        onlyShowLayout(finishedLayout);
+
 //                alertBarText.setText("Time's up!");
 
-                    try {
-                        this.finalize();
-                    } catch (Throwable e) {
-                        e.printStackTrace();
+                        try {
+                            this.finalize();
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }else{
+                    if (millis < TOTAL_WALKTHROUGH_TIME) {
+                        millis = TOTAL_WALKTHROUGH_TIME - millis;
+                        seconds = (int) (millis / 1000);
+                        timeLeft = seconds;
+                        minutes = seconds / 60;
+                        seconds = seconds % 60;
+                        timeFromStart = String.format("%d:%02d", minutes, seconds);
+//                    Log.d("heartbeat","timer:less than total "+timeFromStart);
+                        timeRemainingText.setText("Time Remaining: " + timeFromStart);
+//                    timerHandler2.postDelayed(this, CLOCK_TIME);
+                    } else if (millis < (TOTAL_WALKTHROUGH_TIME + EXCESS_TIME)) {
+                        millis = Math.abs(TOTAL_WALKTHROUGH_TIME - millis);
+                        seconds = (int) (millis / 1000);
+                        minutes = seconds / 60;
+                        seconds = seconds % 60;
+                        timeFromStart = String.format("%d:%02d", minutes, seconds);
+//                    Log.d("heartbeat","timer:out of time "+timeFromStart);
+                        timeRemainingText.setTextColor(Color.RED);
+                        timeRemainingText.setText("Time Remaining: -" + timeFromStart);
+                        alertBarOn = 2;
+                        alertBarText.setVisibility(View.VISIBLE);
+                        alertBarTextBelow.setVisibility(View.VISIBLE);
+                        alertBarText.setText("Time's Up!");
+                        alertBarTextBelow.setText("Hurry to the finish location");
+//                    timerHandler2.postDelayed(this, CLOCK_TIME);
+                    } else {
+//                timeRemainingText.setText("Time's Up!");
+                        Log.d("heartbeat", "timer:finished");
+                        onlyShowLayout(finishedLayout);
+
+//                alertBarText.setText("Time's up!");
+
+                        try {
+                            this.finalize();
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 timerHandler2.postDelayed(this, CLOCK_TIME);
@@ -191,6 +306,7 @@ public class RunMode extends Activity implements SensorEventListener {
 //    String goal = "37:2:106";
     String goal;
     String navMode;
+    ArrayList<String> pointsScanned = new ArrayList<>();
     ///////////////////////////////////////////////
 
     //WiFi scan management
@@ -252,14 +368,14 @@ public class RunMode extends Activity implements SensorEventListener {
     private ImageView sideViewToggleImage,sideViewImage;
     private TextView sideViewToggleText;
     private boolean sideViewOn = false;
-    int currentFloorImage = 0;
+    int currentFloorImage = R.drawable.side_view_clear_0_2;
 
     //SideViewLayout
     boolean firstSideView = true;
     private DrawingView drawView2;
-    List<Point> pathHP = new ArrayList<Point>();
     List<Point> pathL = new ArrayList<Point>();
-    List<Point> pathOrig = new ArrayList<Point>();
+    List<Point> pathLA1 = new ArrayList<Point>();
+    List<Point> pathLA2 = new ArrayList<Point>();
     Bitmap bitmap;
     private String start, finish, predictedPoints;
     private ArrayList<String> sidePath, sidePath2, sidePath3;
@@ -281,9 +397,10 @@ public class RunMode extends Activity implements SensorEventListener {
     //loaded data from Assets
     private Graph G, G_HP, G_L, G_orig;
     Map<String, QRCodeLocation> QRmap = new HashMap<String, QRCodeLocation>();
-
+    String trialNumber;
     HighPointPriority goalHigh,goalHigh_previous;
     FloorRankingOrder goalLogic, goalLogic_previous;
+    Algo pathLogic,pathFinder,pathHigh,pathLogicAdp1,pathLogicAdp2;
     //TODO variations of Logic navigation
     FloorRankingOrder goalLogic10, goalLogic10_previous;
     FloorRankingOrder goalLogic200, goalLogic200_previous;
@@ -303,7 +420,7 @@ public class RunMode extends Activity implements SensorEventListener {
 
     //Finished Layout
     RelativeLayout finishedLayout;
-    TextView finishedButton;
+    TextView finishedButton,finishedText;
 
     //Visualizing QR Codes
     ArrayList<String> QRCodeLocations = new ArrayList<>();
@@ -322,6 +439,10 @@ public class RunMode extends Activity implements SensorEventListener {
     int adaptableSelected = 0;
     boolean firstRouteChoice = true;
 
+    //Adaptive Choice View
+    RelativeLayout adaptiveChoiceLayout;
+    TextView adaptivePoints,adaptiveTime;
+
     //custom toast display
     Toast toast1;
     boolean toastActivated = false;
@@ -331,6 +452,24 @@ public class RunMode extends Activity implements SensorEventListener {
     GridData newestGrid;
 
     BroadcastReceiver listenForPower;
+
+    int baseWeight = 10;
+    int stairWeight = 15;
+    int breakTime = 100;
+    int baseWeightAdp1 = 10;
+    int stairWeightAdp1 = 15;
+    int breakTimeAdp1 = 140;
+    int baseWeightAdp2 = 10;
+    int stairWeightAdp2 = 20;
+    int breakTimeAdp2 = 100;
+    int floorMod = baseWeight-10;
+    int stairMod = stairWeight-10;
+    int floorModAdp1 = baseWeightAdp1-10;
+    int stairModAdp1 = stairWeightAdp1-10;
+    int floorModAdp2 = baseWeightAdp2-10;
+    int stairModAdp2 = stairWeightAdp2-10;
+
+    boolean initialized;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -352,6 +491,14 @@ public class RunMode extends Activity implements SensorEventListener {
 //                .penaltyDeath()
 //                .build());
 
+
+
+        //Handling QR Points accumulated
+        pointsCollected = 0;
+        totalPointsOnRoute = 0;
+        QRCodesRemaining = 0;
+        firstQRscan = true;
+
         gridView = (GridView) findViewById(R.id.mapGrid);
         map = (ImageView) findViewById(R.id.wallsView);
         closedFloor = (ImageView) findViewById(R.id.closedFloors);
@@ -360,6 +507,11 @@ public class RunMode extends Activity implements SensorEventListener {
         wallsViewRight = (ImageView) findViewById(R.id.wallsViewRight);
         wallsViewRight.setVisibility(View.GONE);
         drawView = (DrawingView) findViewById(R.id.drawing);
+
+        sidePath = new ArrayList<String>();
+        sidePath2 = new ArrayList<String>();
+        sidePath3 = new ArrayList<String>();
+
 
         scanOn = false;
         viewingLocalData = false;
@@ -375,22 +527,85 @@ public class RunMode extends Activity implements SensorEventListener {
             buildingnumber = (String) savedInstanceState.getSerializable("building");
         }
 
-        G = Assets.G;
         if(Assets.goal!=null) {
             goal = Assets.goal;
         }
+
+        trialNumber = Assets.trialNumber;
+
         goal = Assets.goal;
         navMode = Assets.mode;
+        Log.d("mode",navMode);
         scanMode = Assets.scanMode;
         matchingMode = Assets.matchingMode;
         sidePathUpdates = Assets.sideMode;
 
+        Assets.setRunModeActivity(this);
+
         floor35_2 = Assets.floor35_2;
+        floor35_3 = Assets.floor35_3;
 
         //initialize large data from Assets
         QRmap = Assets.QRMap;
-        G = new Graph(Assets.G);
+        int baseWeight = 10;
+        int stairWeight = 15;
+        G = Assets.G;
         QRCodeLocations = Assets.QRLocations;
+
+        if(trialNumber.equals("11")) {
+            baseWeightAdp1 = 10;
+            stairWeightAdp1 = 15;
+            breakTimeAdp1 = 140;
+            baseWeightAdp2 = 10;
+            stairWeightAdp2 = 20;
+            breakTimeAdp2 = 100;
+        }
+        else if(trialNumber.equals("2R")) {
+            baseWeightAdp1 = 10;
+            stairWeightAdp1 = 15;
+            breakTimeAdp1 = 130;
+            baseWeightAdp2 = 20;
+            stairWeightAdp2 = 40;
+            breakTimeAdp2 = 150;
+        }
+        else if(trialNumber.equals("9R")) {
+            baseWeightAdp1 = 10;
+            stairWeightAdp1 = 20;
+            breakTimeAdp1 = 100;
+            baseWeightAdp2 = 10;
+            stairWeightAdp2 = 50;
+            breakTimeAdp2 = 140;
+        }
+        else if(trialNumber.equals("8R")) {
+            baseWeightAdp1 = 10;
+            stairWeightAdp1 = 15;
+            breakTimeAdp1 = 140;
+            baseWeightAdp2 = 10;
+            stairWeightAdp2 = 20;
+            breakTimeAdp2 = 140;
+        }
+        else if(trialNumber.equals("5")) {
+            baseWeightAdp1 = 10;
+            stairWeightAdp1 = 15;
+            breakTimeAdp1 = 140;
+            baseWeightAdp2 = 10;
+            stairWeightAdp2 = 20;
+            breakTimeAdp2 = 140;
+        }
+        else if(trialNumber.equals("8")) {
+            baseWeightAdp1 = 10;
+            stairWeightAdp1 = 15;
+            breakTimeAdp1 = 120;
+            baseWeightAdp2 = 20;
+            stairWeightAdp2 = 40;
+            breakTimeAdp2 = 100;
+        }
+
+        floorModAdp1 = baseWeightAdp1 - 10;
+        stairModAdp1 = stairWeightAdp1 - 10;
+        floorModAdp2 = baseWeightAdp2 - 10;
+        stairModAdp2 = stairWeightAdp2 - 10;
+
 //        predictedPoints = Assets.predictedPoints;
         SideViewPreview.setup();
 
@@ -404,12 +619,18 @@ public class RunMode extends Activity implements SensorEventListener {
         topViewLayout = (RelativeLayout) findViewById(R.id.topView_layout);
         finishedLayout = (RelativeLayout) findViewById(R.id.finishedLayout);
         finishedButton = (TextView) findViewById(R.id.finishedButton);
+        finishedText = (TextView) findViewById(R.id.finishedText);
+
         finishedLayout.setVisibility(View.GONE);
         alertToggleLayout.setVisibility(View.GONE);
 
         sideViewLayout.setVisibility(View.GONE);
         sideViewToggleText = (TextView) findViewById(R.id.sideViewToggleText);
         sideViewToggle.setVisibility(View.GONE);
+
+        adaptiveChoiceLayout = (RelativeLayout) findViewById(R.id.adaptiveChoiceLayout);
+        adaptivePoints = (TextView) findViewById(R.id.adaptivePoints);
+        adaptiveTime = (TextView) findViewById(R.id.adaptiveTime);
 
         adaptableChoices = (RelativeLayout) findViewById(R.id.adaptableChoicesLayout);
         adaptableChoicesButtons = (RelativeLayout) findViewById(R.id.adaptableChoicesButtons);
@@ -426,6 +647,12 @@ public class RunMode extends Activity implements SensorEventListener {
         choice2Time = (TextView) findViewById(R.id.button2time);
         choice3Points = (TextView) findViewById(R.id.button3points);
         choice3Time = (TextView) findViewById(R.id.button3time);
+
+        adaptableChoices.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+//                buildSidePath();
+            }
+        });
 
         adaptableToggle.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
@@ -489,7 +716,16 @@ public class RunMode extends Activity implements SensorEventListener {
         alertBarText = (TextView) findViewById(R.id.alertBarToggleText);
         alertBarTextBelow = (TextView) findViewById(R.id.alertBarTextBelow);
         alertBarText.setText("Alert Bar");
-        alertBarTextBelow.setText("No current alerts");
+        if(navMode.equals("adaptive")) {
+            alertBarText.setText("Computer-selected Mode");
+            alertBarTextBelow.setText("No current alerts");
+        }else if(navMode.equals("adaptable")) {
+            alertBarText.setText("User-Choice Mode");
+            alertBarTextBelow.setText("Choose route");
+        }else if(navMode.equals("walk")) {
+            alertBarText.setText("Walkthrough Mode");
+            alertBarTextBelow.setText("No current alerts");
+        }
         alertBarText.setVisibility(View.GONE);
         alertBarTextBelow.setVisibility(View.GONE);
         alertBarTextBelow.setOnClickListener(new View.OnClickListener() {
@@ -526,6 +762,7 @@ public class RunMode extends Activity implements SensorEventListener {
         scanTitle = (TextView) findViewById(R.id.scanTextView);
         datalistView = (ListView) findViewById(R.id.data_listView);
         mainWifiObj = (WifiManager) getSystemService(Context.WIFI_SERVICE);
+        mainWifiObj.createWifiLock(WifiManager.WIFI_MODE_SCAN_ONLY,"Tag");
         wifiReciever = new WifiScanReceiver();
 
 //        listenForPower = new BroadcastReceiver() {
@@ -772,7 +1009,18 @@ public class RunMode extends Activity implements SensorEventListener {
 
         }
         //mainWifiObj.startScan();
+
+
     }
+//
+//    @Override
+//    protected void onStart() {
+//        if(initialized){
+//            initialized=false;
+//        }else{
+//            recreate();
+//        }
+//    }
 
     @Override
     protected void onPause() {
@@ -792,7 +1040,6 @@ public class RunMode extends Activity implements SensorEventListener {
 //        unregisterReceiver(wifiReciever);
         if (scanOn) {
             unregisterReceiver(wifiReciever);
-
             //mainWifiObj.reconnect();
 //            unregisterReceiver(wifiReciever);
             scanOn = false;
@@ -851,6 +1098,14 @@ public class RunMode extends Activity implements SensorEventListener {
                 textAccel.setBackgroundColor(Color.RED);
             }
             color = !color;
+
+            //TODO Sept 11th - work on frozen scanning
+//            timerHandler.removeCallbacks(scanTimerRunnable);
+//            scanTimerRunnable.run();
+//            timerHandler.postDelayed(scanTimerRunnable, 0);
+//            timerHandler2.postDelayed(scanTimerRunnable,0);
+//            timerHandler2.postDelayed(timerRunnable,0);
+
         }
 
 //        float linearAccelerationSquared = (x * x + y * y);
@@ -901,9 +1156,11 @@ public class RunMode extends Activity implements SensorEventListener {
         IntentResult scanResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
         if (scanResult != null && scanResult.getContents() != null) {
 
-            //if not first QR code scan, add delayed time for trial timer to account for
+            Log.d("onResult","start");
+
+            //if not first QR code scan, add delayed time for trial timer to account for it
             if(!firstQRscan){
-                delayedQRTime +=(System.currentTimeMillis()-startDelay+500);
+                delayedQRTime += (System.currentTimeMillis()-startDelay);
             }
 
             // handle scan result, contents = "33:4:100" text format
@@ -911,10 +1168,20 @@ public class RunMode extends Activity implements SensorEventListener {
 
             //if the scanned QR code text matches a known QR code
             if (QRmap.containsKey(id)) {
+
+                //user scans the goal QR code!!
+                if(id.equals(goal)){
+                    onlyShowLayout(finishedLayout);
+                    finishedText.setText("Trial Complete!");
+                }
+
                 //re-initialize image mapping to all be empty
                 for (int i = 0; i < numbers.length; i++) {
                     numbers[i] = -1;
                 }
+
+                lengthOfGoalList --;
+
                 //work with saved QRCodeLocation Object from txt file
                 QRCodeLocation obj = QRmap.get(id);
                 int QRPosition = obj.getPosition();
@@ -925,42 +1192,35 @@ public class RunMode extends Activity implements SensorEventListener {
                 currentPosition = QRPosition;
                 fullPosition = obj.getFullPosition();
 
-                //TODO need to remove
-//                fullPosition = "35:2:142";
-//                buildingnumber="35";
-//                floornumber="2";
-//                currentPosition=142;
-
-
-                //add points to number user has collected
-                addPointsToCollected(obj.getPoints());
-                removePoints(fullPosition);
-                newLocation(fullPosition);
+                Log.d("onResult","contains key");
 
                 if (firstQRscan) {
+                    pointsScanned.clear();
                     setupLog();
                     firstQRscan = false;
                     appendLog("Location", scanResult.getContents(), true);
                     start = scanResult.getContents();
 
+                    Log.d("onResult",navMode);
+
+                    runNavigationAlg();
+
                     if (navMode.equals("adaptive")) {
-                        currentRunMode = CurrentRunMode.SCANNING;
-                        informationDisplay.setVisibility(View.VISIBLE);
-                        //make sideView toggle visible after first scan
-                        sideViewToggle.setVisibility(View.VISIBLE);
-                        alertToggleLayout.setVisibility(View.VISIBLE);
-
-                        //trial starts when first scan complete in adaptive mode!
-                        trialStartTime = System.currentTimeMillis();
-
-                        //actually starts trial countdown
-                        countdownOn = true;
+                        currentRunMode = CurrentRunMode.CHOOSE;
+                        adaptableChoiceView(true);
                     }
                     else if (navMode.equals("adaptable")) {
                         currentRunMode = CurrentRunMode.CHOOSE;
                         adaptableChoiceView(true);
-                        //won't set trialStartTime or countDownOn=true until first route choice
                     }
+                    else if (navMode.equals("walk")) {
+                        Log.d("onResult","walk - here");
+                        adaptableChoiceView(false);
+                        currentRunMode = CurrentRunMode.SCANNING;
+                        updateMapView();
+                        showLocalQRCodes();
+                    }
+
 
                     //app time starts regardless of mode - used to measure time spent choosing route
                     appStartTime = System.currentTimeMillis();
@@ -973,21 +1233,47 @@ public class RunMode extends Activity implements SensorEventListener {
                     timerHandler2.postDelayed(timerRunnable, 0);
                     QRCodesRemaining--;
                 }
+
+                //add points to number user has collected
+                addPointsToCollected(obj.getPoints());
+                removePoints(fullPosition);
+                newLocation(fullPosition);
             }
         }
+
+//        timerHandler.postDelayed(scanTimerRunnable, );
 
     }
 
     //Adaptable mode choices
     public void adaptableChoicesToggle() {
-        testNavigationAlg();
-        buildSidePath();
-        if (adaptableChoicesButtons.isShown()) {
-            adaptableChoicesButtons.setVisibility(View.GONE);
-            adaptableToggle.setText("Route Options");
-        } else {
-            adaptableChoicesButtons.setVisibility(View.VISIBLE);
-            adaptableToggle.setText("Preview Routes");
+
+        if(navMode.equals("walk")){
+            //do nothing
+        }
+
+        else if(navMode.equals("adaptive")){
+            if(adaptiveChoiceLayout.isShown()){
+                adaptiveChoiceLayout.setVisibility(View.GONE);
+                adaptableToggle.setText("Begin");
+                buildSidePath();
+            }else {
+                adaptableChoiceView(false);
+            }
+        }
+
+        else {
+
+            //TODO
+            buildSidePath();
+
+            if (adaptableChoicesButtons.isShown()) {
+                adaptableChoicesButtons.setVisibility(View.GONE);
+                adaptableToggle.setText("Route Options");
+            } else {
+                adaptableChoicesButtons.setVisibility(View.VISIBLE);
+                adaptableToggle.setText("Preview Routes");
+            }
         }
     }
 
@@ -1004,7 +1290,25 @@ public class RunMode extends Activity implements SensorEventListener {
 
             currentRunMode = CurrentRunMode.CHOOSE;
 
-            resetAdaptableButtons();
+            adaptableChoices.setVisibility(View.VISIBLE);
+            adaptableChoicesButtons.setVisibility(View.VISIBLE);
+            adaptiveChoiceLayout.setVisibility(View.GONE);
+
+            //TODO testing new updateThreeAlgos method
+//            runNavigationAlg();
+            updateThreeAlgos();
+
+            if(firstRouteChoice){
+//                timerHandler.postDelayed(scanTimerRunnable, 0);
+                resetAdaptableButtons();
+            }
+
+
+            if(navMode.equals("adaptive")){
+                adaptableChoicesButtons.setVisibility(View.GONE);
+                adaptiveChoiceLayout.setVisibility(View.VISIBLE);
+                adaptableToggle.setText("View Route");
+            }
 
             if (adaptableSelected == 1) {
                 adaptableChoice1.setBackgroundResource(R.drawable.round_button_green_outlined);
@@ -1014,16 +1318,6 @@ public class RunMode extends Activity implements SensorEventListener {
                 adaptableChoice3.setBackgroundResource(R.drawable.round_button_blue_outlined);
             }
 
-//                    timerHandler.postDelayed(scanTimerRunnable, 0);
-            adaptableChoices.setVisibility(View.VISIBLE);
-            adaptableChoicesButtons.setVisibility(View.VISIBLE);
-
-//            Thread navAlg = tonyNavigation();
-//            navAlg.run();
-
-//            TODO handled by tonyNavigation
-            testNavigationAlg();
-            buildSidePath();
 
 //            alertToggleLayout.setVisibility(View.GONE);
             topViewLayout.setVisibility(View.GONE);
@@ -1033,17 +1327,38 @@ public class RunMode extends Activity implements SensorEventListener {
             sideViewToggle.setVisibility(View.GONE);
             sideViewOn = true;
             QRScan.setClickable(false);
+            //TODO commented out 8/19
+//            buildSidePath();
         }
         else {
+
             if (firstRouteChoice) {
                 alertToggleLayout.setVisibility(View.GONE);
                 firstRouteChoice = false;
                 trialStartTime = System.currentTimeMillis();
+                appendLog("Event","Start",true);
+                Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.side_view_clear_0_2);
+                sideViewToggleImage.setImageBitmap(Assets.getRoundedCornerBitmap(bitmap, 100));
             }
+
             if(updateOccured && !adaptableUpdateChosen){
                 adaptableUpdateChosen=true;
                 delayedUpdateTime = System.currentTimeMillis() - startDelay;
+            }
 
+
+            if(adaptableSelected==1 || navMode.equals("adaptive")) {
+                showOptimalPath(sidePath);
+                totalPointsOnRoute = pathLogic.getCollectedPoints();
+                QRCodesRemaining = pathLogic.getQRCollected();
+            }else if(adaptableSelected==2){
+                showOptimalPath(sidePath2);
+                totalPointsOnRoute = pathLogicAdp1.getCollectedPoints();
+                QRCodesRemaining = pathLogicAdp1.getQRCollected();
+            }else if(adaptableSelected==3){
+                showOptimalPath(sidePath3);
+                totalPointsOnRoute = pathLogicAdp2.getCollectedPoints();
+                QRCodesRemaining = pathLogicAdp2.getQRCollected();
             }
 
             // needs to be turned on after first route choice and forced updated route choice
@@ -1051,7 +1366,8 @@ public class RunMode extends Activity implements SensorEventListener {
 
             currentRunMode = CurrentRunMode.SCANNING;
 
-            buildSidePath();
+            //TODO
+//            buildSidePath();
 
             informationDisplay.setVisibility(View.VISIBLE);
             sideViewToggle.setVisibility(View.VISIBLE);
@@ -1062,14 +1378,14 @@ public class RunMode extends Activity implements SensorEventListener {
             appendLog("Layout", "topView", true);
 
             topViewLayout.setVisibility(View.VISIBLE);
-            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), currentFloorImage);
-            sideViewToggleImage.setImageBitmap(Assets.getRoundedCornerBitmap(bitmap, convertToPx(10)));
+//            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), currentFloorImage);
+//            sideViewToggleImage.setImageBitmap(Assets.getRoundedCornerBitmap(bitmap, convertToPx(10)));
             sideViewToggle.setVisibility(View.VISIBLE);
             QRScan.setClickable(true);
 
 
-            //TODO
-            timerHandler.postDelayed(scanTimerRunnable, REPEAT_TIME);
+            //TODO - Sept 11th - need these lines to start trial
+            timerHandler.postDelayed(scanTimerRunnable, 0);
             timerHandler2.postDelayed(timerRunnable, CLOCK_TIME);
 
         }
@@ -1082,9 +1398,13 @@ public class RunMode extends Activity implements SensorEventListener {
         public void onReceive(Context c, Intent intent) {
             wifiScanList = mainWifiObj.getScanResults();
 
+            Log.d("wifi","onrecieved");
+
+//            Toast.makeText(getApplicationContext(),"wifi",Toast.LENGTH_SHORT).show();
+
             timeForScan = System.currentTimeMillis() - startScanTime;
-            Log.d("Scan Time", String.valueOf(timeForScan) + " milliseconds *********************8");
-            Log.d("Scan", String.valueOf(wifiScanList.size()) + " routers found");
+//            Log.d("Scan Time", String.valueOf(timeForScan) + " milliseconds *********************8");
+//            Log.d("Scan", String.valueOf(wifiScanList.size()) + " routers found");
 
 //            startScanTime = System.currentTimeMillis();
 //            mainWifiObj.startScan();
@@ -1144,7 +1464,7 @@ public class RunMode extends Activity implements SensorEventListener {
                 if (scanCount < 2) {
                     olderScan = mostRecentScan;
                 } else if (scanCount == 2) {
-                    Log.d("scan mode", "double");
+//                    Log.d("scan mode", "double");
                     scanCount = 0;
                     averageScans average = new averageScans(olderScan, mostRecentScan);
                     averageOfRecentScans = average.calculate();
@@ -1216,7 +1536,7 @@ public class RunMode extends Activity implements SensorEventListener {
                     }
                 }
             } else if (scanMode == scanFrequencyMode.USE_EACH_ONE) {
-                Log.d("scan mode", "single");
+//                Log.d("scan mode", "single");
 
                 FingerprintMatchingAlg Alg = new FingerprintMatchingAlg(currentPosition, G, recentChangesAccelerometer, previousChangesAccelerometer, floornumber, buildingnumber, strongerDataList, mostRecentScan, matchingMode);
 
@@ -1287,164 +1607,432 @@ public class RunMode extends Activity implements SensorEventListener {
 //        runOnUiThread(new Runnable() {
 //            @Override
 //            public void run() {
-        if(s.equals(goal)){
+//        if(s.equals(goal)){
             //goal reached, not sure what to do now -> don't run nav alg
-            fullPosition = full;
+//            fullPosition = full;
             //update the path history by adding this position if not same as previous
-            addToPathHistory(fullPosition);
-            showPathHistory();
-            updateMapView();
+//            addToPathHistory(fullPosition);
+//            showPathHistory();
+//            updateMapView();
             //TODO update app to know that the trial is complete...
-            onlyShowLayout(finishedLayout);
-        }
-        else {
+//            onlyShowLayout(finishedLayout);
+//        }
+//        else {
             fullPosition = full;
             //update the path history by adding this position if not same as previous
             addToPathHistory(fullPosition);
-            testNavigationAlg();
-            showPathHistory();
+//        }
+        if(navMode.equals("walk")){
             updateMapView();
+            showPathHistory();
+            buildSidePath();
+            showLocalQRCodes();
         }
+
+//        timerHandler.removeCallbacks(scanTimerRunnable);
+//        timerHandler.postDelayed(scanTimerRunnable,REPEAT_TIME);
     }
 
-    public void testNavigationAlg() {
+    public void updateOneAlgo(){
+
+//        long startTime = System.currentTimeMillis();
+//        Log.d("nav start updateNav",String.valueOf(startTime));
+
+
+        if(navMode.equals("walk")){
+            //do nothing...
+        }
+
+        if(!navMode.equals("walk")) {
+
+            if(navMode.equals("adaptive")){
+                pathLogic.reCalcOptPath(fullPosition,timeLeft,pointsScanned);
+                sidePath = pathLogic.getPath();
+                showOptimalPath(sidePath);
+                totalPointsOnRoute = pathLogic.getCollectedPoints();
+                QRCodesRemaining = pathLogic.getQRCollected();
+                if(pathLogic.goalList.size()!=lengthOfGoalList){
+                    adaptivePathUpdate();
+                    lengthOfGoalList = pathLogic.goalList.size();
+                }
+            }
+
+            else if(adaptableSelected==1){
+                pathLogic.reCalcOptPath(fullPosition,timeLeft,pointsScanned);
+                sidePath = pathLogic.getPath();
+                showOptimalPath(sidePath);
+                totalPointsOnRoute = pathLogic.getCollectedPoints();
+                QRCodesRemaining = pathLogic.getQRCollected();
+                if(pathLogic.goalList.size()!=lengthOfGoalList){
+                    adaptablePathUpdate();
+                    lengthOfGoalList = pathLogic.goalList.size();
+                }
+            }
+
+            else if(adaptableSelected==2){
+                pathLogicAdp1.reCalcOptPath(fullPosition,timeLeft,pointsScanned);
+                sidePath2 = pathLogicAdp1.getPath();
+                showOptimalPath(sidePath2);
+                totalPointsOnRoute = pathLogicAdp1.getCollectedPoints();
+                QRCodesRemaining = pathLogicAdp1.getQRCollected();
+                if(pathLogicAdp1.goalList.size()!=lengthOfGoalList){
+                    adaptablePathUpdate();
+                    lengthOfGoalList = pathLogicAdp1.goalList.size();
+                }
+            }
+            else if(adaptableSelected==3){
+                pathLogicAdp2.reCalcOptPath(fullPosition,timeLeft,pointsScanned);
+                sidePath3 = pathLogicAdp2.getPath();
+                showOptimalPath(sidePath3);
+                totalPointsOnRoute = pathLogicAdp2.getCollectedPoints();
+                QRCodesRemaining = pathLogicAdp2.getQRCollected();
+                if(pathLogicAdp2.goalList.size()!=lengthOfGoalList){
+                    adaptablePathUpdate();
+                    lengthOfGoalList = pathLogicAdp2.goalList.size();
+                }
+            }
+
+            pointsCollectedText.setText("Points Collected: " + String.valueOf(pointsCollected));
+            qrCodesRemainingText.setText("Remaining QR Codes: " + String.valueOf(QRCodesRemaining) + " Points: " + String.valueOf(totalPointsOnRoute));
+
+            if(currentRunMode.equals(CurrentRunMode.CHOOSE)) {
+                adaptivePoints.setText("Points: " + String.valueOf(pathLogic.getCollectedPoints()));
+                adaptiveTime.setText("Time: " + String.valueOf(pathLogic.getTimeLength()) + " sec");
+                choice1Points.setText("Points: " + String.valueOf(pathLogic.getCollectedPoints()));
+                choice1Time.setText("Time: " + String.valueOf(pathLogic.getTimeLength()) + " sec");
+                choice2Points.setText("Points: " + String.valueOf(pathLogicAdp1.getCollectedPoints()));
+                choice2Time.setText("Time: " + String.valueOf(pathLogicAdp1.getTimeLength()) + " sec");
+                choice3Points.setText("Points: " + String.valueOf(pathLogicAdp2.getCollectedPoints()));
+                choice3Time.setText("Time: " + String.valueOf(pathLogicAdp2.getTimeLength()) + " sec");
+                adaptiveChoiceLayout.invalidate();
+            }
+
+            buildSidePath();
+            showPathHistory();
+            updateMapView();
+        }
+
+//        long finishTime = System.currentTimeMillis();
+//        Log.d("nav finish updateNav",String.valueOf(finishTime-startTime));
+
+    }
+
+    public void updateThreeAlgos(){
+
+        if(navMode.equals("walk")){
+            //do nothing...
+        }
+
+        if(!navMode.equals("walk")) {
+
+            if(navMode.equals("adaptive")){
+                pathLogic.reCalcOptPath(fullPosition,timeLeft,pointsScanned);
+                sidePath = pathLogic.getPath();
+                showOptimalPath(sidePath);
+                totalPointsOnRoute = pathLogic.getCollectedPoints();
+                QRCodesRemaining = pathLogic.getQRCollected();
+            }
+
+            else{
+
+                pathLogic.reCalcOptPath(fullPosition,timeLeft,pointsScanned);
+                pathLogicAdp1.reCalcOptPath(fullPosition,timeLeft,pointsScanned);
+                pathLogicAdp2.reCalcOptPath(fullPosition,timeLeft,pointsScanned);
+                sidePath = pathLogic.getPath();
+                sidePath2 = pathLogicAdp1.getPath();
+                sidePath3 = pathLogicAdp2.getPath();
+
+                if(adaptableSelected==1 ){
+                    showOptimalPath(sidePath);
+                    totalPointsOnRoute = pathLogic.getCollectedPoints();
+                    QRCodesRemaining = pathLogic.getQRCollected();
+                }
+                else if(adaptableSelected==2){
+                    showOptimalPath(sidePath2);
+                    totalPointsOnRoute = pathLogicAdp1.getCollectedPoints();
+                    QRCodesRemaining = pathLogicAdp1.getQRCollected();
+                }
+                else if(adaptableSelected==3){
+                    showOptimalPath(sidePath3);
+                    totalPointsOnRoute = pathLogicAdp2.getCollectedPoints();
+                    QRCodesRemaining = pathLogicAdp2.getQRCollected();
+                }
+            }
+
+            pointsCollectedText.setText("Points Collected: " + String.valueOf(pointsCollected));
+            qrCodesRemainingText.setText("Remaining QR Codes: " + String.valueOf(QRCodesRemaining) + " Points: " + String.valueOf(totalPointsOnRoute));
+
+            if(currentRunMode.equals(CurrentRunMode.CHOOSE)) {
+                adaptivePoints.setText("Points: " + String.valueOf(pathLogic.getCollectedPoints()));
+                adaptiveTime.setText("Time: " + String.valueOf(pathLogic.getTimeLength()) + " sec");
+                choice1Points.setText("Points: " + String.valueOf(pathLogic.getCollectedPoints()));
+                choice1Time.setText("Time: " + String.valueOf(pathLogic.getTimeLength()) + " sec");
+                choice2Points.setText("Points: " + String.valueOf(pathLogicAdp1.getCollectedPoints()));
+                choice2Time.setText("Time: " + String.valueOf(pathLogicAdp1.getTimeLength()) + " sec");
+                choice3Points.setText("Points: " + String.valueOf(pathLogicAdp2.getCollectedPoints()));
+                choice3Time.setText("Time: " + String.valueOf(pathLogicAdp2.getTimeLength()) + " sec");
+                adaptiveChoiceLayout.invalidate();
+            }
+
+            buildSidePath();
+            showPathHistory();
+            updateMapView();
+        }
+
+//        long finishTime = System.currentTimeMillis();
+//        Log.d("nav finish updateNav",String.valueOf(finishTime-startTime));
+
+    }
+
+
+    public void runNavigationAlg() {
+//        AsyncTask nav = new NavigationThread().execute();
+
+        long startTime = System.currentTimeMillis();
+        Log.d("nav start runNav",String.valueOf(startTime));
+//        long timeStart = System.currentTimeMillis();
+//        Log.d("nav alg start",String.valueOf(timeStart));
 
         //clone the master Graph into one for each nav method
-        G_HP = new Graph(G);
-        G_L = new Graph(G);
-        G_orig = new Graph(G);
+//        G_HP = new Graph(G);
+//        G_L = new Graph(G);
+//        G_orig = new Graph(G);
 
-//        TODO not permanent
-//        goal = "37:2:106";
-//        fullPosition = "35:2:142";
-        start = fullPosition;
+//        long cloneTime = System.currentTimeMillis();
+//        Log.d("nav alg clone",String.valueOf(cloneTime-timeStart));
 
-        //set goal location first, then mark neighbors
-        G_orig.setStartLocation(start);
-        G_orig.setGoalLocation(goal);
-        G_orig.markNeighbors(goal, G_orig);
+        //Original Algorithm
+//        G_orig.setStartLocation(start);  //set goal location first, then mark neighbors
+//        G_orig.setGoalLocation(goal);
+//        G_orig.markNeighbors(goal, G_orig);
+//        ArrayList<String> originalGoal = new ArrayList<String>();
+//        originalGoal.add(goal);
 
-        ArrayList<String> originalGoal = new ArrayList<String>();
-        originalGoal.add(goal);
-        Algo pathFinder = new Algo(G_orig,start, goal, originalGoal);
-        pathFinder.calcOptPath(start);
-//        Log.d("Results for Original:",pathFinder.printPath().toString());
+//        G.setStartLocation(start);
+//        G.setGoalLocation(goal);
+//        G.markNeighbors(goal,G);
 
-//        Log.d("Nav set start", fullPosition);
-//        Log.d("Nav set goal", goal);
-//        Log.d("debug",G.adjacentTo(fullPosition).toString());
+//        int baseWeight = 10;
+//        int stairWeight = 15;
+//        int breakTime = 100;
+//        int baseWeightAdp1 = 10;
+//        int stairWeightAdp1 = 15;
+//        int breakTimeAdp1 = 140;
+//        int baseWeightAdp2 = 10;
+//        int stairWeightAdp2 = 20;
+//        int breakTimeAdp2 = 100;
+//        int floorMod = baseWeight-10;
+//        int stairMod = stairWeight-10;
+//        int floorModAdp1 = baseWeightAdp1-10;
+//        int stairModAdp1 = stairWeightAdp1-10;
+//        int floorModAdp2 = baseWeightAdp2-10;
+//        int stairModAdp2 = stairWeightAdp2-10;
+//
+//        if(trialNumber.equals("11")) {
+//            baseWeightAdp1 = 10;
+//            stairWeightAdp1 = 15;
+//            breakTimeAdp1 = 140;
+//            baseWeightAdp2 = 10;
+//            stairWeightAdp2 = 20;
+//            breakTimeAdp2 = 100;
+//        }
+//        else if(trialNumber.equals("2R")) {
+//            baseWeightAdp1 = 10;
+//            stairWeightAdp1 = 15;
+//            breakTimeAdp1 = 130;
+//            baseWeightAdp2 = 20;
+//            stairWeightAdp2 = 40;
+//            breakTimeAdp2 = 150;
+//        }
+//        else if(trialNumber.equals("9R")) {
+//            baseWeightAdp1 = 10;
+//            stairWeightAdp1 = 20;
+//            breakTimeAdp1 = 100;
+//            baseWeightAdp2 = 10;
+//            stairWeightAdp2 = 50;
+//            breakTimeAdp2 = 140;
+//        }
+//        else if(trialNumber.equals("8R")) {
+//            baseWeightAdp1 = 10;
+//            stairWeightAdp1 = 15;
+//            breakTimeAdp1 = 140;
+//            baseWeightAdp2 = 10;
+//            stairWeightAdp2 = 20;
+//            breakTimeAdp2 = 140;
+//        }
+//        else if(trialNumber.equals("5")) {
+//            baseWeightAdp1 = 10;
+//            stairWeightAdp1 = 15;
+//            breakTimeAdp1 = 140;
+//            baseWeightAdp2 = 10;
+//            stairWeightAdp2 = 20;
+//            breakTimeAdp2 = 140;
+//        }
+//        else if(trialNumber.equals("8")) {
+//            baseWeightAdp1 = 10;
+//            stairWeightAdp1 = 15;
+//            breakTimeAdp1 = 120;
+//            baseWeightAdp2 = 20;
+//            stairWeightAdp2 = 40;
+//            breakTimeAdp2 = 100;
+//        }
+//
+//
+//        floorModAdp1 = baseWeightAdp1 - 10;
+//        stairModAdp1 = stairWeightAdp1 - 10;
+//        floorModAdp2 = baseWeightAdp2 - 10;
+//        stairModAdp2 = stairWeightAdp2 - 10;
 
-        G_HP.setStartLocation(fullPosition);
-        G_HP.setGoalLocation(goal);
-        G_HP.markNeighbors(goal, G_HP);
 
-        G_L.setStartLocation(fullPosition);
-        G_L.setGoalLocation(goal);
-        G_L.markNeighbors(goal, G_L);
+//        pathFinder.calcOptPath(fullPosition,timeLeft,100);
+//        G_HP.setStartLocation(fullPosition);
+//        G_HP.setGoalLocation(goal);
+//        G_HP.markNeighbors(goal, G_HP);
+//
+//        G_L.setStartLocation(fullPosition);
+//        G_L.setGoalLocation(goal);
+//        G_L.markNeighbors(goal, G_L);
+
+        if(navMode.equals("walk")){
+            //do nothing...
+        }
+
+//        else if(navMode.equals("adaptable")){
+//            if(goalLogic_previous==null) {
+//                //previous list of goals not set yet - save current ones as previous
+//
+////                goalLogic = new FloorRankingOrder(G_L, 90);
+////                goalHigh = new HighPointPriority(G_HP);
+//            }
+//            if(adaptableSelected==1) {
+//                if(goalLogic_previous==null) {
+//                    //previous list of goals not set yet - save current ones as previous
+////
+//// goalLogic = new FloorRankingOrder(G_L, 90);
+//
+//                }else{
+//                    if(goalLogic.goalList.equals(goalLogic_previous.goalList)){
+//                        //good - same list of goals
+//                    }else{
+//                        Assets.playUpdateSound();
+//                        adaptablePathUpdate();
+//                        goalLogic_previous=goalLogic;
+//                    }
+//                }
+//            }else if(adaptableSelected==2){
+//                if(goalHigh_previous==null) {
+//                    goalHigh = new HighPointPriority(G_HP);
+//                }else{
+//                    if(goalHigh.goalPoint.equals(goalHigh_previous.goalPoint)){
+//                        //good
+//                    }else{
+//                        Assets.playUpdateSound();
+//                        adaptablePathUpdate();
+//                        goalHigh_previous=goalHigh;
+//                    }
+//                }
+//            }else if(adaptableSelected==3){
+//                //TODO handle third nav option update
+//            }
+//        }
+//        //adaptive mode
+//        else if(navMode.equals("adaptive")) {
+//            if(goalHigh_previous==null) {
+//                goalHigh = new HighPointPriority(G_HP);
+//            }else{
+//                if(goalHigh.goalPoint.equals(goalHigh_previous.goalPoint)){
+//                    //good
+//                }else{
+//                    Assets.playUpdateSound();
+//                    goalHigh_previous=goalHigh;
+//                }
+//            }
+//            if (goalLogic_previous == null) {
+//
+////                goalLogic = new FloorRankingOrder(G_L, 90);
+//            } else {
+//                if (goalLogic.goalList.equals(goalLogic_previous.goalList)) {
+//                    //good
+//                } else {
+//                    Assets.playUpdateSound();
+//                    goalLogic_previous = goalLogic;
+//                }
+//            }
+//        }
+
+        if(!navMode.equals("walk")) {
+
+            String[] gList15 = {"37:2:91", "37:4:65", "37:4:54", "37:2:77", "35:3:116", "35:3:105", "33:3:140", "35:4:181", "33:4:132", "33:3:123", "33:2:81"};
+            String[] gList16 = {"37:2:91", "37:4:65", "37:4:54", "37:2:77", "35:3:116", "35:3:105", "33:3:140", "35:4:181", "33:4:132", "33:3:123", "33:2:81"};
+            String[] gList17 = {"37:2:91", "37:2:77", "35:3:116", "35:3:105", "33:3:140", "35:4:181", "33:4:132", "33:3:123", "33:2:81"};
+            goalList = ArrayToArrayList.getArrayList(gList15,goalList);
+            goalListAdp1 = ArrayToArrayList.getArrayList(gList16,goalListAdp1);
+            goalListAdp2 = ArrayToArrayList.getArrayList(gList17,goalListAdp2);
+
+            pathLogic = new Algo(G,fullPosition, goal, timeLeft, stairMod, floorMod, breakTime, goalList);
+            pathLogicAdp1 = new Algo(G,fullPosition, goal, timeLeft, stairModAdp1, floorModAdp1, breakTimeAdp1, goalListAdp1);
+            pathLogicAdp2 = new Algo(G,fullPosition, goal, timeLeft, stairModAdp2, floorModAdp2, breakTimeAdp2, goalListAdp2);
+
+            pathLogic.calcOptPath(fullPosition,timeLeft);
+            pathLogicAdp1.calcOptPath(fullPosition,timeLeft);
+            pathLogicAdp2.calcOptPath(fullPosition,timeLeft);
+
+            sidePath = pathLogic.getPath();
+            sidePath2 = pathLogicAdp1.getPath();
+            sidePath3 = pathLogicAdp2.getPath();
+
+            Log.d("Results for Logic:",sidePath.toString());
+            Log.d("Results for Logic:",pathLogic.goalList.toString());
+
+            Log.d("Results for LogicA1:",sidePath2.toString());
+            Log.d("Results for LogicA1:",pathLogicAdp1.goalList.toString());
+
+            pointsCollectedText.setText("Points Collected: " + String.valueOf(pointsCollected));
+            qrCodesRemainingText.setText("Remaining QR Codes: " + String.valueOf(QRCodesRemaining) + " Points: " + String.valueOf(totalPointsOnRoute));
 
 
-        if(navMode.equals("adaptable")){
-            if(goalLogic_previous==null) {
-                //previous list of goals not set yet - save current ones as previous
-                goalLogic = new FloorRankingOrder(G_L, 2000);
-                goalHigh = new HighPointPriority(G_HP);
-            }
-            if(adaptableSelected==1) {
-                if(goalLogic_previous==null) {
-                    //previous list of goals not set yet - save current ones as previous
-                    goalLogic = new FloorRankingOrder(G_L, 2000);
-
-                }else{
-                    if(goalLogic.goalList.equals(goalLogic_previous.goalList)){
-                        //good - same list of goals
-                    }else{
-                        Assets.playUpdateSound();
-                        adaptablePathUpdate();
-                        goalLogic_previous=goalLogic;
-                    }
-                }
+            if(adaptableSelected==1 || navMode.equals("adaptive")) {
+                lengthOfGoalList = pathLogic.goalList.size();
+                showOptimalPath(sidePath);
+                totalPointsOnRoute = pathLogic.getCollectedPoints();
+                QRCodesRemaining = pathLogic.getQRCollected();
             }else if(adaptableSelected==2){
-                if(goalHigh_previous==null) {
-                    goalHigh = new HighPointPriority(G_HP);
-                }else{
-                    if(goalHigh.goalPoint.equals(goalHigh_previous.goalPoint)){
-                        //good
-                    }else{
-                        Assets.playUpdateSound();
-                        adaptablePathUpdate();
-                        goalHigh_previous=goalHigh;
-                    }
-                }
+                lengthOfGoalList = pathLogicAdp1.goalList.size();
+                showOptimalPath(sidePath2);
+                totalPointsOnRoute = pathLogicAdp1.getCollectedPoints();
+                QRCodesRemaining = pathLogicAdp1.getQRCollected();
             }else if(adaptableSelected==3){
-                //TODO handle third nav option update
+                lengthOfGoalList = pathLogicAdp2.goalList.size();
+                showOptimalPath(sidePath3);
+                totalPointsOnRoute = pathLogicAdp2.getCollectedPoints();
+                QRCodesRemaining = pathLogicAdp2.getQRCollected();
             }
-        }
-        //adaptive mode
-        else {
-            if(goalHigh_previous==null) {
-                goalHigh = new HighPointPriority(G_HP);
-            }else{
-                if(goalHigh.goalPoint.equals(goalHigh_previous.goalPoint)){
-                    //good
-                }else{
-                    Assets.playUpdateSound();
-                    goalHigh_previous=goalHigh;
-                }
-            }
-            if (goalLogic_previous == null) {
-                goalLogic = new FloorRankingOrder(G_L, 2000);
-            } else {
-                if (goalLogic.goalList.equals(goalLogic_previous.goalList)) {
-                    //good
-                } else {
-                    Assets.playUpdateSound();
-                    goalLogic_previous = goalLogic;
-                }
-            }
+
+        if(currentRunMode.equals(CurrentRunMode.CHOOSE)) {
+            adaptivePoints.setText("Points: " + String.valueOf(pathLogic.getCollectedPoints()));
+            adaptiveTime.setText("Time: " + String.valueOf(pathLogic.getTimeLength()) + " sec");
+            choice1Points.setText("Points: " + String.valueOf(pathLogic.getCollectedPoints()));
+            choice1Time.setText("Time: " + String.valueOf(pathLogic.getTimeLength()) + " sec");
+            choice2Points.setText("Points: " + String.valueOf(pathLogicAdp1.getCollectedPoints()));
+            choice2Time.setText("Time: " + String.valueOf(pathLogicAdp1.getTimeLength()) + " sec");
+            choice3Points.setText("Points: " + String.valueOf(pathLogicAdp2.getCollectedPoints()));
+            choice3Time.setText("Time: " + String.valueOf(pathLogicAdp2.getTimeLength()) + " sec");
+            adaptiveChoiceLayout.invalidate();
         }
 
-        Algo pathHigh = new Algo(G_HP, fullPosition, goal, goalHigh.goalPoint);
-        pathHigh.calcOptPath(fullPosition);
-        //        Log.d("nav HighPoint:", pathHigh.printPath().toString());
-
-        Algo pathLogic = new Algo(G_L, fullPosition, goal, goalLogic.goalList);
-        pathLogic.calcOptPath(fullPosition);
-//        Log.d("nav Logic:", pathLogic.printPath().toString());
+            buildSidePath();
+            showPathHistory();
+            updateMapView();
 
 
-        //TODO print path
-//        predictedPoints = String.valueOf(pathLogic.getCollectedPoints());
-//        ArrayList<String> path3 = pathLogic.printPath();
 
-        sidePath = pathLogic.printPath();
-        sidePath2 = pathHigh.printPath();
-        sidePath3 = pathFinder.printPath();
+//            long timeLength = System.currentTimeMillis() - timeStart;
+//            Log.d("nav alg done", String.valueOf(timeLength));
 
-        if(adaptableSelected==1 || navMode.equals("adaptive")) {
-            showOptimalPath(sidePath);
-            totalPointsOnRoute = pathLogic.getCollectedPoints();
-            QRCodesRemaining = pathLogic.getQRCollected();
-        }else if(adaptableSelected==2){
-            showOptimalPath(sidePath2);
-            totalPointsOnRoute = pathHigh.getCollectedPoints();
-            QRCodesRemaining = pathHigh.getQRCollected();
-        }else if(adaptableSelected==3){
-            showOptimalPath(sidePath3);
-            totalPointsOnRoute = pathFinder.getCollectedPoints();
-            QRCodesRemaining = pathFinder.getQRCollected();
+            long finishTime = System.currentTimeMillis();
+            Log.d("nav finish runNav",String.valueOf(finishTime-startTime));
         }
-
-        pointsCollectedText.setText("Points Collected: " + String.valueOf(pointsCollected));
-        qrCodesRemainingText.setText("Remaining QR Codes: " + String.valueOf(QRCodesRemaining)+" Points: "+String.valueOf(totalPointsOnRoute));
-
-        choice1Points.setText("Points: "+String.valueOf(pathLogic.getCollectedPoints()));
-        choice1Time.setText("Time: "+String.valueOf(pathLogic.getTimeLength())+" sec");
-        choice2Points.setText("Points: "+String.valueOf(pathHigh.getCollectedPoints()));
-        choice2Time.setText("Time: "+String.valueOf(pathHigh.getTimeLength())+" sec");
-        choice3Points.setText("Points: "+String.valueOf(pathFinder.getCollectedPoints()));
-        choice3Time.setText("Time: "+String.valueOf(pathFinder.getTimeLength())+" sec");
-
-        buildSidePath();
+//        */
     }
 
     public void showOptimalPath(ArrayList<String> p) {
@@ -1456,7 +2044,7 @@ public class RunMode extends Activity implements SensorEventListener {
         boolean breakInPath = false;
 
         if (p.size() > 0) {
-            Log.d("transition here", "p larger than 0");
+//            Log.d("transition here", "p larger than 0");
 
             Point point;
             int[] pos;
@@ -1469,7 +2057,7 @@ public class RunMode extends Activity implements SensorEventListener {
                     if (pieces[0].equals(buildingnumber) && pieces[1].equals(floornumber)) {
                         before = false;
                         foundPath = true;
-                        Log.d("transition here", "found on this floor");
+//                        Log.d("transition here", "found on this floor");
                         pos = ConvertGrid(Integer.parseInt(pieces[2]));
                         point = new Point((25 + 49 * (pos[0] - 1)), (42 + 52 * (pos[1] - 1)));
                         localFuturePath.add(point);
@@ -1482,26 +2070,26 @@ public class RunMode extends Activity implements SensorEventListener {
                                 int nextFloor = Integer.parseInt(p.get(i + 1).split(":")[1]);
                                 if (Integer.parseInt(pieces[1]) < nextFloor) {
                                     transition = "up";
-                                    Log.d("transition", "up at " + s);
+//                                    Log.d("transition", "up at " + s);
                                 } else if (Integer.parseInt(pieces[1]) > nextFloor) {
                                     transition = "down";
-                                    Log.d("transition", "down at " + s);
+//                                    Log.d("transition", "down at " + s);
                                 }
                             } else if (connections.contains(s) && !pieces[0].equals(p.get(i + 1).split(":")[0])) {
                                 breakInPath = true;
                                 String nextBuilding = p.get(i + 1).split(":")[0];
                                 if (pieces[0].equals("33") && nextBuilding.equals("35")) {
                                     transition = "right";
-                                    Log.d("transition", "right");
+//                                    Log.d("transition", "right");
                                 } else if (pieces[0].equals("35") && nextBuilding.equals("37")) {
                                     transition = "right";
-                                    Log.d("transition", "right");
+//                                    Log.d("transition", "right");
                                 } else if (pieces[0].equals("37") && nextBuilding.equals("35")) {
                                     transition = "left";
-                                    Log.d("transition", "left");
+//                                    Log.d("transition", "left");
                                 } else if (pieces[0].equals("35") && nextBuilding.equals("33")) {
                                     transition = "down";
-                                    Log.d("transition", "down");
+//                                    Log.d("transition", "down");
                                 }
                             }
                         } else {
@@ -1510,7 +2098,7 @@ public class RunMode extends Activity implements SensorEventListener {
                         }
                     } else {
                         transition = "not on this floor";
-                        Log.d("transition here", "not on this floor");
+//                        Log.d("transition here", "not on this floor");
 
                     }
                 }
@@ -1518,7 +2106,7 @@ public class RunMode extends Activity implements SensorEventListener {
         } else {
             transition = "empty list";
         }
-        Log.d("transition here", transition);
+//        Log.d("transition here", transition);
         final String pass = transition;
 //            runOnUiThread(new Runnable() {
 //                @Override
@@ -1559,12 +2147,35 @@ public class RunMode extends Activity implements SensorEventListener {
             int dy = 52;
             String full;
 
-            for (String s : QRCodeLocations) {
-                String[] pieces = s.split(":");
-                if (pieces[0].equals(buildingnumber) && pieces[1].equals(floornumber) && Integer.parseInt(pieces[3]) > 0) {
+            if(navMode.equals("walk")){
+                for (String s : QRCodeLocations) {
+                    String[] pieces = s.split(":");
+                    if (pieces[0].equals(buildingnumber) && pieces[1].equals(floornumber)) {
+                        pos = ConvertGrid(Integer.parseInt(pieces[2]));
+                        full = pieces[0] + ":" + pieces[1] + ":" + pieces[2];
+                        QRPoint = new QRLocationXY(full, x0 + dx * (pos[0] - 1), (y0 + dy * (pos[1] - 1)), 1);
+                        localQRCodeLocations.add(QRPoint);
+//                    Log.d("rawr","added "+s+" to the local QR codes");
+                    }
+                }
+            }
+            else {
+                for (String s : QRCodeLocations) {
+                    String[] pieces = s.split(":");
+                    if (pieces[0].equals(buildingnumber) && pieces[1].equals(floornumber) && Integer.parseInt(pieces[3]) > 0) {
+                        pos = ConvertGrid(Integer.parseInt(pieces[2]));
+                        full = pieces[0] + ":" + pieces[1] + ":" + pieces[2];
+                        QRPoint = new QRLocationXY(full, x0 + dx * (pos[0] - 1), (y0 + dy * (pos[1] - 1)), Integer.parseInt(pieces[3]));
+                        localQRCodeLocations.add(QRPoint);
+//                    Log.d("rawr","added "+s+" to the local QR codes");
+                    }
+                }
+
+                String[] pieces = goal.split(":");
+                if (pieces[0].equals(buildingnumber) && pieces[1].equals(floornumber)) {
                     pos = ConvertGrid(Integer.parseInt(pieces[2]));
-                    full = pieces[0]+":"+pieces[1]+":"+pieces[2];
-                    QRPoint = new QRLocationXY(full,x0 + dx * (pos[0] - 1), (y0 + dy * (pos[1] - 1)), Integer.parseInt(pieces[3]));
+                    full = pieces[0] + ":" + pieces[1] + ":" + pieces[2];
+                    QRPoint = new QRLocationXY(full, x0 + dx * (pos[0] - 1), (y0 + dy * (pos[1] - 1)),10);
                     localQRCodeLocations.add(QRPoint);
 //                    Log.d("rawr","added "+s+" to the local QR codes");
                 }
@@ -1583,7 +2194,10 @@ public class RunMode extends Activity implements SensorEventListener {
         if(QRmap.containsKey(full)) {
             QRmap.get(full).removePoints();
 
-            pointsCollected += QRmap.get(full).getPoints();
+            pointsScanned.add(full);
+
+//            pointsCollected += QRmap.get(full).getPoints();
+
 //        pointsCollectedText.setText("Points Collected on Route: "+String.valueOf(pointsCollected)+"/total");
 //        pointsCollectedText.setText("Points Collected: " + String.valueOf(pointsCollected));
 //        pointsRemainingText.setText("Points Remaining on Route: " + String.valueOf(totalPointsOnRoute));
@@ -1603,6 +2217,11 @@ public class RunMode extends Activity implements SensorEventListener {
             }
             QRCodeLocations = newList;
         }
+
+//        updateOneAlgos();
+        showQRCodes();
+        showLocalQRCodes();
+
     }
 
     //Update the visual display for the user
@@ -1636,7 +2255,7 @@ public class RunMode extends Activity implements SensorEventListener {
                         if (mbActive) {
                             waited += 100;
                             updateProgress(waited);
-                            Log.d("progress tag", String.valueOf(waited));
+//                            Log.d("progress tag", String.valueOf(waited));
                         }
 //                        if (waited == 1000) {
 //                            runOnUiThread(new Runnable() {
@@ -1707,18 +2326,229 @@ public class RunMode extends Activity implements SensorEventListener {
         return timerThread;
     }
 
+//    Handler navHandler = new Handler();
+//    Runnable navRunnable = new Runnable() {
+//
+//        @Override
+//        public void run() {
+//            long timeStart = System.currentTimeMillis();
+//            Log.d("nav alg start", String.valueOf(timeStart));
+//
+//            //clone the master Graph into one for each nav method
+//            G_HP = new Graph(G);
+//            G_L = new Graph(G);
+//            G_orig = new Graph(G);
+//
+//            int breakTime = 100;
+//
+//            //Original Algorithm
+//            G_orig.setStartLocation(start);  //set goal location first, then mark neighbors
+//            G_orig.setGoalLocation(goal);
+//            G_orig.markNeighbors(goal, G_orig);
+//            ArrayList<String> originalGoal = new ArrayList<String>();
+//            originalGoal.add(goal);
+//            pathFinder = new Algo(G_orig, fullPosition, goal, originalGoal, timeLeft);
+//            pathFinder.calcOptPath(fullPosition, timeLeft, 100);
+//
+//            G_HP.setStartLocation(fullPosition);
+//            G_HP.setGoalLocation(goal);
+//            G_HP.markNeighbors(goal, G_HP);
+//
+//            G_L.setStartLocation(fullPosition);
+//            G_L.setGoalLocation(goal);
+//            G_L.markNeighbors(goal, G_L);
+//
+//            if (navMode.equals("adaptable")) {
+//                if (goalLogic_previous == null) {
+//                    //previous list of goals not set yet - save current ones as previous
+//                    goalLogic = new FloorRankingOrder(G_L, 90);
+//                    goalHigh = new HighPointPriority(G_HP);
+//                }
+//                if (adaptableSelected == 1) {
+//                    if (goalLogic_previous == null) {
+//                        //previous list of goals not set yet - save current ones as previous
+//                        goalLogic = new FloorRankingOrder(G_L, 90);
+//
+//                    } else {
+//                        if (goalLogic.goalList.equals(goalLogic_previous.goalList)) {
+//                            //good - same list of goals
+//                        } else {
+//                            Assets.playUpdateSound();
+//                            adaptablePathUpdate();
+//                            goalLogic_previous = goalLogic;
+//                        }
+//                    }
+//                } else if (adaptableSelected == 2) {
+//                    if (goalHigh_previous == null) {
+//                        goalHigh = new HighPointPriority(G_HP);
+//                    } else {
+//                        if (goalHigh.goalPoint.equals(goalHigh_previous.goalPoint)) {
+//                            //good
+//                        } else {
+//                            Assets.playUpdateSound();
+//                            adaptablePathUpdate();
+//                            goalHigh_previous = goalHigh;
+//                        }
+//                    }
+//                } else if (adaptableSelected == 3) {
+//                    //TODO handle third nav option update
+//                }
+//            } else {  //adaptive mode
+//                if (goalHigh_previous == null) {
+//                    goalHigh = new HighPointPriority(G_HP);
+//                } else {
+//                    if (goalHigh.goalPoint.equals(goalHigh_previous.goalPoint)) {
+//                        //good
+//                    } else {
+//                        Assets.playUpdateSound();
+//                        goalHigh_previous = goalHigh;
+//                    }
+//                }
+//                if (goalLogic_previous == null) {
+//                    goalLogic = new FloorRankingOrder(G_L, 90);
+//                } else {
+//                    if (goalLogic.goalList.equals(goalLogic_previous.goalList)) {
+//                        //good
+//                    } else {
+//                        Assets.playUpdateSound();
+//                        goalLogic_previous = goalLogic;
+//                    }
+//                }
+//            }
+//
+//            pathHigh = new Algo(G_HP, fullPosition, goal, goalHigh.goalPoint, timeLeft);
+//            pathHigh.calcOptPath(fullPosition, timeLeft, breakTime);
+//
+//            pathLogic = new Algo(G_L, fullPosition, goal, goalLogic.goalList, timeLeft);
+//            pathLogic.calcOptPath(fullPosition, timeLeft, breakTime);
+//
+//            sidePath = pathLogic.getPath();
+//            sidePath2 = pathHigh.getPath();
+//            sidePath3 = pathFinder.getPath();
+//
+//            runOnUiThread(new Runnable() {
+//                @Override
+//                public void run() {
+//                    navigationUI();
+//                }
+//            });
+//
+//            long timeLength = System.currentTimeMillis() - timeStart;
+//            Log.d("nav alg done", String.valueOf(timeLength));
+//
+//            timerHandler.postDelayed(this, 0);
+//        }
+//    };
+
 //    public Thread tonyNavigation() {
 //        Thread timerThread = new Thread() {
 //            @Override
 //            public void run() {
-//                testNavigationAlg();
+//                long timeStart = System.currentTimeMillis();
+//                Log.d("nav alg start",String.valueOf(timeStart));
 //
-//                    runOnUiThread(new Runnable() {
+//                //clone the master Graph into one for each nav method
+//                G_HP = new Graph(G);
+//                G_L = new Graph(G);
+//                G_orig = new Graph(G);
+//
+//                int breakTime = 100;
+//
+//                //Original Algorithm
+//                G_orig.setStartLocation(start);  //set goal location first, then mark neighbors
+//                G_orig.setGoalLocation(goal);
+//                G_orig.markNeighbors(goal, G_orig);
+//                ArrayList<String> originalGoal = new ArrayList<String>();
+//                originalGoal.add(goal);
+//                pathFinder = new Algo(G_orig,fullPosition, goal, originalGoal,timeLeft);
+//                pathFinder.calcOptPath(fullPosition,timeLeft,100);
+//
+//                G_HP.setStartLocation(fullPosition);
+//                G_HP.setGoalLocation(goal);
+//                G_HP.markNeighbors(goal, G_HP);
+//
+//                G_L.setStartLocation(fullPosition);
+//                G_L.setGoalLocation(goal);
+//                G_L.markNeighbors(goal, G_L);
+//
+//                if(navMode.equals("adaptable")){
+//                    if(goalLogic_previous==null) {
+//                        //previous list of goals not set yet - save current ones as previous
+//                        goalLogic = new FloorRankingOrder(G_L, 90);
+//                        goalHigh = new HighPointPriority(G_HP);
+//                    }
+//                    if(adaptableSelected==1) {
+//                        if(goalLogic_previous==null) {
+//                            //previous list of goals not set yet - save current ones as previous
+//                            goalLogic = new FloorRankingOrder(G_L, 90);
+//
+//                        }else{
+//                            if(goalLogic.goalList.equals(goalLogic_previous.goalList)){
+//                                //good - same list of goals
+//                            }else{
+//                                Assets.playUpdateSound();
+//                                adaptablePathUpdate();
+//                                goalLogic_previous=goalLogic;
+//                            }
+//                        }
+//                    }else if(adaptableSelected==2){
+//                        if(goalHigh_previous==null) {
+//                            goalHigh = new HighPointPriority(G_HP);
+//                        }else{
+//                            if(goalHigh.goalPoint.equals(goalHigh_previous.goalPoint)){
+//                                //good
+//                            }else{
+//                                Assets.playUpdateSound();
+//                                adaptablePathUpdate();
+//                                goalHigh_previous=goalHigh;
+//                            }
+//                        }
+//                    }else if(adaptableSelected==3){
+//                        //TODO handle third nav option update
+//                    }
+//                }else {  //adaptive mode
+//                    if(goalHigh_previous==null) {
+//                        goalHigh = new HighPointPriority(G_HP);
+//                    }else{
+//                        if(goalHigh.goalPoint.equals(goalHigh_previous.goalPoint)){
+//                            //good
+//                        }else{
+//                            Assets.playUpdateSound();
+//                            goalHigh_previous=goalHigh;
+//                        }
+//                    }
+//                    if (goalLogic_previous == null) {
+//                        goalLogic = new FloorRankingOrder(G_L, 90);
+//                    } else {
+//                        if (goalLogic.goalList.equals(goalLogic_previous.goalList)) {
+//                            //good
+//                        } else {
+//                            Assets.playUpdateSound();
+//                            goalLogic_previous = goalLogic;
+//                        }
+//                    }
+//                }
+//
+//                pathHigh = new Algo(G_HP, fullPosition, goal, goalHigh.goalPoint,timeLeft);
+//                pathHigh.calcOptPath(fullPosition,timeLeft,breakTime);
+//
+//                pathLogic = new Algo(G_L, fullPosition, goal, goalLogic.goalList,timeLeft);
+//                pathLogic.calcOptPath(fullPosition,timeLeft,breakTime);
+//
+//                sidePath = pathLogic.getPath();
+//                sidePath2 = pathHigh.getPath();
+//                sidePath3 = pathFinder.getPath();
+//
+//                runOnUiThread(new Runnable() {
 //                        @Override
 //                        public void run() {
-//                            buildSidePath();
+//                    navigationUI();
 //                        }
 //                    });
+//
+//                long timeLength = System.currentTimeMillis()-timeStart;
+//                Log.d("nav alg done",String.valueOf(timeLength));
+//
 //                try {
 //                    this.join();
 //                }catch (InterruptedException e){
@@ -2012,11 +2842,24 @@ public class RunMode extends Activity implements SensorEventListener {
     public void addToPathHistory(String full) {
         if (pathHistory.size() == 0) {
             pathHistory.add(full);
+            runNavigationAlg();
+
         } else {
             String previous = pathHistory.get(pathHistory.size() - 1);
-            if (!full.equals(previous)) {
+
+            if(full.equals(goal)){
                 pathHistory.add(full);
                 appendLog("Location", full, true);
+                //but don't run algo from goal location
+            }
+            else if (!full.equals(previous)) {
+                pathHistory.add(full);
+                appendLog("Location", full, true);
+                //TODO experimenting with updateAlgos - save runNav for first scan and updates and QR removal
+                updateOneAlgo();
+            }
+            else{
+//                updateAlgos();
             }
         }
     }
@@ -2102,8 +2945,6 @@ public class RunMode extends Activity implements SensorEventListener {
             appendLog("Layout", "sideView", true);
             topViewLayout.setVisibility(View.GONE);
             sideViewLayout.setVisibility(View.VISIBLE);
-            testNavigationAlg();
-            buildSidePath();
             bitmap = BitmapFactory.decodeResource(getResources(), currentFloorImage);
             sideViewToggleImage.setImageBitmap(Assets.getRoundedCornerBitmap(bitmap, convertToPx(10)));
             sideViewOn = true;
@@ -2124,173 +2965,140 @@ public class RunMode extends Activity implements SensorEventListener {
     }
 
     public void buildSidePath() {
-        //currently using High Point for the adaptive case - final decision from Tony
-        //not testing side path static vs dynamic in adaptive mode
-        if (navMode.equals("adaptive")) {
-            pathL.clear();
-            if (sidePath.size() != 0) {
 
-                int[] pos;
-                Point firstPoint,currentPoint;
-                firstPoint=new Point(0,0);
+//        if(sidePath!=null) {
+
+            Log.d("side view", "start");
+            if (navMode.equals("walk")) {
+
+
+                int[] pos, lastPos;
+                Point firstPoint, currentPoint;
+                firstPoint = new Point(0, 0);
 
                 //start with path History if exists
-                if(pathHistory.size()>0) {
+                if (pathHistory.size() > 0) {
                     //save route starting point as firstPoint
                     pos = SideViewPreview.convertBuildFloor(pathHistory.get(0));
                     updatePathSideView(1, pos[0], pos[1]);
-                    firstPoint=new Point(pos[0],pos[1]);
+                    firstPoint = new Point(pos[0], pos[1]);
 
                     for (int i = 1; i < pathHistory.size(); i++) {
                         pos = SideViewPreview.convertBuildFloor(pathHistory.get(i));
                         updatePathSideView(1, pos[0], pos[1]);
                     }
+
+                    lastPos = SideViewPreview.convertBuildFloor(pathHistory.get(pathHistory.size() - 1));
+                    currentPoint = new Point(lastPos[0], lastPos[1]);
+
+
+//                String last = sidePath.get(sidePath.size() - 1);
+//                int[] lastCoords = SideViewPreview.convertBuildFloor(last);
+//                updatePathSideView(1, lastCoords[0], lastCoords[1]);
+
+                    drawView2.updateSidePath(firstPoint, currentPoint, pathLA1);
+                    drawView2.invalidate();
+                    showQRCodes();
+
+                } else {
+                    points.setText("Error in loading path");
                 }
 
-                //////////////////// sideaPath1
-                String first = sidePath.get(0);
-                pos = SideViewPreview.convertBuildFloor(first);
-                updatePathSideView(1, pos[0], pos[1]);
-                currentPoint=new Point(pos[0],pos[1]);
-
-                for (int i = 1; i < sidePath.size() - 1; i++) {
-                    pos = SideViewPreview.convertBuildFloor(sidePath.get(i));
-                    updatePathSideView(1, pos[0], pos[1]);
-                }
-
-                //if just starting trial and pathHistory is empty
-                if(pathHistory.size()==0){
-                    //use currentPoint as start
-                    firstPoint=currentPoint;
-                }
-
-                String last = sidePath.get(sidePath.size() - 1);
-                int[] lastCoords = SideViewPreview.convertBuildFloor(last);
-                updatePathSideView(1, lastCoords[0], lastCoords[1]);
-
-                drawView2.updateSidePath(firstPoint,currentPoint,pathL);
-                drawView2.invalidate();
-                showQRCodes();
-            } else {
-                points.setText("Error in loading path");
             }
-        }
-
-        //using adaptive mode will use all 3 side paths
-        else if (navMode.equals("adaptable")) {
-            //TODO manual assign
-            sidePathUpdates = sidePathMode.DYNAMIC;
-
-            //only update sidePath once at beginning - not dynamic
-//            if (sidePathUpdates == sidePathMode.STATIC) {
-//                if (firstSideView) {
-//                    firstSideView = false;
-//                    pathHP.clear();
-//                    pathL.clear();
-//                    pathOrig.clear();
-//                    if (sidePath.size() != 0 && sidePath2.size() != 0) {
-//
-//                        //////////////////// High Point Path
-//
-//                        String first = sidePath.get(0);
-//                        int[] pos = SideViewPreview.convertBuildFloor(first);
-//                        updatePathSideView(1, pos[0], pos[1]);
-//
-//                        for (int i = 1; i < sidePath.size() - 1; i++) {
-//                            pos = SideViewPreview.convertBuildFloor(sidePath.get(i));
-//                            updatePathSideView(1, pos[0] + 2, pos[1] + 2);
-//                        }
-//
-//                        String last = sidePath.get(sidePath.size() - 1);
-//                        int[] lastCoords = SideViewPreview.convertBuildFloor(last);
-//                        updatePathSideView(1, lastCoords[0], lastCoords[1]);
-//
-//                        /////////////////// Logic path
-//
-//                        first = sidePath2.get(0);
-//                        pos = SideViewPreview.convertBuildFloor(first);
-//                        updatePathSideView(2, pos[0], pos[1]);
-//
-//                        for (int i = 1; i < sidePath2.size() - 1; i++) {
-//                            pos = SideViewPreview.convertBuildFloor(sidePath2.get(i));
-//                            updatePathSideView(2, pos[0] - 2, pos[1] - 2);
-//                        }
-//
-//                        last = sidePath2.get(sidePath2.size() - 1);
-//                        lastCoords = SideViewPreview.convertBuildFloor(last);
-//                        updatePathSideView(2, lastCoords[0], lastCoords[1]);
-//
-//                        points.setText("Possible Points: " + predictedPoints);
-////            numberQRs.setText("Number of QRs: " + predictedQR);
-//
-//                        drawView2.updateSidePath(pathHP, pathL,pathOrig);
-//                        drawView2.invalidate();
-//                        showQRCodes();
-//                    } else {
-//                        points.setText("Error in loading path");
-//                    }
-//                } else if (currentRunMode == CurrentRunMode.SCANNING) {
-//                    //normal run mode = only show currently selected route
-//                    if (adaptableSelected == 1) {
-//                        drawView2.updateSidePath(pathHP);
-//                        drawView2.invalidate();
-//                        showQRCodes();
-//                    } else if (adaptableSelected == 2) {
-//                        drawView2.updateSidePath(pathL);
-//                        drawView2.invalidate();
-//                        showQRCodes();
-//                    } else if (adaptableSelected == 3) {
-//                        drawView2.updateSidePath(pathOrig);
-//                        drawView2.invalidate();
-//                        showQRCodes();
-//                    }
-//
-//                } else {
-//                    drawView2.updateSidePath(pathHP, pathL,pathOrig);
-//                    drawView2.invalidate();
-//                    showQRCodes();
-//                }
-//            }
-
-            //update sidePath each time as user moves - dynamic
-//            else if (sidePathUpdates == sidePathMode.DYNAMIC) {
-                pathHP.clear();
+            //currently using High Point for the adaptive case - final decision from Tony
+            //not testing side path static vs dynamic in adaptive mode
+            if (navMode.equals("adaptive")) {
                 pathL.clear();
-                pathOrig.clear();
+                if (sidePath.size() != 0) {
 
-            int[] pos;
-            Point firstPoint,currentPoint;
-            firstPoint=new Point(0,0);
+                    int[] pos;
+                    Point firstPoint, currentPoint;
+                    firstPoint = new Point(0, 0);
 
-            //start with path History if exists
-            if(pathHistory.size()>0) {
-                //save route starting point as firstPoint
-                pos = SideViewPreview.convertBuildFloor(pathHistory.get(0));
-                updatePathSideView(1, pos[0], pos[1]);
-                updatePathSideView(2, pos[0], pos[1]);
-                updatePathSideView(3, pos[0], pos[1]);
-                firstPoint=new Point(pos[0],pos[1]);
+                    //start with path History if exists
+                    if (pathHistory.size() > 0) {
+                        //save route starting point as firstPoint
+                        pos = SideViewPreview.convertBuildFloor(pathHistory.get(0));
+                        updatePathSideView(1, pos[0], pos[1]);
+                        firstPoint = new Point(pos[0], pos[1]);
 
-                for (int i = 1; i < pathHistory.size(); i++) {
-                    pos = SideViewPreview.convertBuildFloor(pathHistory.get(i));
+                        for (int i = 1; i < pathHistory.size(); i++) {
+                            pos = SideViewPreview.convertBuildFloor(pathHistory.get(i));
+                            updatePathSideView(1, pos[0], pos[1]);
+                        }
+                    }
+
+                    //////////////////// sideaPath1
+                    String first = sidePath.get(0);
+                    pos = SideViewPreview.convertBuildFloor(first);
+                    updatePathSideView(1, pos[0], pos[1]);
+                    currentPoint = new Point(pos[0], pos[1]);
+
+                    for (int i = 1; i < sidePath.size() - 1; i++) {
+                        pos = SideViewPreview.convertBuildFloor(sidePath.get(i));
+                        updatePathSideView(1, pos[0], pos[1]);
+                    }
+
+                    //if just starting trial and pathHistory is empty
+                    if (pathHistory.size() == 0) {
+                        //use currentPoint as start
+                        firstPoint = currentPoint;
+                    }
+
+                    String last = sidePath.get(sidePath.size() - 1);
+                    int[] lastCoords = SideViewPreview.convertBuildFloor(last);
+                    updatePathSideView(1, lastCoords[0], lastCoords[1]);
+
+                    drawView2.updateSidePath(firstPoint, currentPoint, pathL);
+                    drawView2.invalidate();
+                    showQRCodes();
+                } else {
+                    points.setText("Error in loading path");
+                }
+            }
+
+            //using adaptive mode will use all 3 side paths
+            else if (navMode.equals("adaptable")) {
+                //TODO manual assign
+                sidePathUpdates = sidePathMode.DYNAMIC;
+
+                pathL.clear();
+                pathLA1.clear();
+                pathLA2.clear();
+
+                int[] pos;
+                Point firstPoint, currentPoint;
+                firstPoint = new Point(0, 0);
+
+                //start with path History if exists
+                if (pathHistory.size() > 0) {
+                    //save route starting point as firstPoint
+                    pos = SideViewPreview.convertBuildFloor(pathHistory.get(0));
                     updatePathSideView(1, pos[0], pos[1]);
                     updatePathSideView(2, pos[0], pos[1]);
                     updatePathSideView(3, pos[0], pos[1]);
+                    firstPoint = new Point(pos[0], pos[1]);
+
+                    for (int i = 1; i < pathHistory.size(); i++) {
+                        pos = SideViewPreview.convertBuildFloor(pathHistory.get(i));
+                        updatePathSideView(1, pos[0], pos[1]);
+                        updatePathSideView(2, pos[0], pos[1]);
+                        updatePathSideView(3, pos[0], pos[1]);
+                    }
                 }
-            }
 
                 if (sidePath.size() != 0 && sidePath2.size() != 0) {
 
-                    Log.d("buildsidepath","got here 1");
+//                    Log.d("buildsidepath","got here 1");
 
                     //////////////////// Logic Path
 
                     String first = sidePath.get(0);
                     pos = SideViewPreview.convertBuildFloor(first);
                     updatePathSideView(1, pos[0], pos[1]);
-                    currentPoint=new Point(pos[0],pos[1]);
+                    currentPoint = new Point(pos[0], pos[1]);
 
-                    if(pathHistory.size()==0){
+                    if (pathHistory.size() == 0) {
                         firstPoint = currentPoint;
                     }
 
@@ -2336,27 +3144,27 @@ public class RunMode extends Activity implements SensorEventListener {
                     points.setText("Possible Points: " + predictedPoints);
 
                     if (currentRunMode == CurrentRunMode.CHOOSE) {
-                        Log.d("buildsidepath","got here 2");
-                        drawView2.updateSidePath(pathL, pathHP,pathOrig);
+//                        Log.d("buildsidepath","got here 2");
+                        drawView2.updateSidePath(pathL, pathLA1, pathLA2);
                         drawView2.invalidate();
                         showQRCodes();
                     } else if (currentRunMode == CurrentRunMode.SCANNING) {
                         //normal run mode = only show currently selected route
                         if (adaptableSelected == 1) {
-                            Log.d("buildsidepath","hp 3");
-                            drawView2.updateSidePath(firstPoint,currentPoint,pathHP);
+//                            Log.d("buildsidepath","hp 3");
+                            drawView2.updateSidePath(firstPoint, currentPoint, pathL);
                             drawView2.invalidate();
                             showQRCodes();
                         } else if (adaptableSelected == 2) {
-                            drawView2.updateSidePath(firstPoint,currentPoint,pathL);
+                            drawView2.updateSidePath(firstPoint, currentPoint, pathLA1);
                             drawView2.invalidate();
                             showQRCodes();
                         } else if (adaptableSelected == 3) {
-                            drawView2.updateSidePath(firstPoint,currentPoint,pathOrig);
+                            drawView2.updateSidePath(firstPoint, currentPoint, pathLA2);
                             drawView2.invalidate();
                             showQRCodes();
                         } else {
-                            drawView2.updateSidePath(pathL, pathHP,pathOrig);
+                            drawView2.updateSidePath(pathL, pathLA1, pathLA2);
                             drawView2.invalidate();
                             showQRCodes();
                         }
@@ -2365,7 +3173,9 @@ public class RunMode extends Activity implements SensorEventListener {
                     points.setText("Error in loading path");
                 }
 //            }
-        }
+            }
+            Log.d("side view", "done");
+
     }
 
     public void updatePathSideView(int n, int x, int y) {
@@ -2373,9 +3183,9 @@ public class RunMode extends Activity implements SensorEventListener {
         if (n == 1) {
             pathL.add(point);
         } else if (n == 2) {
-            pathHP.add(point);
+            pathLA1.add(point);
         } else if (n==3) {
-            pathOrig.add(point);
+            pathLA2.add(point);
         }
     }
 
@@ -2393,17 +3203,31 @@ public class RunMode extends Activity implements SensorEventListener {
     public void showQRCodes() {
         sideViewQRCodeLocations.clear();
 
-        if (QRCodeLocations.size() > 0) {
-            QRLocationXY QRPoint;
-            for (String s : QRCodeLocations) {
-                String[] pieces = s.split(":");
-                int[] pos = SideViewPreview.convertBuildFloor(pieces[0] + ":" + pieces[1] + ":" + pieces[2]);
-                QRPoint = new QRLocationXY(pieces[0] + ":" + pieces[1] + ":" + pieces[2],pos[0], pos[1], Integer.parseInt(pieces[3]));
-                sideViewQRCodeLocations.add(QRPoint);
+        if(navMode.equals("walk")){
+            if (QRCodeLocations.size() > 0) {
+                QRLocationXY QRPoint;
+                for (String s : QRCodeLocations) {
+                    String[] pieces = s.split(":");
+                    int[] pos = SideViewPreview.convertBuildFloor(pieces[0] + ":" + pieces[1] + ":" + pieces[2]);
+                    QRPoint = new QRLocationXY(pieces[0] + ":" + pieces[1] + ":" + pieces[2], pos[0], pos[1], 1);
+//                    Log.d("sideView",QRPoint.toString());
+                    sideViewQRCodeLocations.add(QRPoint);
+                }
+            }
+        }
+        else {
+            if (QRCodeLocations.size() > 0) {
+                QRLocationXY QRPoint;
+                for (String s : QRCodeLocations) {
+                    String[] pieces = s.split(":");
+                    int[] pos = SideViewPreview.convertBuildFloor(pieces[0] + ":" + pieces[1] + ":" + pieces[2]);
+                    QRPoint = new QRLocationXY(pieces[0] + ":" + pieces[1] + ":" + pieces[2], pos[0], pos[1], Integer.parseInt(pieces[3]));
+                    sideViewQRCodeLocations.add(QRPoint);
+                }
             }
         }
 
-        Log.d("SideView QR",sideViewQRCodeLocations.toString());
+//        Log.d("SideView QR",sideViewQRCodeLocations.toString());
 
         drawView2.updateSideViewQR(sideViewQRCodeLocations);
         drawView2.invalidate();
@@ -2495,25 +3319,50 @@ public class RunMode extends Activity implements SensorEventListener {
         return month;
     }
 
-    void closeFloor(){
 
+    void remove9(){
+        drawView2.isNineGone=true;
+        drawView.isNineGone=true;
+
+        Assets.playUpdateSound();
+
+        if(QRmap.get("35:4:113").getPoints()==9){
+            removePoints("35:4:113");
+        }else if(QRmap.get("35:3:132").getPoints()==9){
+            removePoints("35:3:132");
+        }else if(QRmap.get("35:3:116").getPoints()==9){
+            removePoints("35:3:116");
+        }
+
+        updateOccured=true;
+        showLocalQRCodes();
+        showQRCodes();
+
+        updateOneAlgo();
+
+        alertBarOn=0;
+        alertBarText.setText("Update! QR code removed!");
+        updateAlertBar();
+
+        if(navMode.equals("adaptive")){
+            alertBarTextBelow.setText("see Side View for changes");
+        }
+
+        if(navMode.equals("adaptable")){
+            adaptableChoiceView(true);
+            startDelay = System.currentTimeMillis();
+            countdownOn=false;
+        }
+    }
+
+    void closeFloor352(){
         //audio notification
-//        Assets.playUpdateSound();
-        Assets.playAlertSound();
+        Assets.playUpdateSound();
+//        Assets.playAlertSound();
 
         for(String s:floor35_2){
             if(QRmap.containsKey(s)){
                 removePoints(s);
-                Log.d("23 remove points",s);
-                Log.d("23 new points",String.valueOf(QRmap.get(s).getPoints()));
-                for(String s2:QRCodeLocations){
-                    String[] split = s2.split(":");
-                    String match = (split[0]+":"+split[1]+":"+split[2]);
-                    Log.d("23 new new points",match);
-                    if(match.equals(s)){
-                        Log.d("23 match points",split[3]);
-                    }
-                }
             }
             if(G.hasVertex(s)){
                 G.removeVertex(s);
@@ -2522,8 +3371,7 @@ public class RunMode extends Activity implements SensorEventListener {
 
         G = G.updateConnections();
 
-//        tonyNavigation().start();
-        testNavigationAlg();
+        updateOneAlgo();
         showLocalQRCodes();
         showQRCodes();
         floor2_35=R.drawable.floor2_35_grayed_out;
@@ -2546,7 +3394,76 @@ public class RunMode extends Activity implements SensorEventListener {
         }
     }
 
+    void closeFloor353(){
+        //audio notification
+        Assets.playUpdateSound();
+
+        for(String s:floor35_3){
+            if(QRmap.containsKey(s)){
+                removePoints(s);
+            }
+            if(G.hasVertex(s)){
+                G.removeVertex(s);
+            }
+        }
+
+        G = G.updateConnections();
+
+        updateOneAlgo();
+
+        showLocalQRCodes();
+        showQRCodes();
+        floor3_35=R.drawable.floor3_35_grayed_out;
+        sideViewImage.setImageResource(R.drawable.side_view_clear_floor35_3);
+        updateMapView();
+        updateOccured=true;
+
+        alertBarOn=0;
+        alertBarText.setText("Update! Floor 35: closed!");
+        updateAlertBar();
+
+        if(navMode.equals("adaptive")){
+            alertBarTextBelow.setText("see Side View for changes");
+        }
+
+        if(navMode.equals("adaptable")){
+            adaptableChoiceView(true);
+            startDelay = System.currentTimeMillis();
+            countdownOn=false;
+        }
+    }
+
+    void moveGoal(){
+        Assets.playUpdateSound();
+
+        String newgoal = updateString.split(",")[1];
+        this.goal = newgoal;
+
+        updateOneAlgo();
+
+        showLocalQRCodes();
+        showQRCodes();
+        updateMapView();
+        updateOccured=true;
+
+        alertBarOn=0;
+        alertBarText.setText("Update! Goal now at "+newgoal);
+        updateAlertBar();
+
+        if(navMode.equals("adaptive")){
+            alertBarTextBelow.setText("see Side View for changes");
+        }
+
+        if(navMode.equals("adaptable")){
+            adaptableChoiceView(true);
+            startDelay = System.currentTimeMillis();
+            countdownOn=false;
+        }
+    }
+
+
     void adaptablePathUpdate(){
+        Assets.playAlertSound();
         AlertDialog.Builder adb = new AlertDialog.Builder(RunMode.this);
         adb.setCancelable(true);
         adb.setTitle("Route Update");
@@ -2558,6 +3475,20 @@ public class RunMode extends Activity implements SensorEventListener {
         });
         adb.setPositiveButton("New Route", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {adaptableChoiceView(true);}
+        });
+        adb.show();
+    }
+
+    void adaptivePathUpdate(){
+        Assets.playAlertSound();
+        AlertDialog.Builder adb = new AlertDialog.Builder(RunMode.this);
+        adb.setCancelable(true);
+        adb.setTitle("Route Update");
+        adb.setMessage("You left the given route, we have calculated a new one");
+        adb.setNegativeButton("Continue", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                dialog.cancel();
+            }
         });
         adb.show();
     }
@@ -2809,4 +3740,249 @@ public class RunMode extends Activity implements SensorEventListener {
 //            // ToODO Auto-generated method stub
 //        }
 //    };
+
+    void navigationUI(){
+        if(adaptableSelected==1 || navMode.equals("adaptive")) {
+            showOptimalPath(sidePath);
+            totalPointsOnRoute = pathLogic.getCollectedPoints();
+            QRCodesRemaining = pathLogic.getQRCollected();
+        }else if(adaptableSelected==2){
+            showOptimalPath(sidePath2);
+            totalPointsOnRoute = pathHigh.getCollectedPoints();
+            QRCodesRemaining = pathHigh.getQRCollected();
+        }else if(adaptableSelected==3){
+            showOptimalPath(sidePath3);
+            totalPointsOnRoute = pathFinder.getCollectedPoints();
+            QRCodesRemaining = pathFinder.getQRCollected();
+        }
+
+        pointsCollectedText.setText("Points Collected: " + String.valueOf(pointsCollected));
+        qrCodesRemainingText.setText("Remaining QR Codes: " + String.valueOf(QRCodesRemaining)+" Points: "+String.valueOf(totalPointsOnRoute));
+
+        choice1Points.setText("Points: "+String.valueOf(pathLogic.getCollectedPoints()));
+        choice1Time.setText("Time: "+String.valueOf(pathLogic.getTimeLength())+" sec");
+        choice2Points.setText("Points: "+String.valueOf(pathHigh.getCollectedPoints()));
+        choice2Time.setText("Time: "+String.valueOf(pathHigh.getTimeLength())+" sec");
+        choice3Points.setText("Points: "+String.valueOf(pathFinder.getCollectedPoints()));
+        choice3Time.setText("Time: "+String.valueOf(pathFinder.getTimeLength())+" sec");
+    }
+
+
+
+    class NavigationThread extends AsyncTask<Void,Void,Void> {
+        // Do the long-running work in here
+        protected Void doInBackground(Void... urls) {
+            long startTime = System.currentTimeMillis();
+            Log.d("nav start runNav",String.valueOf(startTime));
+
+            int baseWeight = 10;
+            int stairWeight = 15;
+            int breakTime = 100;
+            int baseWeightAdp1 = 10;
+            int stairWeightAdp1 = 15;
+            int breakTimeAdp1 = 140;
+            int baseWeightAdp2 = 10;
+            int stairWeightAdp2 = 20;
+            int breakTimeAdp2 = 100;
+            int floorMod = baseWeight-10;
+            int stairMod = stairWeight-10;
+            int floorModAdp1 = baseWeightAdp1-10;
+            int stairModAdp1 = stairWeightAdp1-10;
+            int floorModAdp2 = baseWeightAdp2-10;
+            int stairModAdp2 = stairWeightAdp2-10;
+
+            if(trialNumber.equals("11")) {
+                baseWeightAdp1 = 10;
+                stairWeightAdp1 = 15;
+                breakTimeAdp1 = 140;
+                baseWeightAdp2 = 10;
+                stairWeightAdp2 = 20;
+                breakTimeAdp2 = 100;
+            }
+            else if(trialNumber.equals("2R")) {
+                baseWeightAdp1 = 10;
+                stairWeightAdp1 = 15;
+                breakTimeAdp1 = 130;
+                baseWeightAdp2 = 20;
+                stairWeightAdp2 = 40;
+                breakTimeAdp2 = 150;
+            }
+            else if(trialNumber.equals("9R")) {
+                baseWeightAdp1 = 10;
+                stairWeightAdp1 = 20;
+                breakTimeAdp1 = 100;
+                baseWeightAdp2 = 10;
+                stairWeightAdp2 = 50;
+                breakTimeAdp2 = 140;
+            }
+            else if(trialNumber.equals("8R")) {
+                baseWeightAdp1 = 10;
+                stairWeightAdp1 = 15;
+                breakTimeAdp1 = 140;
+                baseWeightAdp2 = 10;
+                stairWeightAdp2 = 20;
+                breakTimeAdp2 = 140;
+            }
+            else if(trialNumber.equals("5")) {
+                baseWeightAdp1 = 10;
+                stairWeightAdp1 = 15;
+                breakTimeAdp1 = 140;
+                baseWeightAdp2 = 10;
+                stairWeightAdp2 = 20;
+                breakTimeAdp2 = 140;
+            }
+            else if(trialNumber.equals("8")) {
+                baseWeightAdp1 = 10;
+                stairWeightAdp1 = 15;
+                breakTimeAdp1 = 120;
+                baseWeightAdp2 = 20;
+                stairWeightAdp2 = 40;
+                breakTimeAdp2 = 100;
+            }
+
+            floorModAdp1 = baseWeightAdp1 - 10;
+            stairModAdp1 = stairWeightAdp1 - 10;
+            floorModAdp2 = baseWeightAdp2 - 10;
+            stairModAdp2 = stairWeightAdp2 - 10;
+
+            if(navMode.equals("walk")){
+                //do nothing...
+            }
+
+//        else if(navMode.equals("adaptable")){
+//            if(goalLogic_previous==null) {
+//                //previous list of goals not set yet - save current ones as previous
+//
+////                goalLogic = new FloorRankingOrder(G_L, 90);
+////                goalHigh = new HighPointPriority(G_HP);
+//            }
+//            if(adaptableSelected==1) {
+//                if(goalLogic_previous==null) {
+//                    //previous list of goals not set yet - save current ones as previous
+////
+//// goalLogic = new FloorRankingOrder(G_L, 90);
+//
+//                }else{
+//                    if(goalLogic.goalList.equals(goalLogic_previous.goalList)){
+//                        //good - same list of goals
+//                    }else{
+//                        Assets.playUpdateSound();
+//                        adaptablePathUpdate();
+//                        goalLogic_previous=goalLogic;
+//                    }
+//                }
+//            }else if(adaptableSelected==2){
+//                if(goalHigh_previous==null) {
+//                    goalHigh = new HighPointPriority(G_HP);
+//                }else{
+//                    if(goalHigh.goalPoint.equals(goalHigh_previous.goalPoint)){
+//                        //good
+//                    }else{
+//                        Assets.playUpdateSound();
+//                        adaptablePathUpdate();
+//                        goalHigh_previous=goalHigh;
+//                    }
+//                }
+//            }else if(adaptableSelected==3){
+//                //TODO handle third nav option update
+//            }
+//        }
+//        //adaptive mode
+//        else if(navMode.equals("adaptive")) {
+//            if(goalHigh_previous==null) {
+//                goalHigh = new HighPointPriority(G_HP);
+//            }else{
+//                if(goalHigh.goalPoint.equals(goalHigh_previous.goalPoint)){
+//                    //good
+//                }else{
+//                    Assets.playUpdateSound();
+//                    goalHigh_previous=goalHigh;
+//                }
+//            }
+//            if (goalLogic_previous == null) {
+//
+////                goalLogic = new FloorRankingOrder(G_L, 90);
+//            } else {
+//                if (goalLogic.goalList.equals(goalLogic_previous.goalList)) {
+//                    //good
+//                } else {
+//                    Assets.playUpdateSound();
+//                    goalLogic_previous = goalLogic;
+//                }
+//            }
+//        }
+
+            if(!navMode.equals("walk")) {
+
+//                pathLogic = new Algo(G,fullPosition,goal,timeLeft,stairMod,floorMod,breakTime);
+//                pathLogicAdp1 = new Algo(G,fullPosition, goal, timeLeft, stairModAdp1, floorModAdp1,breakTimeAdp1);
+//                pathLogicAdp2 = new Algo(G,fullPosition, goal, timeLeft, stairModAdp2, floorModAdp2,breakTimeAdp2);
+
+                pathLogic.calcOptPath(fullPosition,timeLeft);
+                pathLogicAdp1.calcOptPath(fullPosition,timeLeft);
+                pathLogicAdp2.calcOptPath(fullPosition,timeLeft);
+
+                sidePath = pathLogic.getPath();
+                sidePath2 = pathLogicAdp1.getPath();
+                sidePath3 = pathLogicAdp2.getPath();
+
+                Log.d("Results for Logic:",sidePath.toString());
+                Log.d("Results for Logic:",pathLogic.goalList.toString());
+
+                Log.d("Results for LogicA1:",sidePath2.toString());
+                Log.d("Results for LogicA1:",pathLogicAdp1.goalList.toString());
+
+
+                long finishTime = System.currentTimeMillis();
+                Log.d("nav finish runNav",String.valueOf(finishTime-startTime));
+            }
+            return null;
+        }
+
+        // This is called each time you call publishProgress()
+        protected void onProgressUpdate(Integer... progress) {
+            navigationUI();
+        }
+
+        // This is called when doInBackground() is finished
+        protected void onPostExecute(Long result) {
+//            RunMode.this.runOnUiThread(new Runnable() {
+//                public void run() {
+                    pointsCollectedText.setText("Points Collected: " + String.valueOf(pointsCollected));
+                    qrCodesRemainingText.setText("Remaining QR Codes: " + String.valueOf(QRCodesRemaining) + " Points: " + String.valueOf(totalPointsOnRoute));
+
+                    if(currentRunMode.equals(CurrentRunMode.CHOOSE)) {
+                        adaptivePoints.setText("Points: " + String.valueOf(pathLogic.getCollectedPoints()));
+                        adaptiveTime.setText("Time: " + String.valueOf(pathLogic.getTimeLength()) + " sec");
+                        choice1Points.setText("Points: " + String.valueOf(pathLogic.getCollectedPoints()));
+                        choice1Time.setText("Time: " + String.valueOf(pathLogic.getTimeLength()) + " sec");
+                        choice2Points.setText("Points: " + String.valueOf(pathLogicAdp1.getCollectedPoints()));
+                        choice2Time.setText("Time: " + String.valueOf(pathLogicAdp1.getTimeLength()) + " sec");
+                        choice3Points.setText("Points: " + String.valueOf(pathLogicAdp2.getCollectedPoints()));
+                        choice3Time.setText("Time: " + String.valueOf(pathLogicAdp2.getTimeLength()) + " sec");
+                        adaptiveChoiceLayout.invalidate();
+                    }
+
+                    buildSidePath();
+                    showPathHistory();
+                    updateMapView();
+
+
+                    if(adaptableSelected==1 || navMode.equals("adaptive")) {
+                        showOptimalPath(sidePath);
+                        totalPointsOnRoute = pathLogic.getCollectedPoints();
+                        QRCodesRemaining = pathLogic.getQRCollected();
+                    }else if(adaptableSelected==2){
+                        showOptimalPath(sidePath2);
+                        totalPointsOnRoute = pathLogicAdp1.getCollectedPoints();
+                        QRCodesRemaining = pathLogicAdp1.getQRCollected();
+                    }else if(adaptableSelected==3){
+                        showOptimalPath(sidePath3);
+                        totalPointsOnRoute = pathLogicAdp2.getCollectedPoints();
+                        QRCodesRemaining = pathLogicAdp2.getQRCollected();
+                    }                }
+//            });
+
+//        }
+    }
 }

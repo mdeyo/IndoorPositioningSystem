@@ -1,311 +1,399 @@
+//package com.example.matthew.newapplication;
+//import android.util.Log;
 package com.example.matthew.newapplication;
 
 import android.util.Log;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-//import app.Graph;
-
 
 public class Algo {
 
-	/*
-	 * Pseudo Code before I talk with Matt and have to actually write the code.
-	 * Notes Here and Java below notes
-	 * 
-	 * We begin with a start location and an end location. 
-	 * Our starting location becomes the first point in the open set and the first to be moved to the closed set. 
-	 * We then expand and look at the neighbors of the starting point and add them to the open set and 
-	 * arrange them in shortest distance to the goal. And then I move the one I liked to the closed set and it
-	 * becomes the new current point and I look at its neighbors. 
-	 * Here is the basic Python for Breadth First Search: 
-	 * frontier = Queue()
-	 * frontier.put(start) 
-	 * visited = {} 
-	 * visited[start] = True
-	 * 
-	 * while not frontier.empty(): 
-	 * current = frontier.get() 
-	 * for next in graph.neighbors(current): 
-	 * if next not in visited: 
-	 * frontier.put(next)
-	 * visited[next] = True
-	 * 
-	 * Modified to account for path finding 
-	 * frontier = Queue()
-	 * frontier.put(start) 
-	 * came_from = {} 
-	 * came_from[start] = None
-	 * 
-	 * while not frontier.empty(): 
-	 * current = frontier.get() 
-	 * for next in graph.neighbors(current): 
-	 * if next not in came_from: 
-	 * frontier.put(next)
-	 * came_from[next] = current
-	 * 
-	 * Reconstructing Paths: 
-	 * current = goal 
-	 * path = [current] 
-	 * while current != start: 
-	 * current = came_from[current] 
-	 * path.append(current)
-	 * 
-	 * Early Exit once the goal is reached: 
-	 * frontier = Queue()
-	 * frontier.put(start) 
-	 * came_from = {} 
-	 * came_from[start] = None
-	 * 
-	 * while not frontier.empty(): 
-	 * current = frontier.get()
-	 * 
-	 * if current == goal: 
-	 * break
-	 * 
-	 * for next in graph.neighbors(current): 
-	 * if next not in came_from:
-	 * frontier.put(next) 
-	 * came_from[next] = current
-	 * 
-	 * To add movement costs/points/weightings we need Dijkstra�s Algorithm The
-	 * code becomes: 
-	 * frontier = PriorityQueue() 
-	 * frontier.put(start, 0) 
-	 * came_from = {} 
-	 * cost_so_far = {} 
-	 * came_from[start] = None 
-	 * cost_so_far[start] = 0
-	 * 
-	 * while not frontier.empty(): 
-	 * current = frontier.get()
-	 * 
-	 * if current == goal: 
-	 * break
-	 * 
-	 * for next in graph.neighbors(current): 
-	 * new_cost = cost_so_far[current] + graph.cost(current, next) 
-	 * if next not in cost_so_far or new_cost < cost_so_far[next]: 
-	 * cost_so_far[next] = new_cost 
-	 * priority = new_cost
-	 * frontier.put(next, priority) 
-	 * came_from[next] = current
-	 * 
-	 * The two algorithms above search every location even non-viable locations.
-	 * A* and Greedy Best First Search though guess with a heuristic. I�m not
-	 * going to detail Greedy because it is not what I�m looking for to do. A*
-	 * is really a combination of the two. 
-	 * Heuristic included to Dijkstra:
-	 * 
-	 * frontier = PriorityQueue() 
-	 * frontier.put(start, 0) 
-	 * came_from = {}
-	 * cost_so_far = {} 
-	 * came_from[start] = None 
-	 * cost_so_far[start] = 0
-	 * 
-	 * while not frontier.empty(): 
-	 * current = frontier.get()
-	 * 
-	 * if current == goal: 
-	 * break
-	 * 
-	 * for next in graph.neighbors(current): 
-	 * new_cost = cost_so_far[current] + graph.cost(current, next) 
-	 * if next not in cost_so_far or new_cost < cost_so_far[next]: 
-	 * cost_so_far[next] = new_cost 
-	 * priority = new_cost + heuristic(goal, next) 
-	 * frontier.put(next, priority) 
-	 * came_from[next] = current
-	 * 
-	 * Here it is written in words: 
-	 * OPEN = priority queue containing START
-	 * CLOSED = empty set 
-	 * while lowest rank in OPEN is not the GOAL: 
-	 * current = remove lowest rank item from OPEN 
-	 * add current to CLOSED
-	 * for neighbors of current: 
-	 * cost = g(current) + movementcost(current, neighbor) 
-	 * if neighbor in OPEN and cost less than g(neighbor): 
-	 * remove neighbor from OPEN, because new path is better 
-	 * if neighbor in CLOSED and cost less than g(neighbor): ** 
-	 * remove neighbor from CLOSED 
-	 * if neighbor not in OPEN and neighbor not in CLOSED: 
-	 * set g(neighbor) to cost 
-	 * add neighbor to OPEN 
-	 * set priority queue rank to g(neighbor) + h(neighbor) 
-	 * set neighbor's parent to current
-	 * 
-	 * reconstruct reverse path from goal to start by following parent pointers
-	 * 
-	 * Heuristic for grid map, I�ll want to use Diagonal Distance since I�ll
-	 * allow all directional movement. The Chebyshev distance uses the
-	 * assumption that diagonal cost is the same as cardinal direction movement
-	 * which may be fair and easier. If you want actual distance, then we want
-	 * something like this: 
-	 * function heuristic(node) = 
-	 * dx = abs(node.x - goal.x)
-	 * dy = abs(node.y - goal.y) 
-	 * return D * (dx + dy) + (D2 - 2 * D) * min(dx, dy)
-	 * 
-	 * Tiebreaking could be a big problem and is shown in my dealings with the
-	 * other code, since it won�t let me grab points directly next to the goal.
-	 * We could make points the tiebreaker. All weighting be damned. Remember A*
-	 * sorts by f value, so I need to change the g and h values to make them
-	 * work better. I should go through the implementation notes to correctly do
-	 * this.
-	 */
-
-    // Work in progress code for the A* Algorithm
-    // Incompletes are noted with comments.
-
     private Graph localG; // Defines the connections between nodes and edges and weightings/points
     private ArrayList<String> frontierList; // Must define node
-    //	private SortedGoalsList goalList;
     private ArrayList<String> cameFromList;
-    //	private int startX;
     private String start;
     private String goal;
     public int timeLength;
-    //	private int goalY;
     public Path shortestPath;
-    //Logger log = new Logger(); // Not sure if I need this, but we'll include it for now.
-//    private Heuristic heuristic;  // heuristic estimate of cost
-    private double distanceTravelled; // physical distance covered
     private Map localDistanceFromGoal;
+    private Map deviationsFromPathCheck;
     public int pointsCollected;
     public int qrCollected;
-    private ArrayList<String> goalList;
+    ArrayList<String> goalList;
+    private ArrayList<String> localGoalList;
+    private int weightedDist;
+    private int stairMod;
+    private int floorMod;
+    private int shortPathLength;
+    private Map<String, Integer> pointLocRemoved;
+    private ArrayList<String> pointRemKeySet;
+    int breakTime;
 
+    int timeLeft;
 
-    public Algo(Graph g, String start, String goal, ArrayList<String> goals) { //, Heuristic heuristic){
-        this.localG = new Graph();
-        this.localG = g;
+    public Algo(Graph g, String start, String goal, int timeLeft, int stairM, int floorM,int breakT, ArrayList<String> goalList) { //, Heuristic heuristic){
+    	this.stairMod = stairM;
+        this.floorMod = floorM;
+        this.localG = new Graph(g, stairMod, floorMod);
+        this.shortPathLength = 1000;
+        localG.setStartLocation(start);
+        localG.setGoalLocation(goal);
+        localG.gradientGraph(localG);
+//        FloorRankingOrder goalLogic = new FloorRankingOrder(localG, 90, stairMod, floorMod);
         cameFromList = new ArrayList<String>();
         frontierList = new ArrayList<String>();
-        this.goalList = goals;
+        this.goalList = new ArrayList<String>(goalList);
         localDistanceFromGoal = new HashMap();
+        deviationsFromPathCheck = new HashMap<String, Integer>();
         this.start = start;
         this.goal = goal;
+        this.timeLeft = timeLeft;
         timeLength = 0;
         pointsCollected = 0;
-//        goalList = new SortedGoalsList();
-//        this.startX = map.getStartLocationX();
-//        this.startY = map.getStartLocationY();
-//        this.goalX = map.getGoalLocationX();
-//        this.goalY = map.getGoalLocationY();
-//        this.heuristic = heuristic;
+        weightedDist = 0;
+        this.pointLocRemoved = new HashMap<String, Integer>();
+        this.pointRemKeySet = new ArrayList<String>();
+        this.breakTime = breakT;
+
+        calcOptPath(start,timeLeft);
     }
-	
-	/*
-	// Currently the app only recognizes cardinal direction movements for simplicity of the code
-    // The Manhattan distance works best for cardinal directions
-    // If we change it to 8 directional freedom, then we will use diagonal distance
-    // Both will be displaced below
-    // The heuristic should NOT account for the weightings or the points. 
-    // Those will be accounted for in the cost of the 
-//	private double heuristic(Node node, Node goal){
-//		
-//		// Manhattan Distance
-//		// There may be a problem here with the TreeMap, but I need to talk to Matt
-//		// This code is using a clearly defined grid with x and y
-//		// The map grid uses floors and a way to large grid of points compared to the actual values
-//		// Just something to keep in mind
-//		
-//		double dx =  java.lang.Math.abs(node.getX() - goal.getX());
-//		double dy =  java.lang.Math.abs(node.getY() - goal.getY());
-//		
-//		double cost = 1; // Cost to move to one space. Generic 1 for now
-//		double heuristic = cost*(dx+dy);
-//		
-//		
-//		
-//		// Diagonal Distance
-//		
-////		double dx =  java.lang.Math.abs(node.getX() - goal.getX());
-////		double dy =  java.lang.Math.abs(node.getY() - goal.getY());
-////		
-////		double cost = 1; // Cost to move to one space. Generic 1 for now
-////		double dCost = cost*java.lang.Math.sqrt(2);
-////		double heuristic = cost*(dx+dy) + (dCost - 2*cost)*java.lang.Math.min(dx,dy);
-//		
-//		// If we change it to multiple goals, then it would become something like this:
-//		// The biggest issue is that I can't actually determine which index was the minimum
-//		// from this application, so the goal achieved would have to be removed from the goal list if visited
-//		
-////		public double heuristic(Node node, SortedNodeList goal){
-////			double heuristic;
-////			double[] closestGoal = new double[goal.size()];
-////			for(int i = 0; i< goal.size(); i++){
-////				double dx =  java.lang.Math.abs(node.getX() - goal.get(i).getX());
-////				double dy =  java.lang.Math.abs(node.getY() - goal.get(i).getY());
-////				double cost = 1; // Cost to move to one space. Generic 1 for now
-////				closestGoal[i] = cost*(dx+dy);
-////				
-////			}
-////			Arrays.sort(closestGoal);
-////		 	heuristic = closestGoal[0];
-////		}
-//			
-//		
-//
-//		
-//		return heuristic;
-//	}
-	
-	     
-  
-     /**
-      * cameFromList The list of Nodes not searched yet, sorted by their distance to the goal as guessed by our heuristic.
-      */
 
 
-    //Must define the end result, which is that I want a path. So define path
+    public Path calcOptPath(String currentStart,int timeR) {
 
-    // I may end up switching this to a list of goal nodes that define the point locations
-    // List of stuff I need to come into this: current location/start location, goal/goals, time and the map
-    public Path calcOptPath(String currentStart) {//start, String goal, ArrayList<String> goals) {
-//             this.startX = startX;
-//             this.start = start;
-//             this.goal = goal;
-//             this.goalList = goals;
-//             this.goalY = goalY;
+        this.localGoalList = new ArrayList<String>(goalList);
+
+        this.timeLeft=timeR;
+
+        Log.d("calcOptPath",String.valueOf(timeLeft));
+
+        int breakT = 180-breakTime;
         this.timeLength = 0;
+
+        if(timeLeft==0){
+            timeLeft=180;
+        }
+
         if (currentStart.equals(goal)) {
             return null;
         }
 
         if(localG.getPointsAt(currentStart) > 0){
-            localG.reverseWeightingsGradient(currentStart, localG);
-            localG.removePoints(currentStart);
-            goalList.remove(currentStart);
+            removePoints(currentStart, localG);
+            localGoalList.remove(currentStart);
         }
+
         if(localG.getPointsAt(this.goal) > 0){
-            localG.reverseWeightingsGradient(this.goal, localG);
-            localG.removePoints(this.goal);
+            removePoints(this.goal, localG);
+        }
+
+        ArrayList<String> neighborCheck = new ArrayList<String>();
+
+        //Check if the goal node is blocked (if it is, it is impossible to find a path there)
+        if (localG.isObstacle(goal)) {
+            return null;
+        }
+
+        localG.setDistanceFromStart(currentStart, 0);
+        cameFromList.clear();
+        frontierList.clear();
+        frontierList.add(currentStart);
+        neighborCheck.add(currentStart);
+        String current = null;
+        String currentGoal = getLocalGoalPointFirst();
+        localDistanceFromGoal.clear();
+        markLocalNeighbors(currentGoal, localG);
+        while (frontierList.size() != 0) {
+            int totalDistance = 99999999;
+            for (String mm : neighborCheck) {
+                if (localG.getPointsAt(mm) > 0) {
+                    totalDistance = getLocalTotalDistance(mm); // Due to the break, this does nothing
+                    current = mm;
+                    break;
+                } else if (getLocalTotalDistance(mm) < totalDistance) {
+                    totalDistance = getLocalTotalDistance(mm);
+                    current = mm;
+                }
+            }
+//            if (neighborCheck.size() == 0) {
+//                // Then I need to go back to the previous node I was just at.
+//                String neighborGoBack = cameFromList.get(cameFromList.size() - 2);
+//                int neighborDistanceFromStart = (localG.getDistanceFromStart(current) + getDistanceToNextPoint(neighborGoBack));
+//                localG.setDistanceFromStart(neighborGoBack, neighborDistanceFromStart);
+//                current = neighborGoBack;
+//                System.out.println("Yes I do something");
+//            }
+            neighborCheck.clear();
+            int currentFloor = 0;
+            int previousFloor = 0;
+            int currentBuilding = 0;
+            //move current Node to the closed (already searched) list
+            if(current.equals(start)){
+                frontierList.remove(current);
+                cameFromList.add(current);
+                String lineNew = start;
+                String[] namesNew = lineNew.split(":");
+                currentBuilding= Integer.parseInt(namesNew[0]);
+
+            }else{
+                frontierList.remove(current);
+                String linePrev = cameFromList.get(cameFromList.size()-1);
+                String[] namesPrev = linePrev.split(":");
+                previousFloor = Integer.parseInt(namesPrev[1]);
+
+                cameFromList.add(current);
+                String lineNew = cameFromList.get(cameFromList.size()-1);
+                String[] namesNew = lineNew.split(":");
+                currentFloor= Integer.parseInt(namesNew[1]);
+                currentBuilding= Integer.parseInt(namesNew[0]);
+            }
+            if(current.equals(start)){
+                timeLength += 0;
+                weightedDist += 0;
+            }
+            //Adds to timeLength for points
+            else if(localG.getPointsAt(current)>0){
+                timeLength =timeLength +3;
+                pointsCollected += localG.getPointsAt(current);// + pointsCollected;
+                qrCollected = qrCollected +1;
+                weightedDist += getDistanceToNextPoint(current);
+                // Set up to look at different maps now
+                removePoints(current, localG);
+            }
+            //Adds to timeLength for stairs
+            else if (previousFloor != currentFloor){
+                timeLength = timeLength + 10;
+                weightedDist += getDistanceToNextPoint(current);
+            }
+            //Adds to timeLength for normal nodes
+            else{
+                if(currentBuilding > 33){
+                    timeLength = timeLength + 2;
+                    weightedDist += getDistanceToNextPoint(current);
+                }
+                else{
+                    timeLength = timeLength + 1;
+                    weightedDist += getDistanceToNextPoint(current);
+                }
+            }
+            if(current.equals(goal)) {
+                return reconstructPath(cameFromList);
+            }
+            if(cameFromList.contains(currentGoal)){
+                if(timeLength+breakT < timeLeft){
+                    removeLocalGoalList(0);
+                    currentGoal = getLocalGoalPointFirst();
+                    localDistanceFromGoal.clear();
+                    markLocalNeighbors(currentGoal,localG);
+                }
+//                else{
+//                    currentGoal = goal;
+//                    localDistanceFromGoal.clear();
+//                    markLocalNeighbors(currentGoal,localG);
+//                }
+            }
+            if(timeLength+breakT > timeLeft){
+                if(currentGoal != goal){
+                    currentGoal = goal;
+                    localDistanceFromGoal.clear();
+                    markLocalNeighbors(currentGoal,localG);
+                }
+            }
+
+            //go through all the current Nodes neighbors and calculate if one should be our next step
+            neighborCheck = localG.adjacentTo(current);
+            for (String neighbor : localG.adjacentTo(current)) {
+                boolean neighborIsBetter;
+
+                //if we have already searched this Node, don't bother and continue to the next one
+//                             if (cameFromList.contains(neighbor)){
+//                              neighborCheck.remove(neighbor);
+//                                     continue;
+//                             }
+                if (localG.isObstacle(neighbor)) {
+                    neighborCheck.remove(neighbor);
+                }
+                //also just continue if the neighbor is an obstacle
+                if (!localG.isObstacle(neighbor)) {
+
+                    // calculate how long the path is if we choose this neighbor as the next step in the path
+                    int neighborDistanceFromStart = (localG.getDistanceFromStart(current) + getDistanceToNextPoint(neighbor));
+                    //TODO Include time element and test as an alternative to the time break? Include allowed time in replace of time break
+                    //first time it reaches that limit, the goal switches to the main goal
+                    //Test in a different project...
+                    if (localG.getPointsAt(neighbor) > 0) {
+                        neighborIsBetter = true;
+//                                       if(!frontierList.contains(neighbor)) {
+//                                             frontierList.add(neighbor);}
+                    }
+                    //add neighbor to the open list if it is not there
+                    else if (!frontierList.contains(neighbor)) {
+                        frontierList.add(neighbor);
+                        neighborIsBetter = true;
+                        //if neighbor is closer to end it could also be better
+                    } else if (neighborDistanceFromStart < localG.getDistanceFromStart(current)) {
+                        neighborIsBetter = true;
+                    } else {
+                        neighborIsBetter = false;
+                    }
+                    // set neighbors parameters if it is better
+                    if (neighborIsBetter) {
+//                                             G.setPreviousNode(neighbor, current);
+                        localG.setDistanceFromStart(neighbor, neighborDistanceFromStart);
+                        //neighbor.setHeuristicDistanceFromGoal(heuristic.heuristic(neighbor, currentGoalNode));
+                    }
+                }
+
+            }
+
 
         }
-        //mark start and goal node
-//             G.setStartLocation(start);
-//             G.setGoalLocation(goal);
-        ArrayList<String> neighborCheck = new ArrayList<String>();
-        // This loop defines which locations have points and creates a goal list to search that way
-        // I think if I just ensure that there are no negative numbers and it is scaled properly, then this won't be necessary
-//             for(int x = 0 ; x<map.getMapWidth(); x++){
-//            	 for(int y = 0 ; y<map.getMapHeight(); y++){
-//            		 Node pointGoal = map.getNode(x, y);
-//            		 if(pointGoal.getPointValue() < 0){
-//            			 Goals newGoal = new Goals(x,y,pointGoal.getPointValue());
-//            			 goalList.add(newGoal);
-//            		 }
-//            	 }
-//            	 
-//             }
+        return null;
+    }
 
-//             Goals finalGoal = new Goals(goalX,goalY, 0);
-//             goalList.add(finalGoal);
+    public void removePoints(String currentLoc, Graph local){
+//      System.out.println(currentLoc + ": " + localG.getPointsAt(currentLoc));
+        pointRemKeySet.add(currentLoc);
+        pointLocRemoved.put(currentLoc, localG.getPointsAt(currentLoc));
+        localG.reverseWeightingsGradient(currentLoc, local);
+        localG.removePoints(currentLoc);
+
+
+    }
+
+    public void returnMissingPoints(ArrayList<String> pointLocCollected){
+//        System.out.println(pointRemKeySet);
+        for(String pointReturn : pointRemKeySet){
+            if(pointLocCollected.contains(pointReturn)){
+            		goalList.remove(pointReturn);
+            }
+            else{
+                int pointVal = pointLocRemoved.get(pointReturn);
+                localG.assignPoints(pointReturn, pointVal);
+                localG.markWeightingsGradient(pointReturn,localG);
+            }
+        }
+        pointLocRemoved.clear();
+        pointRemKeySet.clear();
+    }
+
+    public void clearValues(){
+
+        timeLength = 0;
+        pointsCollected = 0;
+        qrCollected =0;
+        weightedDist =0;
+
+
+    }
+    
+    public boolean distanceFromPath (String curLoc, Graph G){
+    	int initialDistance = 5;
+    	deviationsFromPathCheck.clear();
+    	deviationsFromPathCheck.put(curLoc, initialDistance);
+    	String current = curLoc;
+    	ArrayList<String> nList = new ArrayList<String>();
+    	ArrayList<String> oldNeighbor = new ArrayList<String>();
+    	int distance = initialDistance;
+    	oldNeighbor.add(curLoc);
+    	int k = 0;
+    	boolean closeEnoughToPath = false;
+    	while(G.toList(G.vertices()).size()!=deviationsFromPathCheck.size()){
+    		
+    		for(k=0; k<oldNeighbor.size(); k++){
+    			nList = G.adjacentTo(oldNeighbor.get(k));
+    			distance = Integer.parseInt(deviationsFromPathCheck.get(oldNeighbor.get(k)).toString());
+    			
+
+    			for(String n: nList){
+    				int nDistance = 0;
+    					nDistance = distance - 1;	
+
+    				if(!deviationsFromPathCheck.containsKey(n)){
+    					deviationsFromPathCheck.put(n, nDistance);
+    						if(!oldNeighbor.contains(n)){
+    							oldNeighbor.add(n);
+    						}}
+    				else if(Integer.parseInt(deviationsFromPathCheck.get(n).toString())<nDistance){
+    					deviationsFromPathCheck.remove(n);
+    					deviationsFromPathCheck.put(n, nDistance);
+    					
+    				}
+    				}}}
+    	for(String checkPath : G.toList(G.vertices())){
+    		if(Integer.parseInt(deviationsFromPathCheck.get(checkPath).toString()) > 0){
+    			if(shortestPath.contains(checkPath)){
+    				closeEnoughToPath = true;
+    				return closeEnoughToPath;
+    			}
+    		}
+    		
+    	}
+    	return closeEnoughToPath;
+    	}
+    
+
+    public Path reCalcOptPath(String currentStart, int timeLeft, ArrayList<String> pointColl) {
+
+        if(timeLeft==0){
+            timeLeft=180;
+        }
+    	
+
+        ArrayList<String> pointLocCollected = new ArrayList<String>(pointColl);
+        returnMissingPoints(pointLocCollected);
+//    	System.out.println("Before Re Calc Path Length is: " + shortestPath.getLength());
+//    	System.out.println("Before Re Calc Logged Path Length is: " + shortPathLength);
+    	
+    	if(shortestPath.getLength() - shortPathLength > 4){
+    		// Original distanceFrom Path
+//    		if(!distanceFromPath(currentStart, localG)){
+
+// 	    	StopWatch process = new StopWatch();
+// 	    	process.start();
+    		System.out.println("Do you want to re-route?");
+    		System.out.println("Like you had a choice... Rerouting...");
+    		System.out.println("We apologize for the delay, but you really shouldn't have left the path this far...");
+    		FloorRankingOrder goalLogic = new FloorRankingOrder(localG, 90, stairMod, floorMod);
+    		this.goalList = new ArrayList<String>(goalLogic.goalList);
+//    		
+//    		System.out.println("New Goal List from Rerouting: " + goalList);
+//   		 	process.stop();
+//	        System.out.println("Run time Recalc with new GoalList: " + process.getElapsedTime() +" ms");
+    	}
+
+
+
+        this.localGoalList = new ArrayList<String>(goalList);
+        int breakT = 180-breakTime;
+        clearValues();
+
+        this.timeLeft=timeLeft;
+        this.timeLength = 180 - timeLeft;
+
+        if (currentStart.equals(goal)) {
+            return null;
+        }
+
+        if(localG.getPointsAt(currentStart) > 0){
+            removePoints(currentStart, localG);
+            localGoalList.remove(currentStart);
+        }
+
+        if(localG.getPointsAt(this.goal) > 0){
+            removePoints(this.goal, localG);
+        }
+
+ 
+        ArrayList<String> neighborCheck = new ArrayList<String>();
+
         //Check if the goal node is blocked (if it is, it is impossible to find a path there)
         if (localG.isObstacle(goal)) {
             return null;
@@ -317,26 +405,11 @@ public class Algo {
         frontierList.add(currentStart);
         neighborCheck.add(currentStart);
 
-        Log.d("algo", "1");
-//             Node current = frontierList.getFirst(); I'm dumb, this can't be outside the loop or else it never gets tested and reassigned...
-        //while we haven't reached the goal yet
         String current = null;
-        String currentGoal = getGoalPointFirst();
+        String currentGoal = getLocalGoalPointFirst();
         localDistanceFromGoal.clear();
         markLocalNeighbors(currentGoal, localG);
         while (frontierList.size() != 0) {
-
-            //get the first Node from non-searched Node list, sorted by lowest distance from our goal as guessed by our heuristic
-
-
-            /**
-             * I need to make this useful
-             * Create a loop that orders the terms in neighborCheck and actually selects the lowest one or the one with points
-             * Currently totalDistance isn't doing anything
-             * Consider removing the Total distance
-             * Actually, it does just enough to be useful...
-             */
-
             int totalDistance = 99999999;
             for (String mm : neighborCheck) {
 
@@ -351,163 +424,107 @@ public class Algo {
                 }
 
             }
-            Log.d("algo", "2");
-
 
             if (neighborCheck.size() == 0) {
-                Log.d("algo", "3");
                 // Then I need to go back to the previous node I was just at.
                 String neighborGoBack = cameFromList.get(cameFromList.size() - 2);
                 int neighborDistanceFromStart = (localG.getDistanceFromStart(current) + getDistanceToNextPoint(neighborGoBack));
-//              	 frontierList.add(neighborGoBack);
                 localG.setDistanceFromStart(neighborGoBack, neighborDistanceFromStart);
-//                   current = neighborGoBack;
-//              	 frontierList.remove(current);
-//                   cameFromList.add(neighborGoBack);
+
                 current = neighborGoBack;
-//                   if(neighborGoBack.equals(start)){
-//                  	 timeLength= 0;
-//                   }
-//                   //Adds to timeLength for points
-//                   else if(G.getPointsAt(neighborGoBack)>0){
-//                  	 timeLength =timeLength +4;
-//                  	 G.removePoints(current);
-//                   }
-//                   //Adds to timeLength for stairs
-//                   else if(G.getFloorWeight(neighborGoBack)>10){
-//                  	 timeLength = timeLength + 12;
-//                   }
-//                   //Adds to timeLength for normal nodes
-//                   else{
-//                  	 timeLength = timeLength + 2;
-//                   }
-
-
             }
             neighborCheck.clear();
-//            	 String current = frontierList.getFirst();
-
-            // check if our current Node location is the goal Node. If it is, we are done.
-//                     if(current.equals(goal)) {
-//                             return reconstructPath(cameFromList);
-//                     }
-
+            int currentFloor = 0;
+            int previousFloor = 0;
+            int currentBuilding = 0;
             //move current Node to the closed (already searched) list
-            frontierList.remove(current);
-            cameFromList.add(current);
-            if (current.equals(start)) {
-                timeLength = 0;
+            
+
+            if(current.equals(start) || cameFromList.size()==0){
+                frontierList.remove(current);
+                cameFromList.add(current);
+                String lineNew = start;
+                String[] namesNew = lineNew.split(":");
+                currentBuilding= Integer.parseInt(namesNew[0]);
+
+            }else{
+                frontierList.remove(current);
+//                Log.d("list", String.valueOf(cameFromList.size()));
+                String linePrev = cameFromList.get(cameFromList.size() - 1);
+                String[] namesPrev = linePrev.split(":");
+                previousFloor = Integer.parseInt(namesPrev[1]);
+
+                cameFromList.add(current);
+                String lineNew = cameFromList.get(cameFromList.size()-1);
+                String[] namesNew = lineNew.split(":");
+                currentFloor= Integer.parseInt(namesNew[1]);
+                currentBuilding= Integer.parseInt(namesNew[0]);
+            }
+            if(current.equals(start)){
+                timeLength += 0;
+                weightedDist += 0;
             }
             //Adds to timeLength for points
-            else if (localG.getPointsAt(current) > 0) {
-                timeLength = timeLength + 3;
-                pointsCollected = localG.getPointsAt(current) + pointsCollected;
-                qrCollected = qrCollected + 1;
-//                    	 System.out.println(current);
+            else if(localG.getPointsAt(current)>0){
+                timeLength =timeLength +3;
+                pointsCollected += localG.getPointsAt(current);// + pointsCollected;
+                qrCollected = qrCollected +1;
+                weightedDist += getDistanceToNextPoint(current);
                 // Set up to look at different maps now
-                localG.reverseWeightingsGradient(current, localG);
-                localG.removePoints(current);
-                Log.d("algo", "removed points at "+current);
-
+                removePoints(current, localG);
             }
             //Adds to timeLength for stairs
-//                     else if(localG.getFloorWeight(current)>localG.getBaseFloorWeight()){
-            else if (localG.isStairs(current)) {
+            else if (previousFloor != currentFloor){
                 timeLength = timeLength + 10;
+                weightedDist += getDistanceToNextPoint(current);
             }
             //Adds to timeLength for normal nodes
-            else {
-                timeLength = timeLength + 2;
-            }
-            Log.d("algo", "4");
+            else{
+                if(currentBuilding > 33){
+                    timeLength = timeLength + 2;
+                    weightedDist += getDistanceToNextPoint(current);
+                }
+                else{
+                    timeLength = timeLength + 1;
+                    weightedDist += getDistanceToNextPoint(current);
+                }
 
-            if (current.equals(goal)) {
-                Log.d("algo", "99");
+            }
+            if(current.equals(goal)) {
                 return reconstructPath(cameFromList);
             }
-            //Determine current goal for exploration
 
-//                     Goals currentGoal = goalList.getFirst();
-//                     Node currentGoalNode = map.getNode(currentGoal.getGoalX(), currentGoal.getGoalY());
-            if (cameFromList.contains(currentGoal)) {
-                if (timeLength < 100) {
-                    removeGoalList(0);
-                    currentGoal = getGoalPointFirst();
+            if(cameFromList.contains(currentGoal)){
+                if(timeLength+breakT < timeLeft){
+                    removeLocalGoalList(0);
+                    currentGoal = getLocalGoalPointFirst();
                     localDistanceFromGoal.clear();
-                    markLocalNeighbors(currentGoal, localG);
-                } else {
+                    markLocalNeighbors(currentGoal,localG);
+                }
+                else{
                     currentGoal = goal;
                     localDistanceFromGoal.clear();
-                    markLocalNeighbors(currentGoal, localG);
+                    markLocalNeighbors(currentGoal,localG);
                 }
 
             }
 
-            Log.d("algo", "5");
-
-
-            if (timeLength > 100) {
-                if (currentGoal != goal) {
+            if(timeLength+breakT > timeLeft){
+                if(currentGoal != goal){
                     currentGoal = goal;
                     localDistanceFromGoal.clear();
-                    markLocalNeighbors(currentGoal, localG);
+                    markLocalNeighbors(currentGoal,localG);
                 }
             }
-
-//                     if(cameFromList.contains(currentGoalNode)){
-//                    	 goalList.remove(currentGoal);
-//                    	 currentGoal = goalList.getFirst();
-//                    	 currentGoalNode = map.getNode(currentGoal.getGoalX(), currentGoal.getGoalY());
-//                     }
 
             //go through all the current Nodes neighbors and calculate if one should be our next step
             neighborCheck = localG.adjacentTo(current);
-
-//                     for(String neighborDB : G.adjacentTo(current)){
-//                         if (cameFromList.contains(neighborDB)){
-//                        	neighborCheck.remove(neighborDB);
-//                        	} 
-//                    	 
-//                     }
-//                     
-//                     if(neighborCheck.size() == 0){
-//                    	 // Then I need to go back to the previous node I was just at.
-//                    	 String neighbor = cameFromList.get(cameFromList.size() - 1) ;
-//                    	 int neighborDistanceFromStart = (G.getDistanceFromStart(current) + getDistanceToNextPoint(neighbor));
-//                    	 frontierList.add(neighbor);
-//                         G.setPreviousNode(neighbor, current);
-//                         G.setDistanceFromStart(neighbor, neighborDistanceFromStart);
-//                         current = neighbor;
-//                    	 frontierList.remove(current);
-//                         cameFromList.add(current);
-//                         if(current.equals(start)){
-//                        	 timeLength= 0;
-//                         }
-//                         //Adds to timeLength for points
-//                         else if(G.getPointsAt(current)>0){
-//                        	 timeLength =timeLength +4;
-//                        	 
-//                         }
-//                         //Adds to timeLength for stairs
-//                         else if(G.getFloorWeight(current)>10){
-//                        	 timeLength = timeLength + 12;
-//                         }
-//                         //Adds to timeLength for normal nodes
-//                         else{
-//                        	 timeLength = timeLength + 2;
-//                         }
-//                         
-//                         neighborCheck= G.adjacentTo(current);
-//                    	 
-//                     }
-            Log.d("algo", "6");
-
             for (String neighbor : localG.adjacentTo(current)) {
                 boolean neighborIsBetter;
 
                 //if we have already searched this Node, don't bother and continue to the next one
 //                             if (cameFromList.contains(neighbor)){
-//                            	neighborCheck.remove(neighbor); 
+//                            	neighborCheck.remove(neighbor);
 //                                     continue;
 //                             }
                 if (localG.isObstacle(neighbor)) {
@@ -549,259 +566,152 @@ public class Algo {
         return null;
     }
 
-    private void markLocalNeighbors(String goal, Graph g) {
-        localDistanceFromGoal.put(goal, 0);
+    public Graph getLocalG() {
+        return localG;
+    }
+
+
+    private void markLocalNeighbors(String goal, Graph g){
+//    	StopWatch s = new StopWatch();
+//    	s.start();  
+    	localDistanceFromGoal.put(goal, 0);
         ArrayList<String> nList = new ArrayList<String>();
         ArrayList<String> oldNeighbor = new ArrayList<String>();
         int distance = 0;
         oldNeighbor.add(goal);
         int k = 0;
-        while (g.toList(g.vertices()).size() != localDistanceFromGoal.size()) {
-            // Like Astar, so we need two arrays, one with checked neighbors that have been assigned a distance
-            // and one that has the next layer of neighbors to be assigned
-            // We assign the distance value to ones that haven't already been assigned
+        while(g.toList(g.vertices()).size()!=localDistanceFromGoal.size()){
 
-            for (k = 0; k < oldNeighbor.size(); k++) {
-//     			oldNeighbor.remove(k);
+            for(k=0; k<oldNeighbor.size(); k++){
                 nList = g.adjacentTo(oldNeighbor.get(k));
                 distance = getLocalDistanceFromGoal(oldNeighbor.get(k));
 
-
-                for (String n : nList) {
+                for(String n: nList){
                     int nDistance = distance - g.getPointsAt(n) + g.getFloorWeight(n);
-                    if (!localDistanceFromGoal.containsKey(n)) {
+                    if(!localDistanceFromGoal.containsKey(n)){
                         localDistanceFromGoal.put(n, nDistance);
-                        if (!oldNeighbor.contains(n)) {
+                        if(!oldNeighbor.contains(n)){
                             oldNeighbor.add(n);
-                        }
-                    } else if (getLocalDistanceFromGoal(n) > nDistance) {
+                        }}
+                    else if(getLocalDistanceFromGoal(n)>nDistance){
                         localDistanceFromGoal.remove(n);
                         localDistanceFromGoal.put(n, nDistance);
 
                     }
-                }
-            }
-        }
+        
+                }}}
+//        s.stop();
+//        System.out.println("Run time Marking Local Neighbors: " + s.getElapsedTime() +" ms");    
     }
-
-    private void clearLocalNeighbors() {
+    private void clearLocalNeighbors(){
         localDistanceFromGoal.clear();
     }
 
 
-    private int getDistanceToNextPoint(String v) {
+    private int getDistanceToNextPoint(String v){
         localG.validateVertex(v);
-        int distanceToNextPoint;
-        distanceToNextPoint = localG.getFloorWeight(v) - localG.getPointsAt(v);
+        int distanceToNextPoint = 10;
+        if(localG.isStairs(v)){
+            distanceToNextPoint = localG.getFloorWeight(v) - localG.getPointsAt(v);
+        }
+        else{
+            distanceToNextPoint = localG.getFloorWeight(v) - localG.getPointsAt(v);
+        }
+
         return distanceToNextPoint;
     }
-
-    private int getLocalTotalDistance(String current) {
+    private int getLocalTotalDistance(String current){
         int thisTotalDistance = getLocalDistanceFromGoal(current) + localG.getDistanceFromStart(current);
         return thisTotalDistance;
     }
 
-    private int getLocalDistanceFromGoal(String v) {
+    private int getLocalDistanceFromGoal(String v){
         localG.validateVertex(v);
         return Integer.parseInt(localDistanceFromGoal.get(v).toString());
-
     }
 
-    public String getGoalList(int index) {
-        return goalList.get(index);
+    public String getLocalGoalList(int index) {
+        return localGoalList.get(index);
+    }
+    public String removeLocalGoalList(int index) {
+        return localGoalList.remove(index);
+    }
+    public String getLocalGoalPointFirst() {
+        return localGoalList.get(0);
     }
 
-    public String removeGoalList(int index) {
-        return goalList.remove(index);
+    public static void logger(String logged){
+        //AlgoFXXSXXTrialX
+        File log = new File("AlgoAdapTestFloorandStairMod.txt");
+        try{
+            if(log.exists()==false){
+                System.out.println("We had to make a new file.");
+                log.createNewFile();
+            }
+            PrintWriter out = new PrintWriter(new FileWriter(log, true));
+            out.println(logged);
+            out.close();
+        }catch(IOException e){
+            System.out.println("COULD NOT LOG!!");
+        }
     }
 
-    public String getGoalPointFirst() {
-        return goalList.get(0);
-    }
-
-    public ArrayList<String> printPath() {
+    public ArrayList<String> printPath(String title, int trialNumber, int breakTime){
         ArrayList<String> path = new ArrayList<String>();
-        for (int i = 0; i < shortestPath.getLength(); i++) {
-
-
-            //System.out.println(shortestPath.getWayPoint(i));
-
+        for(int i =0; i<shortestPath.getLength(); i++){
             path.add(shortestPath.getWayPoint(i));
+        }
+        System.out.print("Waypoints of algorithm path: ");
+        System.out.println(path);
+        System.out.print("Length of shortest path: ");
+        System.out.println(shortestPath.getLength());
+        System.out.println("Length of weighted path: " + getWeightedDist());
+        System.out.print("Time-Length of shortest path: ");
+        System.out.println(getTimeLength());
+        System.out.println("You collected " + getCollectedPoints() +" points!");
+        System.out.println("You collected " + getQRCollected() +" QR Codes!");
 
-        }
-//        System.out.print("Waypoints of algorithm path: ");
-//        System.out.println(path);
-//        System.out.print("Length of shortest path: ");
-//        System.out.println(shortestPath.getLength());
-//        System.out.print("Time-Length of shortest path: ");
-//        System.out.println(getTimeLength());
-        if (localG.getBaseFloorWeight() == 10) {
-            System.out.println("You collected " + getCollectedPoints() + " points!");
-        } else {
-            System.out.println("You collected " + getCollectedPoints() / 10 + " points!");
-        }
-        System.out.println("You collected " + getQRCollected() + " QR Codes!");
-//    	 System.out.println(Algo.G.toString());
-//    	 System.out.println(path.get(path.size() - 2));
-//    	 System.out.println(path.get(1));
-//    	 System.out.println(shortestPath);
+
+//       logger(title + " Results");
+//       logger("Waypoints of algorithm path: " + path);
+//       logger("Length of shortest path: " + "\t" + shortestPath.getLength());
+//       logger("Length of weighted path: " + "\t" + getWeightedDist());
+//       logger("Time-Length of shortest path: " + "\t" + getTimeLength());
+//       logger("You collected " + "\t" + getCollectedPoints() + "\t" +" points!");
+//       logger("You collected " + "\t" + getQRCollected() + "\t" +" QR Codes!");
+
+        logger(title + "\t" + trialNumber + "\t" + localG.getBaseFloorWeight() +"\t" + localG.getStairWeight() +"\t" + breakTime +"\t" +shortestPath.getLength()+ "\t" + getWeightedDist()+ "\t" + getTimeLength()+ "\t" +  getCollectedPoints()+ "\t" +  getQRCollected());
         return path;
     }
-     
-    /* 
-     
-//     public void printPath() {
-//             Node node;
-//             for(int x=0; x<map.getMapWidth(); x++) {
-//
-//                     if (x==0) {
-//                             for (int i=0; i<=map.getMapWidth(); i++)
-//                                     System.out.print("-");
-//                             System.out.println();   
-//                     }
-//                     System.out.print("|");
-//
-//                     for(int y=0; y<map.getMapHeight(); y++) {
-//                             node = map.getNode(x, y);
-//                             if (node.isObstacle) {
-//                                     System.out.print("X");
-//                             } else if (node.isStart) {
-//                                     System.out.print("s");
-//                             } else if (node.isGoal) {
-//                                     System.out.print("g");
-//                             } else if (shortestPath.contains(node.getX(), node.getY())) {
-//                                     System.out.print("�");
-//                             } else {
-//                                     System.out.print(" ");
-//                             }
-//                             if (y==map.getMapHeight())
-//                                     System.out.print("_");
-//                     }
-//
-//                     System.out.print("|");
-//                     System.out.println();
-//             }
-//             for (int i=0; i<=map.getMapWidth(); i++)
-//                     System.out.print("-");
-//     }
-//     
-//     public void printMapWeightingPoint() {
-//         Node node;
-//         for(int x=0; x<map.getMapWidth(); x++) {
-//
-//                 if (x==0) {
-//                         for (int i=0; i<=map.getMapWidth(); i++)
-//                                 System.out.print("-");
-//                         System.out.println();   
-//                 }
-//                 System.out.print("|");
-//
-//                 for(int y=0; y<map.getMapHeight(); y++) {
-//                         node = map.getNode(x, y);
-//                         if (node.isObstacle) {
-//                                 System.out.print("X");
-//                         } else if (node.isStart) {
-//                                 System.out.print("s");
-//                         } else if (node.isGoal) {
-//                                 System.out.print("g");
-//                         } else if (node.pointValue < 0 && node.weighting > 0){
-//                         	System.out.print(node.weighting + node.pointValue);
-//                         } else if (node.pointValue > 0 && node.weighting > 0){
-//                             System.out.print(node.weighting + node.pointValue);
-//                         } else if (node.pointValue < 0) {
-//                         	System.out.print(node.pointValue);
-//                 		} else if (node.weighting > 0) {
-//                         	System.out.print(node.weighting);
-//                 		} else {
-//                                 System.out.print(" ");
-//                         }
-//                         if (y==map.getMapHeight())
-//                                 System.out.print("_");
-//                 }
-//
-//                 System.out.print("|");
-//                 System.out.println();
-//         }
-//         for (int i=0; i<=map.getMapWidth(); i++)
-//                 System.out.print("-");
-// }
-//     
-//     public void printRouteValue() {
-//         Node node;
-//         for(int x=0; x<map.getMapWidth(); x++) {
-//
-//                 if (x==0) {
-//                         for (int i=0; i<=map.getMapWidth(); i++)
-//                                 System.out.print("-");
-//                         System.out.println();   
-//                 }
-//                 System.out.print("|");
-//
-//                 for(int y=0; y<map.getMapHeight(); y++) {
-//                         node = map.getNode(x, y);
-//                         if (node.isObstacle) {
-//                                 System.out.print("X");
-//                         } else if (node.isStart) {
-//                                 System.out.print("s");
-//                         } else if (node.isGoal) {
-//                                 System.out.print("g");
-//                         } else if (shortestPath.contains(node.getX(), node.getY())) {
-//                             System.out.print(node.weighting + node.pointValue);
-//                         } else {
-//                                 System.out.print(" ");
-//                         }
-//                         if (y==map.getMapHeight())
-//                                 System.out.print("_");
-//                 }
-//
-//                 System.out.print("|");
-//                 System.out.println();
-//         }
-//         for (int i=0; i<=map.getMapWidth(); i++)
-//                 System.out.print("-");
-// }
-//
-//     public void printMapAllValues() {
-//         Node node;
-//         for(int x=0; x<map.getMapWidth(); x++) {
-//
-//                 if (x==0) {
-//                         for (int i=0; i<=map.getMapWidth(); i++)
-//                                 System.out.print("-");
-//                         System.out.println();   
-//                 }
-//                 System.out.print("|");
-//
-//                 for(int y=0; y<map.getMapHeight(); y++) {
-//                         node = map.getNode(x, y);
-//                         if (node.isObstacle) {
-//                                 System.out.print("X");
-//                         } else if (node.isStart) {
-//                                 System.out.print("s");
-//                         } else if (node.isGoal) {
-//                                 System.out.print("g");
-//                         } else {
-//                         	System.out.print(node.weighting + node.pointValue);
-//                         } 
-//                         if (y==map.getMapHeight())
-//                                 System.out.print("_");
-//                 }
-//
-//                 System.out.print("|");
-//                 System.out.println();
-//         }
-//         for (int i=0; i<=map.getMapWidth(); i++)
-//                 System.out.print("-");
-// }*/
+
+    ArrayList<String> getPath(){
+        ArrayList<String> path = new ArrayList<String>();
+        for(int i =0; i<shortestPath.getLength(); i++){
+            path.add(shortestPath.getWayPoint(i));
+        }
+        return path;
+    }
+
+//    public ArrayList<String> getPath(){
+//        ArrayList<String> path = new ArrayList<String>();
+//        for(int i =0; i<shortestPath.getLength(); i++){
+//            path.add(shortestPath.getWayPoint(i));
+//        }
+//        return path;
+//    }
+
+    public int getWeightedDist(){
+        return weightedDist;
+    }
 
     public int getTimeLength() {
         return timeLength;
     }
-
     public int getCollectedPoints() {
-        return pointsCollected;
-    }
 
+    	return pointsCollected;
+
+    }
     public int getQRCollected() {
         return qrCollected;
     }
@@ -809,82 +719,15 @@ public class Algo {
     private Path reconstructPath(ArrayList<String> cameFromList) {
         Path path = new Path();
 
-        for (String uu : cameFromList) {
+        for(String uu:cameFromList){
             path.appendWayPoint(uu);
 
         }
-        this.shortestPath = path;
+        this.shortestPath = new Path(path);
+        if(shortestPath.getLength()< shortPathLength){
+        	shortPathLength = shortestPath.getLength();
+        }
         return path;
     }
-  
-     /*
-//     private class SortedNodeList {
-//
-//             private ArrayList<String> list = new ArrayList<String>();
-//             private int distanceFromStart;
-//
-//             public String getFirst() {
-//                     return list.get(0);
-//             }
-//
-//             public String get(int i) {
-//
-//				return list.get(i);
-//			}
-//
-//			public void clear() {
-//                     list.clear();
-//             }
-//
-//             public void add(String node, int distanceFromStart) {
-//                     list.add(node , distanceFromStart);
-//                     Collections.sort(list);
-//             }
-//
-//             public void remove(String n) {
-//                     list.remove(n);
-//             }
-//
-//             public int size() {
-//                     return list.size();
-//             }
-//
-//             public boolean contains(String n) {
-//                     return list.contains(n);
-//             }
-//     }
-//     public class SortedGoalsList {
-//
-//	        private ArrayList<Goals> list = new ArrayList<Goals>();
-//
-//	        public Goals getFirst() {
-//	                return list.get(0);
-//	        }
-//
-//	        public Goals get(int i) {
-//
-//				return list.get(i);
-//			}
-//
-//			public void clear() {
-//	                list.clear();
-//	        }
-//
-//	        public void add(Goals goals) {
-//	                list.add(goals);
-//	                Collections.sort(list);
-//	        }
-//
-//	        public void remove(Goals n) {
-//	                list.remove(n);
-//	        }
-//
-//	        public int size() {
-//	                return list.size();
-//	        }
-//
-//	        public boolean contains(Goals n) {
-//	                return list.contains(n);
-//	        }
-//	}*/
+
 }

@@ -57,10 +57,10 @@ public class FingerprintMatchingAlg {
 
         if (dataPoints.size() > 0) {
             String graphVertex = currentBuilding + ":" + currentFloor + ":" + String.valueOf(pos);
-            Log.d("alg check location", graphVertex);
+//            Log.d("alg check location", graphVertex);
 
             if (G.hasVertex(graphVertex)) {
-                Log.d("alg check location 1", graphVertex + " - found in Graph!");
+//                Log.d("alg check location 1", graphVertex + " - found in Graph!");
 
                 //this method returns an Iterable<String> object with all the neighbor Node strings
                 Iterable<String> neighbors = G.adjacentTo(graphVertex);
@@ -146,7 +146,7 @@ public class FingerprintMatchingAlg {
 
                 //if  no results found within 2 edges...something probably wrong - include all points
                 if (edit0.size() == 0) {
-                    Log.d("alg", "no points nearby - include all");
+//                    Log.d("alg", "no points nearby - include all");
                     edit0 = dataPoints;
                 }
 
@@ -475,7 +475,7 @@ public class FingerprintMatchingAlg {
 
 
         //Scoring//
-        int missingRouter = 100; //have tried using missingRouter=30,50
+        int missingRouter = 120; //have tried using missingRouter=30,50
         int weightForDifferenceInStrength = 1;
         //////////
 
@@ -517,7 +517,7 @@ public class FingerprintMatchingAlg {
                 }
             }
             //important print statement for 2nd alg performance
-            Log.d("2nd alg", obj.printNodeString() + " : " + String.valueOf(routersMatched) + " routers matched : " + pointsForGridObject + " points");
+//            Log.d("2nd alg", obj.printNodeString() + " : " + String.valueOf(routersMatched) + " routers matched : " + pointsForGridObject + " points");
 
             scores[i] = pointsForGridObject;
         }
@@ -544,7 +544,7 @@ public class FingerprintMatchingAlg {
 //            firstAttempt=true;
         finalResult = data.get(finalIndex);
         result = finalResult;
-        Log.d("2nd alg result", result.printNodeString());
+//        Log.d("2nd alg result", result.printNodeString());
         return finalResult;
 //        }
     }

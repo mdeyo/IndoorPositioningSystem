@@ -23,7 +23,7 @@ public class ChooseNavModeAndGoal extends Activity {
     Switch scanOptionSwitch, matchOptionSwitch, sideViewOptionSwitch;
 
     enum NavMode {
-        NONE, ADAPTIVE, ADAPTABLE
+        NONE, ADAPTIVE, ADAPTABLE, WALK
     }
 
     NavMode currentMode = NavMode.NONE;
@@ -46,13 +46,15 @@ public class ChooseNavModeAndGoal extends Activity {
         matchOptionSwitch.setSwitchTextAppearance(getApplicationContext(), R.style.SwitchTextAppearance);
         sideViewOptionSwitch.setSwitchTextAppearance(getApplicationContext(), R.style.SwitchTextAppearance);
 
-        //TODO hide switches for now
-
+        //TODO - this class isn't being used anymore - replaced by ChooseTrial
 
         AdaptableB.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 currentMode = NavMode.ADAPTABLE;
                 Assets.setMode("adaptable");
+//                currentMode = NavMode.WALK;
+//                Assets.setMode("walk");
+
                 AdaptableB.setBackgroundResource(R.drawable.round_button_highlighted);
                 AdaptiveB.setBackgroundResource(R.drawable.round_button_outline);
             }
