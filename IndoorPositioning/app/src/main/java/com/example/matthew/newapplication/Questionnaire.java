@@ -1,5 +1,6 @@
 package com.example.matthew.newapplication;
 
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -9,12 +10,14 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.example.matthew.newapplication.MainActivity;
+import com.example.matthew.newapplication.R;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -30,10 +33,11 @@ import java.util.ArrayList;
 public class Questionnaire extends Activity {
 
     private TextView question;
-    private TextView leftText, rightText;
-    private String userName, currentQ, surveyName;
+    private TextView leftText, middleText, rightText;
+    private String userName;
+    private String currentQ, surveyName;
     private Button nextQ;
-    private Button pre, mid, between, sa, last;
+    private Button pre,post, mid, between, sa, last;
     private FileWriter writer;
     private File logFile;
     private ArrayList<String> questionsList = new ArrayList<String>();
@@ -49,6 +53,7 @@ public class Questionnaire extends Activity {
         setContentView(R.layout.activity_questionnaire);
 
         pre = (Button) findViewById(R.id.preButton);
+        post = (Button) findViewById(R.id.postButton);
         mid = (Button) findViewById(R.id.midBlockButton);
         between = (Button) findViewById(R.id.betweenBlockButton);
         sa = (Button) findViewById(R.id.saButton);
@@ -62,6 +67,7 @@ public class Questionnaire extends Activity {
         slideBar = (SeekBar) findViewById(R.id.slideBar);
         slider = (RelativeLayout) findViewById(R.id.sliderLayout);
         leftText = (TextView) findViewById(R.id.leftText);
+        middleText = (TextView) findViewById(R.id.middleText);
         rightText = (TextView) findViewById(R.id.rightText);
 
         onlyButtons();
@@ -72,25 +78,30 @@ public class Questionnaire extends Activity {
                 initializeQuestions("PreTrainingSurvey");
             }
         });
-
+        post.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+                surveyName = "PostTrainingSurvey";
+                initializeQuestions("PostTrainingSurvey");
+            }
+        });
         mid.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
-                surveyName = "MidBlockSurvey";
-                initializeQuestions("MidBlockSurvey");
+                surveyName = "EveryThirdTrialSurvey";
+                initializeQuestions("EveryThirdTrialSurvey");
             }
         });
 
         between.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
-                surveyName = "BetweenBockSurvey";
-                initializeQuestions("BetweenBlockSurvey");
+                surveyName = "EveryTrialSurvey";
+                initializeQuestions("EveryTrialSurvey");
             }
         });
 
         sa.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
-                surveyName = "SASurvey";
-                initializeQuestions("SASurvey");
+                surveyName = "EverySixthTrialSurvey";
+                initializeQuestions("EverySixthTrialSurvey");
             }
         });
 
@@ -138,10 +149,10 @@ public class Questionnaire extends Activity {
 
     private void clickNextQButton() {
         if (questionNumber == 0) {
-            userName = input.getText().toString();
+            userName = numberInput.getText().toString();
             questionNumber = 1;
-            input.setVisibility(View.GONE);
-            slider.setVisibility(View.VISIBLE);
+            numberInput.setText("");
+            numberInput.setVisibility(View.GONE);
             updateQuestion();
             setupLog();
         } else {
@@ -189,8 +200,8 @@ public class Questionnaire extends Activity {
             hideButtons();
 //            nextQ.setVisibility(View.VISIBLE);
             question.setVisibility(View.VISIBLE);
-            input.setVisibility(View.VISIBLE);
-            //initialize array of questions and choices from file MidBlockSurvey
+            numberInput.setVisibility(View.VISIBLE);
+            //initialize array of questions and choices from file EveryThirdTrialSurvey
             AssetManager assetManager = getResources().getAssets();
             InputStream is = assetManager.open(filename);
             BufferedReader r = new BufferedReader(new InputStreamReader(is));
@@ -240,6 +251,7 @@ public class Questionnaire extends Activity {
                 question.setText(nextQuestion.substring(2));
                 slider.setVisibility(View.VISIBLE);
                 leftText.setText("1\nStrongly\nDisagree");
+                middleText.setText("3\nNeutral");
                 rightText.setText("5\nStrongly\nAgree");
                 nextQ.setVisibility(View.VISIBLE);
             } else if (nextQuestion.startsWith("N")) {
@@ -251,6 +263,7 @@ public class Questionnaire extends Activity {
                 question.setText(nextQuestion.substring(2));
                 slider.setVisibility(View.VISIBLE);
                 leftText.setText("1\nLow");
+                middleText.setText("3\nModerate");
                 rightText.setText("5\nHigh");
                 nextQ.setVisibility(View.VISIBLE);
             } else if (nextQuestion.startsWith("W")) {

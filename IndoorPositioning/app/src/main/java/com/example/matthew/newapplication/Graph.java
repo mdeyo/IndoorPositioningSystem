@@ -1,9 +1,9 @@
+//package com.example.matthew.newapplication;
 package com.example.matthew.newapplication;
-
 //import android.content.res.AssetManager; Used by Matt
 //import android.util.Log;   Used by Matt
 
-import android.util.Log;
+//import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -71,9 +71,8 @@ public class Graph implements Cloneable {
     /**
      * Create an empty graph with no vertices or edges.
      */
-//Will NOT Work because I'd have to deep clone/copy all of the objects within Graph and this is a pain the @$$ so I'm hard coding stuff instead
-    //Maybe it can work...
-    public Graph(Graph g, int stairM, int floorM)  {
+
+    public Graph(Graph g, int stairM, int floorM) {
 //    	this.st = new ST<String, SET<String>>(g.st);
 
         this.st = new ST<String, SET<String>>();
@@ -90,38 +89,44 @@ public class Graph implements Cloneable {
         this.floorWeight = new HashMap(g.floorWeight);
         this.start = g.start;
         this.goal = g.goal;
-        this.obstacle = new ArrayList(g.obstacle);
+//        this.obstacle = new ArrayList(g.obstacle);
+        this.obstacle = g.obstacle;
+
         this.thisTotalDistance = g.thisTotalDistance;
         this.stairs = new ArrayList(g.stairs);
-        this.baseFloorWeight = g.baseFloorWeight;
-        this.stairWeight = g.stairWeight;
+        
+        //TODO Matt, I think the two lines below are the only ones I actually changed
+        this.baseFloorWeight = g.baseFloorWeight+floorM;
+        this.stairWeight = g.baseFloorWeight+stairM;
         this.stairMod = stairM;
         this.floorMod = floorM;
-
-//        System.out.println("stairM "+String.valueOf(stairMod));
         floorModThisGraph(g);
+        
+
 
     }
 
     private void floorModThisGraph(Graph g) {
-        for(int m=0; m < g.toList(g.vertices()).size(); m++){
-            String current = g.toList(g.vertices()).get(m);
-            if(getFloorWeight(current) == baseFloorWeight && !isStairs(current)){
-                continue;
+    	 for(int m=0; m < g.toList(g.vertices()).size(); m++){
+             String current = g.toList(g.vertices()).get(m);
+             if(getFloorWeight(current) == baseFloorWeight && !isStairs(current)){
+            	 continue;
+            	 
+             }
+             else{
+            	 int changedWeight = getFloorWeightMod(current);
+            	 floorWeight.remove(current);
+            	 floorWeight.put(current, changedWeight);
+             }
 
-            }
-            else{
-                int changedWeight = getFloorWeightMod(current);
-                floorWeight.remove(current);
-                floorWeight.put(current, changedWeight);
-            }
-        }
+             
+    	 }
+    	
 
-    }
 
-    public Graph() {
-        st = new ST<String, SET<String>>();
-    }
+		
+	}
+
     /**
      * Create an graph from given input stream using given delimiter.
      */
@@ -175,36 +180,14 @@ public class Graph implements Cloneable {
             e.printStackTrace();
         }
 
-
-
-//        st = new ST<String, SET<String>>();
-//        points = new HashMap();
-//        while (in.hasNextLine()) {
-//            String line = in.readLine();
-//            String[] names = line.split(delimiter);
-//            if (!points.containsKey(names[0])) {
-//                points.put(names[0], names[1]);
-//            }
-//            if (!floorWeight.containsKey(names[0])) {
-//                floorWeight.put(names[0], names[2]);
-////                if(Integer.parseInt(names[2])>baseFloorWeight){
-////                	stairs.add(names[0]);
-////                }
-//            }
-//            for (int i = 3; i < names.length; i++) {
-//                addEdge(names[0], names[i]);
-//            }
-//        }
-//
-//        for (String n : stairs) {
-//            floorWeight.remove(n);
-//            floorWeight.put(n, stairWeight);
-//        }
     }
 
-    /*
+	public Graph() {
+        st = new ST<String, SET<String>>();
+    }
 
-    public Graph(In in, String delimiter, int baseWeight, int stairW) {
+
+    public Graph(In in, String delimiter, int baseWeight, int stairW) {//, int stairM, int floorM) {
 
         st = new ST<String, SET<String>>();
         points = new HashMap();
@@ -219,6 +202,8 @@ public class Graph implements Cloneable {
         stairs = new ArrayList<String>();
         baseFloorWeight = baseWeight;
         stairWeight = stairW;
+        stairMod = 0;
+        floorMod = 0;
         String[] stairList = {"33:0:99", "33:0:118", "33:0:129", "33:1:26", "33:1:69", "33:1:74", "33:1:94", "33:1:107",
                 "33:2:45", "33:2:50", "33:2:70", "33:2:74", "33:3:74", "33:3:94", "33:4:73", "33:4:94",
                 "35:0:120", "35:0:142", "35:1:96", "35:1:120", "35:1:142", "35:2:120", "35:2:142", "35:3:120",
@@ -236,10 +221,11 @@ public class Graph implements Cloneable {
             }
             /////////////////////
             if (!floorWeight.containsKey(names[0])) {
-                floorWeight.put(names[0], names[2]);
-//                if(Integer.parseInt(names[2])>baseFloorWeight){
-//                	stairs.add(names[0]);
-//                }
+            	floorWeight.put(names[0], baseFloorWeight);
+//              floorWeight.put(names[0], names[2]);
+//              if(Integer.parseInt(names[2])>baseFloorWeight){
+//              	stairs.add(names[0]);
+//              }
             }
             for (int i = 3; i < names.length; i++) {
                 addEdge(names[0], names[i]);
@@ -247,12 +233,11 @@ public class Graph implements Cloneable {
         }
 
 
-        for (String n : stairs) {
-            floorWeight.remove(n);
-            floorWeight.put(n, stairWeight);
-        }
+//        for (String n : stairs) {
+//            floorWeight.remove(n);
+//            floorWeight.put(n, baseFloorWeight); //stairWeight);
+//        }
     }
-    */
 
 
 //    @Override
@@ -286,7 +271,6 @@ public class Graph implements Cloneable {
     public int getStairWeight() {
         return stairWeight;
     }
-
     public int getTotalDistance(String current){
         int thisTotalDistance = getDistanceFromGoal(current) + getDistanceFromStart(current);
         return thisTotalDistance;
@@ -311,7 +295,11 @@ public class Graph implements Cloneable {
 
 
                 for(String n: nList){
-                    int nDistance = distance - G.getPointsAt(n) + G.getFloorWeight(n);
+                	int nDistance = 0;
+    					nDistance = distance - G.getPointsAt(n) + G.getFloorWeight(n);	
+
+
+//                    int nDistance = distance - G.getPointsAt(n) + G.getFloorWeight(n);
                     if(!distanceFromGoal.containsKey(n)){
                         distanceFromGoal.put(n, nDistance);
                         if(!oldNeighbor.contains(n)){
@@ -323,25 +311,23 @@ public class Graph implements Cloneable {
 
                     }
                 }}}}
-
-
     public int getStairMod() {
-        return stairMod;
-    }
+		return stairMod;
+	}
 
-    public void setStairMod(int stairMod) {
-        this.stairMod = stairMod;
-    }
+	public void setStairMod(int stairMod) {
+		this.stairMod = stairMod;
+	}
 
-    public int getFloorMod() {
-        return floorMod;
-    }
+	public int getFloorMod() {
+		return floorMod;
+	}
 
-    public void setFloorMod(int floorMod) {
-        this.floorMod = floorMod;
-    }
+	public void setFloorMod(int floorMod) {
+		this.floorMod = floorMod;
+	}
 
-    public void setDistanceFromStart(String node, int num){
+	public void setDistanceFromStart(String node, int num){
 
 
         distanceFromStart.put(node, num);
@@ -464,12 +450,14 @@ public class Graph implements Cloneable {
         this.points.remove(v);
         this.points.put(v,0);
     }
-
+    
     public void assignPoints(String v, int newValue) {
-        this.points.remove(v);
-        this.points.put(v, newValue);
+    	
+    	this.points.remove(v);
+    	this.points.put(v, newValue);
     }
-
+    
+    
     public void doublePoints(String v) {
         int newPoints = getPointsAt(v)*2;
         removePoints(v);
@@ -478,22 +466,23 @@ public class Graph implements Cloneable {
     }
     public int getFloorWeight(String v){
         validateVertex(v);
+        
         return Integer.parseInt(floorWeight.get(v).toString());
 
     }
-
+    
     public int getFloorWeightMod(String v){
         validateVertex(v);
-        if(isStairs(v)){
-            return (getFloorWeight(v) + stairMod);
-        }
-        else{
-            return (getFloorWeight(v) + floorMod);
-        }
-
+		if(isStairs(v)){
+			return (getFloorWeight(v) + stairMod);	
+		}
+		else{
+			return (getFloorWeight(v) + floorMod);
+		}
+       
 
     }
-
+    
     public void gradientGraph(Graph Gmap){
 
         ArrayList <String> goals = new ArrayList<String>();
@@ -752,6 +741,32 @@ public class Graph implements Cloneable {
         st.delete(v);
     }
 
+//    Graph updateConnections(){
+//
+//        ST<String, SET<String>> st2 = new ST<>();
+//
+//        for(String s:st){
+//            SET<String> edges = st.get(s);
+//            SET<String> newEdges = new SET<>();
+//            for(String neighbor:edges){
+//                if(st.contains(neighbor)){
+//                    newEdges.add(neighbor);
+//                }
+//            }
+//            st2.put(s,newEdges);
+//        }
+//
+//        Log.d("remove st",st.get("35:2:142").toString());
+//        Log.d("remove st2",st2.get("35:2:142").toString());
+//
+//        st.clear();
+//        st = st2;
+//
+//        Log.d("removed st",st.get("35:2:142").toString());
+//
+//        return this;
+//    }
+
     Graph updateConnections(){
 
         ST<String, SET<String>> st2 = new ST<>();
@@ -767,16 +782,18 @@ public class Graph implements Cloneable {
             st2.put(s,newEdges);
         }
 
-        Log.d("remove st",st.get("35:2:142").toString());
-        Log.d("remove st2",st2.get("35:2:142").toString());
+//        Log.d("remove st",st.get("35:2:142").toString());
+//        Log.d("remove st2",st2.get("35:2:142").toString());
 
         st.clear();
         st = st2;
 
-        Log.d("removed st",st.get("35:2:142").toString());
+//        Log.d("removed st",st.get("35:2:142").toString());
 
         return this;
     }
+
+
 
 
 

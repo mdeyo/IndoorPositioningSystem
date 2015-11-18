@@ -360,7 +360,7 @@
             android:translationZ="10dp"
             android:id="@+id/sideView"
             android:scaleType="fitXY"
-            android:src="@drawable/side_view_clear_0_2"/>
+            android:src="@drawable/side_view_clear_0_3"/>
 
 
         <TextView
@@ -402,7 +402,7 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:scaleType="fitXY"
-        android:src="@drawable/side_view_clear_0_2"
+        android:src="@drawable/side_view_clear_0_3"
         android:alpha="0.7"
         android:padding="2dp"
         android:background="@drawable/round_button_outline">
@@ -680,7 +680,7 @@
         <RelativeLayout
             android:id="@+id/button_1"
             android:clickable="true"
-            android:layout_width="380dp"
+            android:layout_width="420dp"
             android:layout_height="80dp"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
@@ -723,6 +723,17 @@
                 android:textStyle="bold"
                 android:textColor="#1F497D"
                 android:textSize="18dp"/>
+            
+            <ImageView
+                android:id="@+id/speed_icon1"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/speedy"
+                android:layout_toRightOf="@+id/button1time"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+
+                />
 
         </RelativeLayout>
 
@@ -775,6 +786,16 @@
                 android:textColor="#1F497D"
                 android:textSize="18dp"/>
 
+            <ImageView
+                android:id="@+id/speed_icon2"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/speedy"
+                android:layout_toRightOf="@+id/button2time"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                />
+
         </RelativeLayout>
 
         <RelativeLayout
@@ -822,6 +843,16 @@
                 android:textStyle="bold"
                 android:textColor="#1F497D"
                 android:textSize="18dp"/>
+
+            <ImageView
+                android:id="@+id/speed_icon3"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/speedy"
+                android:layout_toRightOf="@+id/button3time"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                />
 
         </RelativeLayout>
 

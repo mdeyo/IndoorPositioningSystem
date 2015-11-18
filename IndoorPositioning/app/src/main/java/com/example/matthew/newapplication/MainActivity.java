@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
 
 
 public class MainActivity extends Activity {
-    private Button buildButton, runButton, wifiButton, qButton, sideButton;
+    private Button buildButton, runButton, questionButton, wifiButton, qButton, sideButton;
     ImageView mapWithPin;
     TextView title, loadingText;
     private DrawingView drawView;
@@ -226,7 +226,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        qButton.setVisibility(View.GONE);
+//        qButton.setVisibility(View.GONE);
         sideButton.setVisibility(View.GONE);
 
     }

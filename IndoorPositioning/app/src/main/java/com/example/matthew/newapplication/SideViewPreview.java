@@ -14,6 +14,14 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.matthew.newapplication.Assets;
+import com.example.matthew.newapplication.DrawingView;
+import com.example.matthew.newapplication.Graph;
+import com.example.matthew.newapplication.HighPointPriority;
+import com.example.matthew.newapplication.Point;
+import com.example.matthew.newapplication.QRLocationXY;
+import com.example.matthew.newapplication.R;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -209,7 +217,7 @@ public class SideViewPreview extends Activity {
 //
 //        String filename = "SamplePath"+n;
 //        try {
-//            //initialize array of questions and choices from file MidBlockSurvey
+//            //initialize array of questions and choices from file EveryThirdTrialSurvey
 //            AssetManager assetManager = getResources().getAssets();
 //            InputStream is = assetManager.open(filename);
 //            BufferedReader r = new BufferedReader(new InputStreamReader(is));

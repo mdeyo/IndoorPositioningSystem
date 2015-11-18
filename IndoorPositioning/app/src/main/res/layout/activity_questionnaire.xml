@@ -8,7 +8,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:gravity="center"
-        android:text="Input your first name:"
+        android:text="Input your subject number:"
         android:id="@+id/question"
         android:layout_alignParentTop="true"
         android:layout_marginTop="50dp"
@@ -20,44 +20,59 @@
     android:layout_height="fill_parent"
     android:id="@+id/buttonLayout"
     android:orientation="vertical"
+    android:padding="10dp"
+    android:layout_above="@+id/result"
     android:layout_centerHorizontal="true"
-    android:padding="10dp">
+    android:weightSum="1">
     <Button
         android:layout_width="180dp"
-        android:layout_height="80dp"
+        android:layout_height="61dp"
         android:text="Pre-Training Survey"
         android:id="@+id/preButton"
         android:layout_marginTop="40dp"
-        android:background="@drawable/round_button_outline"/>
+        android:background="@drawable/round_button_outline"
+        android:layout_weight="0.00" />
 
     <Button
         android:layout_width="180dp"
-        android:layout_height="80dp"
-        android:text="Mid-Block Survey"
-        android:id="@+id/midBlockButton"
+        android:layout_height="wrap_content"
+        android:text="Post-Training Survey"
+        android:id="@+id/postButton"
         android:layout_marginTop="10dp"
-        android:background="@drawable/round_button_outline"/>
+        android:background="@drawable/round_button_outline"
+        android:layout_weight="0.07" />
 
     <Button
         android:layout_width="180dp"
-        android:layout_height="80dp"
-        android:text="Between Block Survey"
+        android:layout_height="wrap_content"
+        android:text="Every Trial Survey"
         android:id="@+id/betweenBlockButton"        android:layout_marginTop="10dp"
 
-        android:background="@drawable/round_button_outline"/>
+        android:background="@drawable/round_button_outline"
+        android:layout_weight="0.08" />
 
     <Button
         android:layout_width="180dp"
-        android:layout_height="80dp"
-        android:text="SA Survey"
+        android:layout_height="wrap_content"
+        android:text="Every 3rd Trial Survey"
+        android:id="@+id/midBlockButton"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/round_button_outline"
+        android:layout_weight="0.06" />
+
+    <Button
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:text="Every 6th Trial Survey"
         android:id="@+id/saButton"        android:layout_marginTop="10dp"
 
-        android:background="@drawable/round_button_outline"/>
+        android:background="@drawable/round_button_outline"
+        android:layout_weight="0.05" />
 
     <Button
         android:layout_width="180dp"
-        android:layout_height="80dp"
-        android:text="Final Survey"
+        android:layout_height="59dp"
+        android:text="Every 12th Trial Survey"
         android:id="@+id/finalButton"        android:layout_marginTop="10dp"
 
         android:background="@drawable/round_button_outline"/>
@@ -120,7 +135,6 @@
             android:layout_centerHorizontal="true"
             android:layout_below="@+id/slideBar"
             android:id="@+id/middleText"
-            android:text="\nNeutral\n"
             android:layout_marginTop="-10dp"
             />
 

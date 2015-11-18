@@ -33,8 +33,13 @@ public class Assets {
     public static Map<String, QRCodeLocation> QRMap = new HashMap<String, QRCodeLocation>();
     public static ArrayList<String> QRLocations = new ArrayList<>();
     public static ArrayList<String> nodeList;
-    public static ArrayList<String> floor35_2  = new ArrayList<>();;
-    public static ArrayList<String> floor35_3  = new ArrayList<>();;
+    public static ArrayList<String> floor35_2  = new ArrayList<>();
+    public static ArrayList<String> floor35_3  = new ArrayList<>();
+    public static ArrayList<String> floor37_2  = new ArrayList<>();
+    public static ArrayList<String> floor37_3  = new ArrayList<>();
+    public static ArrayList<String> floor37_4  = new ArrayList<>();
+    public static ArrayList<String> floor37_5  = new ArrayList<>();
+
 
     public static ArrayList<GridData> strongerDataList = new ArrayList<GridData>();
 
@@ -136,11 +141,11 @@ public class Assets {
     public static RunMode.fingerprintMatchingMode matchingMode = RunMode.fingerprintMatchingMode.INCLUDE_PREVIOUS;
     public static RunMode.sidePathMode sideMode = RunMode.sidePathMode.DYNAMIC;
 
-    public String inputFileName = "Trial1R";
+//    public String inputFileName = "Trial3";
 
     public static Activity act;
     public static SoundPool soundPool = new SoundPool(4, AudioManager.STREAM_MUSIC, 0);
-    public static int updateSound,alertSound;
+    public static int updateSound,alertSound,gameboySound,victorySound;
 
     final static int numberOfQRCodes = 37;
 
@@ -341,6 +346,86 @@ public class Assets {
         }
 
         try {
+            InputStream is = as.open("Floor37_2");
+            BufferedReader r = new BufferedReader(new InputStreamReader(is));
+            String line;
+            if (is != null) {
+                while ((line = r.readLine()) != null) {
+                    if (line.startsWith("//")) {
+                        //nothing
+                    } else {
+                        floor37_2.add(line);
+                    }
+
+                }
+            }
+            r.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            InputStream is = as.open("Floor37_3");
+            BufferedReader r = new BufferedReader(new InputStreamReader(is));
+            String line;
+            if (is != null) {
+                while ((line = r.readLine()) != null) {
+                    if (line.startsWith("//")) {
+                        //nothing
+                    } else {
+                        floor37_3.add(line);
+                    }
+
+                }
+            }
+            r.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            InputStream is = as.open("Floor37_4");
+            BufferedReader r = new BufferedReader(new InputStreamReader(is));
+            String line;
+            if (is != null) {
+                while ((line = r.readLine()) != null) {
+                    if (line.startsWith("//")) {
+                        //nothing
+                    } else {
+                        floor37_4.add(line);
+                    }
+
+                }
+            }
+            r.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            InputStream is = as.open("Floor37_5");
+            BufferedReader r = new BufferedReader(new InputStreamReader(is));
+            String line;
+            if (is != null) {
+                while ((line = r.readLine()) != null) {
+                    if (line.startsWith("//")) {
+                        //nothing
+                    } else {
+                        floor37_5.add(line);
+                    }
+
+                }
+            }
+            r.close();
+            is.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
             InputStream is = as.open("RegionCoords");
             BufferedReader r = new BufferedReader(new InputStreamReader(is));
             String[] brokenLine;
@@ -388,7 +473,9 @@ public class Assets {
         }
 
         updateSound = soundPool.load(act,R.raw.industrial_alarm,1);
-        alertSound = soundPool.load(act,R.raw.red_alert_2,1);
+        alertSound = soundPool.load(act,R.raw.red_alert_1,1);
+        gameboySound = soundPool.load(act,R.raw.gameboy,1);
+//        victorySound = soundPool.load(act,R.raw.victory,1);
     }
 
     static void setRunModeActivity(RunMode rm){currentRunMode=rm;}
@@ -403,6 +490,10 @@ public class Assets {
 
     static void playAlertSound(){
         soundPool.play(alertSound, 0.5f, 0.5f,1, 0, 1.0f);
+    }
+
+    static void playGameboySound(){
+        soundPool.play(gameboySound, 0.5f, 0.5f,1, 0, 1.0f);
     }
 
     public static void saveData(ArrayList<GridData> dataList) {
