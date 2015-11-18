@@ -77,14 +77,14 @@ public class RunMode extends Activity implements SensorEventListener {
 //    int UPDATE_9R_TIME=120*1000;
 //    int UPDATE_11_TIME=80*1000;
 
-    int UPDATE_1_TIME=90*1000;
-    int UPDATE_2_TIME=90*1000;
-    int UPDATE_3_TIME=30*1000;
-    int UPDATE_4_TIME=90*1000;
-    int UPDATE_5_TIME=60*1000;
-    int UPDATE_6_TIME=50*1000;
-    int UPDATE_7_TIME=40*1000;
-    int UPDATE_8_TIME=50*1000;
+    int UPDATE_1_TIME=60*1000;
+    int UPDATE_2_TIME=30*1000;
+    int UPDATE_3_TIME=20*1000;
+    int UPDATE_4_TIME=60*1000;
+    int UPDATE_5_TIME=40*1000;
+    int UPDATE_6_TIME=35*1000;
+    int UPDATE_7_TIME=25*1000;
+    int UPDATE_8_TIME=30*1000;
 
     ArrayList<String> goalList = new ArrayList<String>();
     ArrayList<String> goalListAdp1 = new ArrayList<String>();
